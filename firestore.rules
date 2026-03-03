@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // --- Helper Functions ---
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Fetch user role from 'users' collection
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.role;
+    }
+    
+    function isSuperAdmin() {
+      return getUserRole() == 'super_admin';
+    }
+    
+    function isAdmin() {
+      return getUserRole() == 'admin';
+    }
+    // --- Users Collection ---
+    match /users/{email} {
+      allow read: if isAuthenticated();
+      // Allow users to write their own profile, or Super Admins to write any
+      allow write: if isAuthenticated() && (request.auth.token.email == email || isSuperAdmin());
+    }
+    // --- Companies Collection ---
+    match /companies/{companyId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isSuperAdmin();
+    }
+    // --- Proposals Collection ---
+    match /proposals/{proposalId} {
+      // Create: Allow any authenticated user to create a proposal
+      allow create: if isAuthenticated();
+      // Read: Allow Owner, Admin of same company, or Super Admin
+      allow read: if isAuthenticated() && (
+        resource.data.createdBy == request.auth.token.email ||
+        resource.data.sharedWith.hasAny([request.auth.token.email]) ||
+        (isAdmin() && resource.data.companyId == get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.companyId) ||
+        isSuperAdmin()
+      );
+      // Update: Allow Owner, Admin of same company, or Super Admin
+      allow update: if isAuthenticated() && (
+        resource.data.createdBy == request.auth.token.email ||
+        (isAdmin() && resource.data.companyId == get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.companyId) ||
+        isSuperAdmin()
+      );
+      // Delete: Allow Owner, Admin of same company, or Super Admin
+      allow delete: if isAuthenticated() && (
+        resource.data.createdBy == request.auth.token.email ||
+        (isAdmin() && resource.data.companyId == get(/databases/$(database)/documents/users/$(request.auth.token.email)).data.companyId) ||
+        isSuperAdmin()
+      );
+    }
+  }
+} 
