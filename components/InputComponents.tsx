@@ -11,7 +11,7 @@ export const FormInput: React.FC<InputProps> = ({ label, error, className, ...pr
   <div className="flex flex-col gap-1.5 mb-4 w-full">
     <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80">{label}</label>
     <input
-      className={`bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-white placeholder-white/[0.45] focus:ring-2 focus:ring-ai-accent/30 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${error ? 'border-red-500/60' : ''} ${className}`}
+      className={`bg-[rgba(20,24,30,0.8)] border border-white/[0.08] rounded-xl px-4 py-3 text-white placeholder-white/[0.45] focus:ring-2 focus:ring-ai-accent/30 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${error ? 'border-red-500/60' : ''} ${className}`}
       {...props}
     />
     {error && <span className="text-xs text-red-400 mt-0.5">{error}</span>}
@@ -27,7 +27,7 @@ export const FormSelect: React.FC<SelectProps> = ({ label, options, className, .
   <div className="flex flex-col gap-1.5 mb-4 w-full">
     <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80">{label}</label>
     <select
-      className={`bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-ai-accent/30 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${className}`}
+      className={`bg-[rgba(20,24,30,0.8)] border border-white/[0.08] rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-ai-accent/30 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${className}`}
       {...props}
     >
       {options.map((opt) => (
@@ -40,7 +40,7 @@ export const FormSelect: React.FC<SelectProps> = ({ label, options, className, .
 );
 
 export const FormCheckbox: React.FC<{ label: string; checked: boolean; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }> = ({ label, checked, onChange }) => (
-  <label className="flex items-center gap-3 px-4 py-3 bg-white/[0.03] border border-white/[0.06] rounded-xl cursor-pointer hover:bg-white/[0.06] transition-all duration-200 mb-4 select-none">
+  <label className="flex items-center gap-3 px-4 py-3 bg-[rgba(20,24,30,0.8)] border border-white/[0.08] rounded-xl cursor-pointer hover:bg-[rgba(25,30,38,0.9)] transition-all duration-200 mb-4 select-none">
     <input
       type="checkbox"
       checked={checked}
@@ -64,7 +64,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ label, startDa
   return (
     <div className={`flex flex-col gap-1.5 mb-4 w-full ${className}`}>
       <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80">{label}</label>
-      <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-ai-accent/40 focus-within:border-ai-accent transition-all duration-200">
+      <div className="flex items-center gap-2 bg-[rgba(20,24,30,0.8)] border border-white/[0.08] rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-ai-accent/40 focus-within:border-ai-accent transition-all duration-200">
         <input
           type="date"
           value={startDate}
@@ -111,7 +111,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ label, onFileSelect,
     <div className="flex flex-col gap-1.5 mb-4 w-full">
       <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80">{label}</label>
       <div
-        className="border border-dashed border-white/[0.12] rounded-xl p-4 hover:bg-white/[0.03] hover:border-ai-accent/30 transition-all duration-200 cursor-pointer flex items-center justify-center gap-3"
+        className="bg-[rgba(12,14,18,0.8)] border border-dashed border-white/[0.15] rounded-xl p-4 hover:bg-[rgba(20,24,30,0.9)] hover:border-ai-accent/30 transition-all duration-200 cursor-pointer flex items-center justify-center gap-3"
         onClick={() => inputRef.current?.click()}
       >
         <input
