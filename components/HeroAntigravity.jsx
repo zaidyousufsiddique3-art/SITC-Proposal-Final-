@@ -50,7 +50,7 @@ export default function HeroAntigravity() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <img src="/sitc_logo_final.png" alt="SITC" style={{ height: 180, objectFit: 'contain', opacity: 0.9 }} />
+          <img src="/sitc_logo_final.png" alt="SITC" style={{ height: 60, objectFit: 'contain', opacity: 0.9 }} />
         </div>
         <Link
           to="/login"

@@ -509,7 +509,7 @@ const App: React.FC = () => {
                 <SectionHeader title="Existing Companies" />
                 <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
                     {companies.map(c => (
-                        <div key={c.id} className="p-4 bg-white/[0.03] rounded-xl border border-white/[0.06] flex justify-between items-center card-hover">
+                        <div key={c.id} className="p-4 inner-row flex justify-between items-center card-hover">
                             <div className="flex items-center gap-3">
                                 {c.logo ? <img src={c.logo} className="w-8 h-8 object-contain bg-white rounded-lg p-0.5" /> : <div className="w-8 h-8 bg-white/10 rounded-lg"></div>}
                                 <div>
@@ -573,7 +573,7 @@ const App: React.FC = () => {
                         {visibleUsers.map((u, i) => {
                             if (u.role === 'super_admin' && user?.email !== u.email) return null;
                             return (
-                                <div key={i} className="p-4 bg-white/[0.03] rounded-xl flex justify-between items-center border-l-2 border-ai-accent/30 card-hover">
+                                <div key={i} className="p-4 inner-row flex justify-between items-center border-l-2 border-ai-accent/30 card-hover">
                                     <div>
                                         <div className="font-semibold text-white text-sm">{u.firstName} {u.lastName}</div>
                                         <div className="text-xs text-white/40">{u.email} <span className="text-ai-secondary ml-2 capitalize">({u.role})</span></div>
@@ -1119,7 +1119,7 @@ const App: React.FC = () => {
                     {/* Header Branding */}
                     {isSuper ? (
                         <div className="flex items-center gap-4">
-                            <img src="/sitc_logo_final.png" className="h-9 object-contain opacity-90" alt="SITC" />
+                            <img src="/sitc_logo_final.png" className="h-[72px] object-contain opacity-90" alt="SITC" />
                             <div className="h-6 w-px bg-white/10"></div>
                             <h1 className="text-xl font-display font-semibold text-white tracking-tight">Travel Proposal Portal</h1>
                         </div>
