@@ -97,7 +97,7 @@ export const ProposalGenerationLoader: React.FC<Props> = ({ isVisible, isComplet
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'rgba(5,6,10,0.85)',
+                background: 'var(--overlay-bg, rgba(5,6,10,0.85))',
                 backdropFilter: 'blur(6px)',
                 WebkitBackdropFilter: 'blur(6px)',
                 opacity: fadingOut ? 0 : 1,
@@ -110,9 +110,9 @@ export const ProposalGenerationLoader: React.FC<Props> = ({ isVisible, isComplet
                     width: '90%',
                     padding: 28,
                     borderRadius: 16,
-                    background: 'rgba(8,10,14,0.92)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
+                    background: 'var(--panel-bg, rgba(8,10,14,0.92))',
+                    border: '1px solid var(--panel-border, rgba(255,255,255,0.08))',
+                    boxShadow: 'var(--shadow-lg, 0 20px 60px rgba(0,0,0,0.8))',
                 }}
             >
                 {/* Title */}
@@ -121,14 +121,14 @@ export const ProposalGenerationLoader: React.FC<Props> = ({ isVisible, isComplet
                         style={{
                             fontSize: 22,
                             fontWeight: 700,
-                            color: '#fff',
+                            color: 'var(--text-primary, #fff)',
                             margin: 0,
                             letterSpacing: '-0.02em',
                         }}
                     >
                         {isComplete ? (
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                                <Check size={24} strokeWidth={3} color="#5fa9ff" /> Proposal Ready
+                                <Check size={24} strokeWidth={3} color="#0A62F0" /> Proposal Ready
                             </div>
                         ) : (
                             'Generating Proposal'
@@ -137,7 +137,7 @@ export const ProposalGenerationLoader: React.FC<Props> = ({ isVisible, isComplet
                     <p
                         style={{
                             fontSize: 14,
-                            color: 'rgba(255,255,255,0.45)',
+                            color: 'var(--text-muted, rgba(255,255,255,0.45))',
                             margin: '8px 0 0',
                         }}
                     >
@@ -152,7 +152,7 @@ export const ProposalGenerationLoader: React.FC<Props> = ({ isVisible, isComplet
                     style={{
                         height: 8,
                         borderRadius: 6,
-                        background: 'rgba(255,255,255,0.08)',
+                        background: 'var(--input-bg, rgba(255,255,255,0.08))',
                         overflow: 'hidden',
                         position: 'relative',
                     }}
@@ -196,7 +196,7 @@ export const ProposalGenerationLoader: React.FC<Props> = ({ isVisible, isComplet
                         style={{
                             fontSize: 14,
                             fontWeight: 600,
-                            color: isComplete ? '#5fa9ff' : 'rgba(255,255,255,0.8)',
+                            color: isComplete ? '#0A62F0' : 'var(--text-primary, rgba(255,255,255,0.8))',
                             fontVariantNumeric: 'tabular-nums',
                         }}
                     >
@@ -206,7 +206,7 @@ export const ProposalGenerationLoader: React.FC<Props> = ({ isVisible, isComplet
                         <span
                             style={{
                                 fontSize: 12,
-                                color: 'rgba(255,255,255,0.35)',
+                                color: 'var(--text-muted, rgba(255,255,255,0.35))',
                             }}
                         >
                             {PROGRESS_STAGES.find(s => pct <= s.target)?.label || 'Finalizing'}
@@ -220,15 +220,15 @@ export const ProposalGenerationLoader: React.FC<Props> = ({ isVisible, isComplet
                         marginTop: 20,
                         padding: '12px 16px',
                         borderRadius: 10,
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.05)',
+                        background: 'var(--row-hover, rgba(255,255,255,0.03))',
+                        border: '1px solid var(--panel-border, rgba(255,255,255,0.05))',
                         textAlign: 'center',
                     }}
                 >
                     <span
                         style={{
                             fontSize: 14,
-                            color: isComplete ? '#5fa9ff' : 'rgba(255,255,255,0.65)',
+                            color: isComplete ? '#0A62F0' : 'var(--text-secondary, rgba(255,255,255,0.65))',
                             transition: 'opacity 0.2s ease',
                         }}
                     >
