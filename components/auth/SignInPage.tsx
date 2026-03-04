@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { User } from '../../types';
-import { SITCLogo, ArrowLeftIcon, CheckIcon } from '../Icons';
+import { SITCLogo, ArrowLeftIcon, CheckIcon, LockIcon } from '../Icons';
 import { FormInput, Button } from '../InputComponents';
 import { RoleToggle } from './RoleToggle';
 import LaserFlow from '../ui/LaserFlow';
@@ -35,9 +35,9 @@ export const SignInPage: React.FC<SignInPageProps> = ({
     return (
         <div className="min-h-screen w-full flex flex-col md:flex-row bg-[#05060a] overflow-hidden selection:bg-blue-500/30">
 
-            {/* LEFT PANEL: Pure Visualization */}
-            <div className="relative w-full md:w-[45%] h-[40vh] md:h-screen flex flex-col justify-center items-center border-b md:border-b-0 md:border-r border-white/5 bg-[#060010] z-20 overflow-hidden">
-                {/* LaserFlow Layer */}
+            {/* LEFT PANEL: Hero + Visualization */}
+            <div className="relative w-full md:w-[45%] h-[40vh] md:h-screen flex flex-col justify-start items-start border-b md:border-b-0 md:border-r border-white/5 bg-[#060010] z-20 overflow-hidden pl-10 pr-10 pt-16 md:pl-[120px] md:pr-[60px] md:pt-[120px]">
+                {/* LaserFlow Layer (behind content) */}
                 <div className="absolute inset-0 z-0 opacity-100 pointer-events-none">
                     <LaserFlow
                         horizontalBeamOffset={0.1}
@@ -56,6 +56,21 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                         decay={1.1}
                         falloffStart={1.2}
                     />
+                </div>
+
+                {/* Hero Text Block */}
+                <div className="relative z-10 animate-[fadeIn_400ms_ease-out_both] max-h-[50vh]">
+                    <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 mb-6">
+                        Portal v2.0
+                    </span>
+
+                    <h1 className="text-[32px] md:text-[46px] font-bold text-white leading-[1.1] tracking-tight max-w-[480px]">
+                        Professional Travel Proposal System
+                    </h1>
+
+                    <p className="text-[15px] md:text-[16px] leading-[1.6] text-white/70 max-w-[420px] mt-5">
+                        A modern platform for building and managing travel proposals with secure access for your team.
+                    </p>
                 </div>
             </div>
 
@@ -104,14 +119,14 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                             <h2 className="text-[22px] font-bold text-white tracking-tight mb-0.5">
                                 {role === 'admin' ? 'Admin Portal' : 'Staff Portal'}
                             </h2>
-                            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-white/65">Sign in to continue</p>
+                            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/65">Sign in to continue</p>
                         </div>
 
                         <RoleToggle role={role} onChange={setRole} />
 
                         <form onSubmit={handleSignIn} className="space-y-4">
                             <div className="space-y-1">
-                                <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/70 ml-1">Email Address</label>
+                                <label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/70 ml-1">Email Address</label>
                                 <FormInput
                                     label=""
                                     type="email"
@@ -125,7 +140,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
 
                             <div className="space-y-1">
                                 <div className="flex justify-between items-center ml-1">
-                                    <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/70">Password</label>
+                                    <label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-white/70">Password</label>
                                 </div>
                                 <FormInput
                                     label=""
@@ -155,7 +170,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className={`relative w-full h-[46px] text-[13px] font-black uppercase tracking-[0.14em] rounded-xl transition-all duration-300 overflow-hidden group/btn hover:-translate-y-0.5 active:translate-y-0 shadow-lg
+                                className={`relative w-full h-[46px] text-[13px] font-bold uppercase tracking-[0.14em] rounded-xl transition-all duration-300 overflow-hidden group/btn hover:-translate-y-0.5 active:translate-y-0 shadow-lg
                   ${role === 'user'
                                         ? 'bg-gradient-to-br from-blue-600 to-blue-500 hover:shadow-blue-500/25'
                                         : 'bg-gradient-to-br from-amber-600 to-amber-500 hover:shadow-amber-500/25'}`}
@@ -163,20 +178,17 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                                 {isLoading ? (
                                     <div className="flex items-center gap-2">
                                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span>Signing In...</span>
+                                        <span>Securing access...</span>
                                     </div>
                                 ) : (
-                                    <>
-                                        <span>Sign In Now</span>
+                                    <div className="flex items-center justify-center gap-2">
+                                        <LockIcon size={14} className="opacity-70 group-hover:opacity-100 transition-opacity" />
+                                        <span>Secure Login</span>
                                         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none" />
-                                    </>
+                                    </div>
                                 )}
                             </Button>
                         </form>
-                    </div>
-
-                    <div className="mt-8 text-center text-[10px] text-gray-500/45 font-bold uppercase tracking-[0.18em]">
-                        Protected by enterprise-grade security
                     </div>
                 </div>
             </div>
