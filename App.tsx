@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProposalPDF } from './components/ProposalPDF';
 import { AuthScreen } from './components/AuthComponents';
+import { ProposalGenerationLoader } from './components/ProposalGenerationLoader';
 import { FormInput, FormSelect, FormCheckbox, FileUploader, MultiFileUploader, SectionHeader, Button, DateRangePicker } from './components/InputComponents';
 import { ProposalData, HotelDetails, FlightDetails, FlightClass, TransportationDetails, VehicleType, CustomItem, ActivityDetails, Inclusions, CategoryMarkups, MarkupType, FlightLeg, User, UserRole, ProposalHistory, MarkupConfig, RoomType, HotelImage, ImageTag, MeetingDetails, DiningDetails, FlightQuote, Company } from './types';
 import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo } from './components/Icons';
@@ -156,6 +157,10 @@ const App: React.FC = () => {
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [editUserPass, setEditUserPass] = useState('');
 
+    // Generation loader state
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [generationComplete, setGenerationComplete] = useState(false);
+
     // Sharing state
     const [shareEmail, setShareEmail] = useState('');
     const [sharingId, setSharingId] = useState<string | null>(null);
@@ -299,6 +304,7 @@ const App: React.FC = () => {
 
     const handleSaveProposal = async (isDraft: boolean) => {
         if (!user) return;
+        if (isGenerating) return; // prevent double-click
 
         if (!formData.proposalName) {
             alert("Please enter a Proposal Name in the Branding section (Step 1).");
@@ -306,15 +312,19 @@ const App: React.FC = () => {
             return;
         }
 
+        // Show loader for Generate (not drafts)
+        if (!isDraft) {
+            setIsGenerating(true);
+            setGenerationComplete(false);
+        }
+
         let currentVersions = [...formData.versions];
         const existing = savedProposals.find(p => p.id === formData.id);
 
         if (existing) {
-            // Store only lightweight version metadata — NOT full JSON snapshot
             currentVersions.push({
                 timestamp: Date.now(),
                 savedBy: user.email,
-                // No data snapshot — this was causing 1MB+ documents
             });
             if (currentVersions.length > 5) currentVersions.shift();
         }
@@ -342,9 +352,12 @@ const App: React.FC = () => {
             if (isDraft) {
                 alert("Draft saved successfully.");
             } else {
-                setViewMode('preview');
+                // Show completion, then navigate after fade
+                setGenerationComplete(true);
             }
         } catch (e: any) {
+            setIsGenerating(false);
+            setGenerationComplete(false);
             alert("Error saving: " + e.message);
         }
     };
@@ -1265,6 +1278,15 @@ const App: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-premium flex items-center justify-center p-0 md:p-4">
+            <ProposalGenerationLoader
+                isVisible={isGenerating}
+                isComplete={generationComplete}
+                onFadeComplete={() => {
+                    setIsGenerating(false);
+                    setGenerationComplete(false);
+                    setViewMode('preview');
+                }}
+            />
             <div className="w-full max-w-4xl glass rounded-2xl overflow-hidden flex flex-col page-shell compact">
                 <div className="h-1 w-full bg-white/[0.03]"><div className="h-full gradient-accent transition-all duration-500" style={{ width: `${((step + 1) / Steps.length) * 100}%` }}></div></div>
 
@@ -1272,15 +1294,15 @@ const App: React.FC = () => {
                     <div className="flex items-center gap-2 md:gap-4"><button onClick={() => setViewMode('dashboard')} className="text-white/40 hover:text-white flex items-center gap-2 transition-colors text-sm"><HomeIcon /> Back</button></div>
                     <div className="flex items-center gap-4">
                         <span className="text-white/35 text-sm">Step {step + 1} of {Steps.length}</span>
-                        <Button variant="secondary" onClick={() => handleSaveProposal(true)} className="gap-2 h-8 text-sm"><SaveIcon /> Save Draft</Button>
+                        <Button variant="secondary" onClick={() => handleSaveProposal(true)} disabled={isGenerating} className="gap-2 h-8 text-sm"><SaveIcon /> Save Draft</Button>
                     </div>
                 </div>
 
                 <div className="page-content overflow-y-auto custom-scrollbar">{Steps[step]}</div>
 
                 <div className="page-footer border-t border-white/[0.06] bg-ai-bg/50 backdrop-blur-sm flex justify-between items-center">
-                    <Button variant="secondary" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0}>Previous</Button>
-                    {step < Steps.length - 1 ? <Button onClick={() => setStep(s => Math.min(Steps.length - 1, s + 1))}>Next Step</Button> : <Button onClick={() => handleSaveProposal(false)}>Generate Proposal</Button>}
+                    <Button variant="secondary" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0 || isGenerating}>Previous</Button>
+                    {step < Steps.length - 1 ? <Button onClick={() => setStep(s => Math.min(Steps.length - 1, s + 1))}>Next Step</Button> : <Button onClick={() => handleSaveProposal(false)} disabled={isGenerating}>{isGenerating ? 'Generating...' : 'Generate Proposal'}</Button>}
                 </div>
             </div>
         </div>
