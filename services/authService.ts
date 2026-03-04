@@ -18,7 +18,7 @@ import {
   query,
   where
 } from 'firebase/firestore';
-import { User, UserRole, Company } from '../types';
+import { User, UserRole, Company, ProposalSectionsConfig } from '../types';
 
 // --- Helper Functions ---
 
@@ -42,6 +42,24 @@ const validateDomain = (email: string, domain: string): boolean => {
   return emailDomain.toLowerCase() === domain.toLowerCase();
 };
 
+export const resolveProposalSections = (company: Company | undefined): ProposalSectionsConfig => {
+  const defaults: ProposalSectionsConfig = {
+    pricingMarkup: true,
+    accommodation: true,
+    flights: true,
+    transportation: true,
+    customServices: true,
+    activities: true
+  };
+
+  if (!company || !company.proposalSections) return defaults;
+
+  return {
+    ...defaults,
+    ...company.proposalSections
+  };
+};
+
 // --- Data Access ---
 
 // Companies
@@ -57,7 +75,15 @@ export const getCompanies = async (): Promise<Company[]> => {
         name: 'Saudi International Travel Company',
         domain: 'sitc.sa',
         logo: '', // Logo will be updated via settings or UI
-        created: Date.now()
+        created: Date.now(),
+        proposalSections: {
+          pricingMarkup: true,
+          accommodation: true,
+          flights: true,
+          transportation: true,
+          customServices: true,
+          activities: true
+        }
       };
       await setDoc(doc(db, "companies", "sitc_hq"), sitc);
       companies.push(sitc);

@@ -8,7 +8,7 @@ import {
     where,
     orderBy
 } from 'firebase/firestore';
-import { ProposalData, User } from '../types';
+import { ProposalData, User, ProposalSectionsConfig } from '../types';
 import { uploadProposalImages } from './imageService';
 
 export const getProposals = async (user: User): Promise<ProposalData[]> => {
@@ -44,6 +44,34 @@ const sanitize = (obj: any): any => {
         return cleaned;
     }
     return obj;
+};
+
+/**
+ * Remove sections that are disabled for the company
+ */
+export const stripDisabledSections = (proposal: ProposalData, config: ProposalSectionsConfig): any => {
+    const cleaned = { ...proposal };
+
+    if (!config.pricingMarkup) {
+        delete (cleaned as any).pricing;
+    }
+    if (!config.accommodation) {
+        delete (cleaned as any).hotelOptions;
+    }
+    if (!config.flights) {
+        delete (cleaned as any).flightOptions;
+    }
+    if (!config.transportation) {
+        delete (cleaned as any).transportation;
+    }
+    if (!config.customServices) {
+        delete (cleaned as any).customItems;
+    }
+    if (!config.activities) {
+        delete (cleaned as any).activities;
+    }
+
+    return cleaned;
 };
 
 /**
@@ -157,9 +185,12 @@ const analyzeDocSize = (obj: any, maxResults = 30): void => {
     console.groupEnd();
 };
 
-export const saveProposal = async (proposal: ProposalData) => {
+export const saveProposal = async (proposal: ProposalData, config?: ProposalSectionsConfig) => {
+    // Step 0: Strip disabled sections if config provided
+    const filtered = config ? stripDisabledSections(proposal, config) : proposal;
+
     // Step 1: Upload base64 images to Firebase Storage → replace with URLs
-    const withUrls = await uploadProposalImages(proposal);
+    const withUrls = await uploadProposalImages(filtered);
 
     // Step 2: Strip version snapshot data (biggest bloat source)
     const withoutVersionData = stripVersionData(withUrls);

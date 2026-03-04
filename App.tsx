@@ -5,10 +5,10 @@ import { ProposalPDF } from './components/ProposalPDF';
 import { AuthScreen } from './components/AuthComponents';
 import { ProposalGenerationLoader } from './components/ProposalGenerationLoader';
 import { FormInput, FormSelect, FormCheckbox, FileUploader, MultiFileUploader, SectionHeader, Button, DateRangePicker, IconButton } from './components/InputComponents';
-import { ProposalData, HotelDetails, FlightDetails, FlightClass, TransportationDetails, VehicleType, CustomItem, ActivityDetails, Inclusions, CategoryMarkups, MarkupType, FlightLeg, User, UserRole, ProposalHistory, MarkupConfig, RoomType, HotelImage, ImageTag, MeetingDetails, DiningDetails, FlightQuote, Company } from './types';
+import { ProposalData, HotelDetails, FlightDetails, FlightClass, TransportationDetails, VehicleType, CustomItem, ActivityDetails, Inclusions, CategoryMarkups, MarkupType, FlightLeg, User, UserRole, ProposalHistory, MarkupConfig, RoomType, HotelImage, ImageTag, MeetingDetails, DiningDetails, FlightQuote, Company, ProposalSectionsConfig } from './types';
 import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo, SunIcon, MoonIcon, CheckIcon, PlusIcon, ChevronDownIcon, CalendarIcon, LogOutIcon, ProposalIcon, BuildingIcon, SettingsIcon, SearchIcon, ShieldCheckIcon, PresentationIcon, ArrowLeftIcon, ArrowRightIcon, WalletIcon } from './components/Icons';
-import { getGlobalSettings, saveGlobalSettings, getUsers, createSubUserWithAuth, createCompanyAdminWithAuth, deleteUserProfile, validatePassword, changePassword, updateUserProfile, getCompanies, saveCompany, updateCompany, deleteCompany, adminResetUserPassword, validatePhone, logoutUser } from './services/authService';
-import { getProposals, saveProposal, deleteProposal } from './services/proposalService';
+import { getGlobalSettings, saveGlobalSettings, getUsers, createSubUserWithAuth, createCompanyAdminWithAuth, deleteUserProfile, validatePassword, changePassword, updateUserProfile, getCompanies, saveCompany, updateCompany, deleteCompany, adminResetUserPassword, validatePhone, logoutUser, resolveProposalSections } from './services/authService';
+import { getProposals, saveProposal, deleteProposal, stripDisabledSections } from './services/proposalService';
 
 // --- Defaults & Init ---
 
@@ -222,7 +222,7 @@ const App: React.FC = () => {
 
     const saveToStorage = async (proposal: ProposalData) => {
         try {
-            await saveProposal(proposal);
+            await saveProposal(proposal, sectionsConfig);
             await refreshData();
         } catch (e) {
             alert("Error saving proposal: " + e.message);
@@ -358,7 +358,7 @@ const App: React.FC = () => {
         };
 
         try {
-            await saveProposal(updatedProposal);
+            await saveProposal(updatedProposal, sectionsConfig);
             setFormData(updatedProposal);
             await refreshData();
 
@@ -510,6 +510,50 @@ const App: React.FC = () => {
                         <FormInput label="Company Name" value={editingCompany.name} onChange={e => setEditingCompany({ ...editingCompany, name: e.target.value })} />
                         <FormInput label="Domain" value={editingCompany.domain} onChange={e => setEditingCompany({ ...editingCompany, domain: e.target.value })} />
                         <FileUploader label="Company Logo" currentImage={editingCompany.logo} onFileSelect={b64 => setEditingCompany({ ...editingCompany, logo: b64 })} />
+
+                        {/* Proposal Builder Sections (Requirement 13.x) */}
+                        <div className="pt-4 border-t border-[var(--panel-border)]">
+                            <h4 className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <SettingsIcon size={14} className="text-ai-secondary" /> Proposal Builder Sections
+                            </h4>
+                            <div className="grid grid-cols-2 gap-3">
+                                {[
+                                    { id: 'pricingMarkup', label: 'Pricing & Markup' },
+                                    { id: 'accommodation', label: 'Accommodation' },
+                                    { id: 'flights', label: 'Flights' },
+                                    { id: 'transportation', label: 'Transportation' },
+                                    { id: 'customServices', label: 'Custom Services' },
+                                    { id: 'activities', label: 'Activities' }
+                                ].map((sec) => (
+                                    <label key={sec.id} className="flex items-center justify-between p-3 rounded-xl bg-white/[0.03] border border-[var(--panel-border)] hover:border-ai-accent/30 transition-all cursor-pointer">
+                                        <div>
+                                            <div className="text-[11px] font-bold text-[var(--text-primary)]">{sec.label}</div>
+                                            <div className="text-[9px] text-[var(--text-muted)]">Enabled in wizard</div>
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            checked={resolveProposalSections(editingCompany)[sec.id as keyof ProposalSectionsConfig]}
+                                            onChange={(e) => {
+                                                const current = resolveProposalSections(editingCompany);
+                                                setEditingCompany({
+                                                    ...editingCompany,
+                                                    proposalSections: {
+                                                        ...current,
+                                                        [sec.id]: e.target.checked
+                                                    }
+                                                });
+                                            }}
+                                            className="w-4 h-4 rounded border-[var(--input-border)] text-ai-accent focus:ring-0 cursor-pointer"
+                                        />
+                                    </label>
+                                ))}
+                            </div>
+                            <div className="mt-4 p-3 rounded-xl bg-ai-accent/5 border border-ai-accent/10">
+                                <p className="text-[10px] text-ai-secondary/80 leading-relaxed font-medium">
+                                    <strong>Note:</strong> Proposal Details and Inclusions Check are always mandatory and cannot be disabled.
+                                </p>
+                            </div>
+                        </div>
                         <div className="pt-4 border-t border-[var(--panel-border)] flex justify-end items-center gap-4">
                             <Button variant="secondary" onClick={() => setEditingCompany(null)}>Cancel</Button>
                             <Button onClick={handleUpdateCompany}>Save Changes</Button>
@@ -1490,6 +1534,18 @@ const App: React.FC = () => {
 
             <div className="form-grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.keys(formData.inclusions).map((key) => {
+                    // Logic to hide inclusions for disabled sections (Requirement 13.x)
+                    const inclusionMap: Record<string, keyof ProposalSectionsConfig | null> = {
+                        hotels: 'accommodation',
+                        flights: 'flights',
+                        transportation: 'transportation',
+                        customItems: 'customServices',
+                        activities: 'activities'
+                    };
+
+                    const configKey = inclusionMap[key];
+                    if (configKey && !sectionsConfig[configKey]) return null;
+
                     const isChecked = formData.inclusions[key as keyof Inclusions];
                     return (
                         <label
@@ -1525,16 +1581,24 @@ const App: React.FC = () => {
         </div>
     );
 
-    const StepsNames = [
-        { label: 'Proposal Details', icon: <UserIcon size={18} /> },
-        { label: 'Pricing & Markup', icon: <WalletIcon size={18} /> },
-        { label: 'Accommodation', icon: <BuildingIcon size={18} /> },
-        { label: 'Flights', icon: <PlaneIcon size={18} /> },
-        { label: 'Transportation', icon: <BusIcon size={18} /> },
-        { label: 'Custom Services', icon: <CustomIcon size={18} /> },
-        { label: 'Activities', icon: <ActivityIcon size={18} /> },
-        { label: 'Inclusions Check', icon: <ShieldCheckIcon size={18} /> }
+    // Dynamic Step Generation (Requirement 13.x)
+    const userCompany = companies.find(c => c.id === user?.companyId);
+    const sectionsConfig = resolveProposalSections(userCompany);
+
+    const allSteps = [
+        { id: 'details', label: 'Proposal Details', icon: <UserIcon size={18} />, component: renderBrandingStep() },
+        { id: 'pricing', label: 'Pricing & Markup', icon: <WalletIcon size={18} />, component: renderPricingConfigStep(), toggle: sectionsConfig.pricingMarkup },
+        { id: 'accommodation', label: 'Accommodation', icon: <BuildingIcon size={18} />, component: renderHotelStep(), toggle: sectionsConfig.accommodation },
+        { id: 'flights', label: 'Flights', icon: <PlaneIcon size={18} />, component: renderFlightStep(), toggle: sectionsConfig.flights },
+        { id: 'transportation', label: 'Transportation', icon: <BusIcon size={18} />, component: renderTransportationStep(), toggle: sectionsConfig.transportation },
+        { id: 'custom', label: 'Custom Services', icon: <CustomIcon size={18} />, component: renderCustomStep(), toggle: sectionsConfig.customServices },
+        { id: 'activities', label: 'Activities', icon: <ActivityIcon size={18} />, component: renderActivitiesStep(), toggle: sectionsConfig.activities },
+        { id: 'inclusions', label: 'Inclusions Check', icon: <ShieldCheckIcon size={18} />, component: renderInclusionsStep() }
     ];
+
+    const enabledSteps = allSteps.filter(s => s.toggle !== false);
+    const Steps = enabledSteps.map(s => s.component);
+    const StepsNames = enabledSteps.map(s => ({ label: s.label, icon: s.icon }));
 
     const renderStepNav = () => (
         <div className="wizard-left">
@@ -1639,7 +1703,6 @@ const App: React.FC = () => {
         </div>
     );
 
-    const Steps = [renderBrandingStep(), renderPricingConfigStep(), renderHotelStep(), renderFlightStep(), renderTransportationStep(), renderCustomStep(), renderActivitiesStep(), renderInclusionsStep()];
 
     if (!user) {
         return <AuthScreen onLogin={(u) => {

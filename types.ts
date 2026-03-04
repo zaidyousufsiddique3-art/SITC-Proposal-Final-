@@ -195,12 +195,22 @@ export interface Inclusions {
 
 export type UserRole = 'super_admin' | 'admin' | 'user' | 'owner'; // 'owner' kept for backward compatibility migration
 
+export interface ProposalSectionsConfig {
+  pricingMarkup: boolean;
+  accommodation: boolean;
+  flights: boolean;
+  transportation: boolean;
+  customServices: boolean;
+  activities: boolean;
+}
+
 export interface Company {
   id: string;
   name: string;
   domain: string; // e.g., 'sitc.sa'
   logo: string; // Base64
   created: number;
+  proposalSections?: ProposalSectionsConfig;
 }
 
 export interface User {
