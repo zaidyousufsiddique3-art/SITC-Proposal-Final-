@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ProposalPDF } from './components/ProposalPDF';
 import { AuthScreen } from './components/AuthComponents';
 import { FormInput, FormSelect, FormCheckbox, FileUploader, SectionHeader, Button, DateRangePicker } from './components/InputComponents';
@@ -135,6 +136,7 @@ const defaultProposalData: ProposalData = {
 
 const App: React.FC = () => {
     // --- App State ---
+    const navigate = useNavigate();
     const [user, setUser] = useState<User | null>(null);
     const [viewMode, setViewMode] = useState<'dashboard' | 'form' | 'preview'>('dashboard');
     const [subMode, setSubMode] = useState<'all_proposals' | 'my_proposals' | 'company_users' | 'companies' | 'global_settings' | 'account_settings'>('my_proposals');
@@ -197,6 +199,7 @@ const App: React.FC = () => {
         setUser(null);
         setViewMode('dashboard');
         setSubMode('my_proposals');
+        navigate('/');
     };
 
     const saveToStorage = async (proposal: ProposalData) => {

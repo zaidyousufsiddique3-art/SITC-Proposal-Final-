@@ -1,6 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HeroAntigravity from './components/HeroAntigravity';
+import App from './App';
+
+const Root: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HeroAntigravity />} />
+        <Route path="/login" element={<App />} />
+        {/* Catch-all: redirect to landing */}
+        <Route path="*" element={<HeroAntigravity />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -10,6 +25,6 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <HeroAntigravity />
+    <Root />
   </React.StrictMode>
 );

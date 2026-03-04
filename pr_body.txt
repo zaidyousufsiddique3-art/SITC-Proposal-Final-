@@ -1,0 +1,1 @@
+Add Antigravity animation as full-screen hero background landing page. New files: components/Antigravity.jsx, components/HeroAntigravity.jsx, index.css. Modified: index.tsx to render HeroAntigravity. Installed three and @react-three/fiber.
