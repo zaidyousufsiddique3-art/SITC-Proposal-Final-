@@ -35,58 +35,51 @@ export const SignInPage: React.FC<SignInPageProps> = ({
     return (
         <div className="min-h-screen w-full flex flex-col md:flex-row bg-[#05060a] overflow-hidden selection:bg-blue-500/30">
 
-            {/* LEFT PANEL: Brand / Hero */}
-            <div className="relative w-full md:w-[45%] h-[40vh] md:h-screen flex flex-col p-8 md:p-12 justify-between border-b md:border-b-0 md:border-r border-white/5 bg-gradient-to-br from-[#0a0b14] to-[#05060a] z-20 overflow-hidden">
-                {/* Subtle Noise / Radial Gradient */}
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-                <div className="absolute inset-x-0 top-0 h-[60%] bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none" />
-
-                <div className="relative z-10 flex items-center gap-4">
-                    <SITCLogo className="w-16 h-auto" />
-                    <div className="h-8 w-px bg-white/10 hidden md:block" />
-                    <span className="text-white/40 text-[10px] uppercase tracking-[0.2em] font-black hidden md:block">Portal v2.0</span>
-                </div>
-
-                <div className="relative z-10 max-w-sm mt-12 md:mt-0">
-                    <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight leading-tight font-display mb-4">
-                        Travel Proposal Portal
-                    </h1>
-                    <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium">
-                        The next generation of travel itinerary design. Secure access for staff and administrators.
-                    </p>
-
-                    <div className="mt-10 space-y-4">
-                        {[
-                            "Create proposals fast",
-                            "Company workspaces",
-                            "Secure role-based access"
-                        ].map((text, i) => (
-                            <div key={i} className="flex items-center gap-3 group">
-                                <div className="w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform duration-300">
-                                    <CheckIcon size={12} strokeWidth={3} />
-                                </div>
-                                <span className="text-gray-300 text-sm font-semibold tracking-tight">{text}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="relative z-10 text-[10px] text-gray-500 uppercase tracking-widest font-bold">
-                    &copy; 2024 Saudi International Travel Company
+            {/* LEFT PANEL: Pure Visualization */}
+            <div className="relative w-full md:w-[45%] h-[40vh] md:h-screen flex flex-col justify-center items-center border-b md:border-b-0 md:border-r border-white/5 bg-[#060010] z-20 overflow-hidden">
+                {/* LaserFlow Layer */}
+                <div className="absolute inset-0 z-0 opacity-100 pointer-events-none">
+                    <LaserFlow
+                        horizontalBeamOffset={0.1}
+                        verticalBeamOffset={0.0}
+                        color="#3e91e0"
+                        horizontalSizing={0.5}
+                        verticalSizing={2}
+                        wispDensity={1}
+                        wispSpeed={15}
+                        wispIntensity={5}
+                        flowSpeed={0.35}
+                        flowStrength={0.25}
+                        fogIntensity={0.45}
+                        fogScale={0.3}
+                        fogFallSpeed={0.6}
+                        decay={1.1}
+                        falloffStart={1.2}
+                    />
                 </div>
             </div>
 
             {/* RIGHT PANEL: Login + LaserFlow */}
-            <div className="relative w-full md:w-[55%] h-screen flex items-center justify-center p-6 md:p-12 z-10">
+            <div className="relative w-full md:w-[55%] h-screen flex items-center justify-center p-6 md:p-12 z-10 bg-[#060010]">
 
                 {/* LaserFlow Layer */}
                 <div className="absolute inset-0 z-0 opacity-80 pointer-events-none overflow-hidden">
                     <LaserFlow
                         color={role === 'user' ? "#3e91e0" : "#d97706"}
                         horizontalBeamOffset={0.1}
+                        verticalBeamOffset={0.0}
+                        horizontalSizing={0.5}
+                        verticalSizing={2}
                         wispDensity={1.2}
+                        wispSpeed={15}
+                        wispIntensity={5}
                         flowSpeed={0.4}
+                        flowStrength={0.25}
                         fogIntensity={0.5}
+                        fogScale={0.3}
+                        fogFallSpeed={0.6}
+                        decay={1.1}
+                        falloffStart={1.2}
                     />
                 </div>
 
