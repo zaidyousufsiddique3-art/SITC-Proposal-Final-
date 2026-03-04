@@ -1,5 +1,5 @@
 import { storage } from '../src/firebase';
-import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { ref, uploadString, getDownloadURL, deleteObject } from 'firebase/storage';
 
 /**
  * Compress a base64 image using canvas to reduce file size.
@@ -24,50 +24,63 @@ const compressImage = (base64: string, maxWidth = 800, quality = 0.7): Promise<s
             ctx.drawImage(img, 0, 0, w, h);
             resolve(canvas.toDataURL('image/jpeg', quality));
         };
-        img.onerror = () => resolve(base64); // fallback to original
+        img.onerror = () => resolve(base64);
         img.src = base64;
     });
 };
 
 /**
  * Upload a base64 image to Firebase Storage and return the download URL.
- * If the value is already a URL (not base64), return it as-is.
- * If upload fails, returns a compressed version of the base64 or strips it.
+ * If already a URL, return as-is.
+ * If upload fails, returns '' — NEVER returns base64.
  */
 export const uploadBase64Image = async (
     base64: string,
     path: string
 ): Promise<string> => {
-    // Skip if empty/null
     if (!base64) return '';
 
-    // Skip if already a URL
+    // Already a URL — keep it
     if (base64.startsWith('http://') || base64.startsWith('https://')) {
         return base64;
     }
 
-    // Skip if not a base64 data URI
+    // Not a data URI — skip
     if (!base64.startsWith('data:')) {
-        return base64;
+        return '';
     }
 
-    // Compress image before upload
+    // Compress before upload
     const compressed = await compressImage(base64, 800, 0.7);
 
     try {
         const storageRef = ref(storage, path);
         await uploadString(storageRef, compressed, 'data_url');
-        return getDownloadURL(storageRef);
+        const url = await getDownloadURL(storageRef);
+        console.log(`✓ Uploaded to Storage: ${path}`);
+        return url;
     } catch (err) {
-        console.warn('Storage upload failed, keeping compressed base64:', err);
-        // Return compressed version — much smaller than original
-        return compressed;
+        console.error(`✗ Storage upload FAILED for ${path}:`, err);
+        // NEVER return base64 — return empty so Firestore stays small
+        return '';
     }
 };
 
 /**
- * Walk through a proposal object and upload all base64 images to Firebase Storage.
- * Returns the proposal with base64 strings replaced by download URLs (or compressed base64 as fallback).
+ * Delete an image from Storage by its path (optional cleanup).
+ */
+export const deleteStorageImage = async (storagePath: string): Promise<void> => {
+    if (!storagePath) return;
+    try {
+        await deleteObject(ref(storage, storagePath));
+    } catch (err) {
+        console.warn('Could not delete old image:', err);
+    }
+};
+
+/**
+ * Walk through a proposal and upload ALL base64 images to Firebase Storage.
+ * Returns the proposal with only URLs (never base64).
  */
 export const uploadProposalImages = async (proposal: any): Promise<any> => {
     const pid = proposal.id;
@@ -105,6 +118,8 @@ export const uploadProposalImages = async (proposal: any): Promise<any> => {
                             ),
                         }))
                     );
+                    // Remove images that failed to upload (empty url)
+                    h.images = h.images.filter((img: any) => img.url);
                 }
                 return h;
             })

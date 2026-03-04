@@ -16,21 +16,12 @@ export const getProposals = async (user: User): Promise<ProposalData[]> => {
     try {
         let q;
         if (user.role === 'super_admin' || user.role === 'owner') {
-            // Fetch all proposals? Or just company ones?
-            // For super admin, maybe all.
             q = query(collection(db, "proposals"), orderBy("lastModified", "desc"));
         } else if (user.role === 'admin') {
-            // Fetch company proposals
             q = query(collection(db, "proposals"), where("companyId", "==", user.companyId), orderBy("lastModified", "desc"));
         } else {
-            // Fetch own proposals
             q = query(collection(db, "proposals"), where("createdBy", "==", user.email), orderBy("lastModified", "desc"));
         }
-
-        // Note: Firestore requires an index for compound queries (companyId + lastModified).
-        // If index is missing, it will throw. We might need to remove orderBy or create index.
-        // For now, let's try without orderBy in the query if it fails, or handle it client side.
-        // Let's stick to simple query first.
 
         const querySnapshot = await getDocs(q);
         return querySnapshot.docs.map(doc => doc.data() as ProposalData);
@@ -56,18 +47,56 @@ const sanitize = (obj: any): any => {
     return obj;
 };
 
+/**
+ * NUCLEAR SAFETY NET: Recursively walk the entire proposal object
+ * and replace ANY string that starts with "data:" (base64) with "".
+ * This guarantees Firestore NEVER receives base64 image data,
+ * regardless of what happens upstream.
+ */
+const stripBase64 = (obj: any): any => {
+    if (obj === null || obj === undefined) return obj;
+
+    // If it's a string starting with "data:", nuke it
+    if (typeof obj === 'string') {
+        if (obj.startsWith('data:')) {
+            console.warn('⚠ Stripped base64 string from Firestore payload (field was not uploaded to Storage)');
+            return '';
+        }
+        return obj;
+    }
+
+    // Recurse arrays
+    if (Array.isArray(obj)) {
+        return obj.map(stripBase64);
+    }
+
+    // Recurse objects
+    if (typeof obj === 'object' && !(obj instanceof Date)) {
+        const cleaned: any = {};
+        for (const [key, value] of Object.entries(obj)) {
+            cleaned[key] = stripBase64(value);
+        }
+        return cleaned;
+    }
+
+    return obj;
+};
+
 export const saveProposal = async (proposal: ProposalData) => {
-    // 1. Upload base64 images to Firebase Storage, replace with URLs
+    // Step 1: Upload base64 images to Firebase Storage → replace with URLs
     const withUrls = await uploadProposalImages(proposal);
-    // 2. Strip undefined values (Firestore rejects them)
-    await setDoc(doc(db, "proposals", proposal.id), sanitize(withUrls));
+
+    // Step 2: Strip undefined values (Firestore rejects them)
+    const sanitized = sanitize(withUrls);
+
+    // Step 3: SAFETY NET — strip ANY remaining base64 strings
+    // This guarantees the doc is always under 1MB
+    const safe = stripBase64(sanitized);
+
+    // Step 4: Write to Firestore
+    await setDoc(doc(db, "proposals", proposal.id), safe);
 };
 
 export const deleteProposal = async (id: string) => {
-    // Soft delete or hard delete?
-    // App.tsx logic was soft delete (isDeleted: true).
-    // Let's stick to soft delete if we want to keep history, or hard delete.
-    // The previous code did: return { ...p, isDeleted: true };
-    // So we should update the doc.
     await setDoc(doc(db, "proposals", id), { isDeleted: true }, { merge: true });
 };
