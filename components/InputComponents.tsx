@@ -8,13 +8,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const FormInput: React.FC<InputProps> = ({ label, error, className, ...props }) => (
-  <div className="flex flex-col gap-1 mb-4 w-full">
-    <label className="text-xs uppercase tracking-wider font-bold text-ai-accent mb-1">{label}</label>
+  <div className="flex flex-col gap-1.5 mb-4 w-full">
+    <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80">{label}</label>
     <input
-      className={`bg-ai-bg/50 border border-gray-600 rounded-lg p-3 text-ai-text placeholder-gray-500 focus:ring-2 focus:ring-ai-accent focus:border-transparent focus:outline-none transition-all ${error ? 'border-red-500' : ''} ${className}`}
+      className={`bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-white placeholder-white/30 focus:ring-2 focus:ring-ai-accent/40 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${error ? 'border-red-500/60' : ''} ${className}`}
       {...props}
     />
-    {error && <span className="text-xs text-red-400">{error}</span>}
+    {error && <span className="text-xs text-red-400 mt-0.5">{error}</span>}
   </div>
 );
 
@@ -24,14 +24,14 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 export const FormSelect: React.FC<SelectProps> = ({ label, options, className, ...props }) => (
-  <div className="flex flex-col gap-1 mb-4 w-full">
-    <label className="text-xs uppercase tracking-wider font-bold text-ai-accent mb-1">{label}</label>
+  <div className="flex flex-col gap-1.5 mb-4 w-full">
+    <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80">{label}</label>
     <select
-      className={`bg-ai-bg/50 border border-gray-600 rounded-lg p-3 text-ai-text focus:ring-2 focus:ring-ai-accent focus:border-transparent focus:outline-none transition-all ${className}`}
+      className={`bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-ai-accent/40 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${className}`}
       {...props}
     >
       {options.map((opt) => (
-        <option key={opt.value} value={opt.value} className="bg-ai-card text-ai-text">
+        <option key={opt.value} value={opt.value} className="bg-ai-card text-white">
           {opt.label}
         </option>
       ))}
@@ -40,51 +40,51 @@ export const FormSelect: React.FC<SelectProps> = ({ label, options, className, .
 );
 
 export const FormCheckbox: React.FC<{ label: string; checked: boolean; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }> = ({ label, checked, onChange }) => (
-  <label className="flex items-center gap-3 p-3 bg-ai-bg/30 border border-gray-600 rounded-lg cursor-pointer hover:bg-ai-bg/50 transition-all mb-4 select-none">
-    <input 
-      type="checkbox" 
-      checked={checked} 
+  <label className="flex items-center gap-3 px-4 py-3 bg-white/[0.03] border border-white/[0.06] rounded-xl cursor-pointer hover:bg-white/[0.06] transition-all duration-200 mb-4 select-none">
+    <input
+      type="checkbox"
+      checked={checked}
       onChange={onChange}
-      className="w-5 h-5 text-ai-accent rounded focus:ring-ai-accent bg-slate-900 border-gray-500"
+      className="w-4 h-4 text-ai-accent rounded focus:ring-ai-accent/40 bg-white/5 border-white/20"
     />
-    <span className="text-sm font-semibold text-white">{label}</span>
+    <span className="text-sm font-medium text-white/80">{label}</span>
   </label>
 );
 
 interface DateRangePickerProps {
-    label: string;
-    startDate: string;
-    endDate: string;
-    onChange: (start: string, end: string) => void;
-    minDate?: string;
-    className?: string;
+  label: string;
+  startDate: string;
+  endDate: string;
+  onChange: (start: string, end: string) => void;
+  minDate?: string;
+  className?: string;
 }
 
 export const DateRangePicker: React.FC<DateRangePickerProps> = ({ label, startDate, endDate, onChange, minDate, className }) => {
-    return (
-        <div className={`flex flex-col gap-1 mb-4 w-full ${className}`}>
-            <label className="text-xs uppercase tracking-wider font-bold text-ai-accent mb-1">{label}</label>
-            <div className="flex items-center gap-2 bg-ai-bg/50 border border-gray-600 rounded-lg p-2 focus-within:ring-2 focus-within:ring-ai-accent transition-all">
-                <input
-                    type="date"
-                    value={startDate}
-                    min={minDate}
-                    onChange={(e) => onChange(e.target.value, endDate)}
-                    className="bg-transparent text-ai-text w-full focus:outline-none"
-                    placeholder="From"
-                />
-                <span className="text-gray-400 font-bold">→</span>
-                <input
-                    type="date"
-                    value={endDate}
-                    min={startDate}
-                    onChange={(e) => onChange(startDate, e.target.value)}
-                    className="bg-transparent text-ai-text w-full focus:outline-none"
-                    placeholder="To"
-                />
-            </div>
-        </div>
-    );
+  return (
+    <div className={`flex flex-col gap-1.5 mb-4 w-full ${className}`}>
+      <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80">{label}</label>
+      <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-ai-accent/40 focus-within:border-ai-accent transition-all duration-200">
+        <input
+          type="date"
+          value={startDate}
+          min={minDate}
+          onChange={(e) => onChange(e.target.value, endDate)}
+          className="bg-transparent text-white text-sm w-full focus:outline-none"
+          placeholder="From"
+        />
+        <span className="text-white/30 font-medium text-xs">→</span>
+        <input
+          type="date"
+          value={endDate}
+          min={startDate}
+          onChange={(e) => onChange(startDate, e.target.value)}
+          className="bg-transparent text-white text-sm w-full focus:outline-none"
+          placeholder="To"
+        />
+      </div>
+    </div>
+  );
 };
 
 interface FileUploaderProps {
@@ -108,30 +108,30 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ label, onFileSelect,
   };
 
   return (
-    <div className="flex flex-col gap-1 mb-4 w-full">
-      <label className="text-xs uppercase tracking-wider font-bold text-ai-accent mb-1">{label}</label>
-      <div 
-        className="border-2 border-dashed border-gray-600 rounded-lg p-4 hover:bg-gray-700/30 transition-colors cursor-pointer flex items-center justify-center gap-3"
+    <div className="flex flex-col gap-1.5 mb-4 w-full">
+      <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80">{label}</label>
+      <div
+        className="border border-dashed border-white/[0.12] rounded-xl p-4 hover:bg-white/[0.03] hover:border-ai-accent/30 transition-all duration-200 cursor-pointer flex items-center justify-center gap-3"
         onClick={() => inputRef.current?.click()}
       >
-        <input 
-          type="file" 
-          ref={inputRef} 
-          className="hidden" 
-          accept="image/*" 
-          onChange={handleFile} 
+        <input
+          type="file"
+          ref={inputRef}
+          className="hidden"
+          accept="image/*"
+          onChange={handleFile}
         />
         {currentImage ? (
           <div className="relative w-full h-20 group">
-             <img src={currentImage} alt="Uploaded" className="w-full h-full object-contain rounded" />
-             <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs">
-               Change Image
-             </div>
+            <img src={currentImage} alt="Uploaded" className="w-full h-full object-contain rounded" />
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 rounded text-xs text-white/80">
+              Change Image
+            </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center text-gray-400">
+          <div className="flex flex-col items-center text-white/30">
             <UploadIcon />
-            <span className="text-xs mt-1">Click to upload</span>
+            <span className="text-xs mt-1.5 font-medium">Click to upload</span>
           </div>
         )}
       </div>
@@ -140,22 +140,20 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ label, onFileSelect,
 };
 
 export const SectionHeader: React.FC<{ title: string; icon?: React.ReactNode }> = ({ title, icon }) => (
-  <div className="flex items-center gap-3 mb-6 pb-2 border-b border-ai-accent/30">
-    <div className="text-ai-accent">
-      {icon}
-    </div>
-    <h3 className="text-xl font-bold text-white tracking-tight">{title}</h3>
+  <div className="flex items-center gap-3 mb-6 pb-3 border-b border-white/[0.06]">
+    {icon && <div className="text-ai-accent">{icon}</div>}
+    <h3 className="text-lg font-semibold text-white tracking-tight">{title}</h3>
   </div>
 );
 
 export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'danger' }> = ({ children, variant = 'primary', className, ...props }) => {
-  const baseStyle = "px-6 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2";
+  const baseStyle = "px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-sm";
   const variants = {
-    primary: "bg-gradient-to-r from-ai-accent to-ai-secondary text-white shadow-lg hover:shadow-ai-accent/20 hover:scale-[1.02] disabled:opacity-50 disabled:scale-100",
-    secondary: "bg-ai-card border border-gray-600 text-ai-muted hover:bg-gray-700 hover:text-white",
-    danger: "bg-red-500/10 border border-red-500/50 text-red-400 hover:bg-red-500/20"
+    primary: "gradient-accent text-white shadow-lg shadow-ai-accent/15 hover:shadow-ai-accent/25 hover:scale-[1.03] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 disabled:shadow-none",
+    secondary: "bg-white/[0.05] border border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white hover:border-white/[0.12]",
+    danger: "bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/40"
   };
-  
+
   return (
     <button className={`${baseStyle} ${variants[variant]} ${className}`} {...props}>
       {children}

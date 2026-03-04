@@ -4,8 +4,6 @@ import { User } from '../types';
 import { loginUser, changePassword, sendResetEmail, logoutUser } from '../services/authService';
 import { FormInput, Button } from './InputComponents';
 import { getGlobalSettings } from '../services/authService';
-// import { PalmLogo } from './Icons'; // REMOVED
-import { SITCLogo } from './Icons'; // Assuming SITCLogo is available or we use img tag
 
 interface AuthProps {
     onLogin: (user: User) => void;
@@ -68,9 +66,6 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
     const handleForceChange = async () => {
         if (!tempUser) return;
         try {
-            // Note: This might fail if the user is not logged in via Auth SDK (e.g. if we only have Firestore profile)
-            // But loginUser ensures Auth login.
-            // However, updatePassword requires recent login.
             await changePassword(tempUser.email, loginPass, newPass, true);
             const updated = await loginUser(tempUser.email, newPass);
             onLogin(updated);
@@ -86,7 +81,6 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
                 setStep(1);
                 setSuccess(`Password reset link sent to ${recoveryEmail}`);
                 setError('');
-                // Auto-return to login after a delay or let user click back
                 setTimeout(() => { setMode('login'); setStep(0); setSuccess(''); }, 5000);
             } catch (e: any) {
                 setError(e.message || 'Error sending reset email.');
@@ -95,102 +89,97 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
     };
 
     const handleRecoverUsername = async () => {
-        // This is tricky with Firebase as we can't easily search by phone without a specific index or function.
-        // We'll use the simulated one if we kept it, or just say "Contact Admin".
-        // For now, let's disable or show message.
         setError('Please contact your administrator to recover your username.');
     };
 
     const renderLogin = () => (
         <>
-            {/* Login Type Toggle - Super Admin is hidden inside 'Admin' */}
-            <div className="flex bg-slate-800 p-1 rounded-lg mb-6">
+            {/* Login Type Toggle */}
+            <div className="flex bg-white/[0.04] p-1 rounded-xl mb-8 border border-white/[0.06]">
                 <button
                     onClick={() => { setLoginType('user'); setError(''); }}
-                    className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${loginType === 'user' ? 'bg-ai-accent text-slate-900 shadow' : 'text-gray-400 hover:text-white'}`}
+                    className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${loginType === 'user' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/20' : 'text-white/50 hover:text-white/70'}`}
                 >
                     User Login
                 </button>
                 <button
                     onClick={() => { setLoginType('admin'); setError(''); }}
-                    className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${loginType === 'admin' ? 'bg-corporate-gold text-slate-900 shadow' : 'text-gray-400 hover:text-white'}`}
+                    className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${loginType === 'admin' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/20' : 'text-white/50 hover:text-white/70'}`}
                 >
                     Admin Login
                 </button>
             </div>
 
-            <h3 className="text-center text-white font-semibold mb-4">
+            <h3 className="text-center text-white/70 font-medium mb-6 text-sm">
                 {loginType === 'admin' ? 'Admin & Management Portal' : 'Staff Portal'}
             </h3>
 
-            <FormInput label="Email (Username)" type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} />
-            <FormInput label="Password" type="password" value={loginPass} onChange={e => setLoginPass(e.target.value)} />
+            <FormInput label="Email" type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} placeholder="Enter your email" />
+            <FormInput label="Password" type="password" value={loginPass} onChange={e => setLoginPass(e.target.value)} placeholder="Enter your password" />
 
-            <div className="flex justify-between text-xs mb-4 px-1">
-                <button onClick={() => { setMode('forgot_password'); setError(''); setSuccess(''); }} className="text-ai-accent hover:text-white">Forgot Password?</button>
-                <button onClick={() => { setMode('forgot_username'); setError(''); setSuccess(''); }} className="text-gray-400 hover:text-white">Forgot Username?</button>
+            <div className="flex justify-between text-xs mb-6 px-1">
+                <button onClick={() => { setMode('forgot_password'); setError(''); setSuccess(''); }} className="text-ai-secondary hover:text-white transition-colors duration-200">Forgot Password?</button>
+                <button onClick={() => { setMode('forgot_username'); setError(''); setSuccess(''); }} className="text-white/40 hover:text-white/70 transition-colors duration-200">Forgot Username?</button>
             </div>
 
-            <Button onClick={handleLogin} className={`w-full mt-2 ${loginType === 'admin' ? 'bg-gradient-to-r from-corporate-gold to-yellow-600' : ''}`}>
-                Login
+            <Button onClick={handleLogin} className="w-full mt-2 py-3 text-base">
+                Sign In
             </Button>
         </>
     );
 
     const renderForceChange = () => (
-        <div className="animate-fadeIn">
+        <div className="animate-fade-up">
             <h3 className="text-xl font-bold text-white mb-2">Password Expired</h3>
-            <p className="text-sm text-gray-400 mb-4">Your temporary password has expired. Please set a new one.</p>
+            <p className="text-sm text-white/45 mb-6">Your temporary password has expired. Please set a new one.</p>
             <FormInput label="New Password" type="password" value={newPass} onChange={e => setNewPass(e.target.value)} />
-            <Button onClick={handleForceChange} className="w-full">Update Password</Button>
+            <Button onClick={handleForceChange} className="w-full py-3">Update Password</Button>
         </div>
     );
 
     const renderForgotPassword = () => (
-        <div className="animate-fadeIn">
+        <div className="animate-fade-up">
             <h3 className="text-xl font-bold text-white mb-2">Reset Password</h3>
             {step === 0 ? (
                 <>
-                    <p className="text-sm text-gray-400 mb-4">Enter your registered email to receive a verification code.</p>
+                    <p className="text-sm text-white/45 mb-6">Enter your registered email to receive a verification code.</p>
                     <FormInput label="Email Address" value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)} />
-                    <Button onClick={handleRecoverPassword} className="w-full mb-2">Send Code</Button>
+                    <Button onClick={handleRecoverPassword} className="w-full mb-3 py-3">Send Code</Button>
                 </>
             ) : (
                 <>
-                    <p className="text-sm text-gray-400 mb-4">Enter the verification code sent to your email (Try 1234).</p>
+                    <p className="text-sm text-white/45 mb-6">Enter the verification code sent to your email.</p>
                     <FormInput label="Verification Code" value={verificationCode} onChange={e => setVerificationCode(e.target.value)} />
-                    <Button onClick={handleRecoverPassword} className="w-full mb-2">Verify & Reset</Button>
+                    <Button onClick={handleRecoverPassword} className="w-full mb-3 py-3">Verify & Reset</Button>
                 </>
             )}
-            <button onClick={() => { setMode('login'); setStep(0); }} className="w-full text-center text-xs text-gray-400 mt-2">Back to Login</button>
+            <button onClick={() => { setMode('login'); setStep(0); }} className="w-full text-center text-xs text-white/40 mt-3 hover:text-white/60 transition-colors">← Back to Login</button>
         </div>
     );
 
     const renderForgotUsername = () => (
-        <div className="animate-fadeIn">
+        <div className="animate-fade-up">
             <h3 className="text-xl font-bold text-white mb-2">Recover Username</h3>
-            <p className="text-sm text-gray-400 mb-4">Enter your registered phone number.</p>
+            <p className="text-sm text-white/45 mb-6">Enter your registered phone number.</p>
             <FormInput label="Phone Number" value={recoveryPhone} onChange={e => setRecoveryPhone(e.target.value)} />
-            <Button onClick={handleRecoverUsername} className="w-full mb-2">Find Username</Button>
-            <button onClick={() => setMode('login')} className="w-full text-center text-xs text-gray-400 mt-2">Back to Login</button>
+            <Button onClick={handleRecoverUsername} className="w-full mb-3 py-3">Find Username</Button>
+            <button onClick={() => setMode('login')} className="w-full text-center text-xs text-white/40 mt-3 hover:text-white/60 transition-colors">← Back to Login</button>
         </div>
     );
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-ai-bg p-4">
-            <div className="w-full max-w-md glass p-8 rounded-2xl border border-slate-700 shadow-2xl">
-                <div className="flex flex-col items-center mb-6">
-                    {/* Generic Branding Only */}
-                    {/* <PalmLogo className="w-16 h-16 text-corporate-gold mb-4 animate-pulse" /> */}
-                    <img src="/sitc_logo_final.png" className="h-32 mb-6 object-contain" alt="SITC Logo" />
-                    <h1 className="text-2xl font-bold text-white tracking-tight text-center">
+        <div className="min-h-screen flex items-center justify-center bg-premium p-4">
+            <div className="w-full max-w-md glass p-10 rounded-2xl shadow-card animate-fade-up">
+                <div className="flex flex-col items-center mb-8">
+                    <img src="/sitc_logo_final.png" className="h-20 mb-6 object-contain" alt="SITC Logo" />
+                    <h1 className="text-2xl font-bold text-white tracking-tight text-center font-display">
                         Travel Proposal Portal
                     </h1>
-                    <p className="text-gray-400 text-xs mt-1">Secure Access</p>
+                    <p className="text-white/40 text-xs mt-2 tracking-wide">Secure Access</p>
                 </div>
 
-                {error && <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded text-red-200 text-sm text-center">{error}</div>}
-                {success && <div className="mb-4 p-3 bg-green-500/20 border border-green-500/50 rounded text-green-200 text-sm text-center">{success}</div>}
+                {error && <div className="mb-5 p-3.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300 text-sm text-center">{error}</div>}
+                {success && <div className="mb-5 p-3.5 bg-green-500/10 border border-green-500/20 rounded-xl text-green-300 text-sm text-center">{success}</div>}
 
                 {mode === 'login' && renderLogin()}
                 {mode === 'force_change' && renderForceChange()}

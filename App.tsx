@@ -474,17 +474,17 @@ const App: React.FC = () => {
     const renderEditCompanyModal = () => {
         if (!editingCompany) return null;
         return (
-            <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
-                <div className="bg-ai-card w-full max-w-lg rounded-2xl border border-slate-600 shadow-2xl flex flex-col">
-                    <div className="p-6 border-b border-slate-700 flex justify-between items-center">
-                        <h3 className="text-xl font-bold text-white">Edit Company</h3>
-                        <button onClick={() => setEditingCompany(null)} className="text-gray-400 hover:text-white">Close</button>
+            <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-md">
+                <div className="glass w-full max-w-lg rounded-2xl shadow-card flex flex-col animate-fade-up">
+                    <div className="p-6 border-b border-white/[0.06] flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-white">Edit Company</h3>
+                        <button onClick={() => setEditingCompany(null)} className="text-white/40 hover:text-white transition-colors">Close</button>
                     </div>
                     <div className="p-6 space-y-4">
                         <FormInput label="Company Name" value={editingCompany.name} onChange={e => setEditingCompany({ ...editingCompany, name: e.target.value })} />
                         <FormInput label="Domain" value={editingCompany.domain} onChange={e => setEditingCompany({ ...editingCompany, domain: e.target.value })} />
                         <FileUploader label="Company Logo" currentImage={editingCompany.logo} onFileSelect={b64 => setEditingCompany({ ...editingCompany, logo: b64 })} />
-                        <div className="pt-4 border-t border-slate-700 flex justify-end items-center gap-4">
+                        <div className="pt-4 border-t border-white/[0.06] flex justify-end items-center gap-4">
                             <Button variant="secondary" onClick={() => setEditingCompany(null)}>Cancel</Button>
                             <Button onClick={handleUpdateCompany}>Save Changes</Button>
                         </div>
@@ -497,29 +497,29 @@ const App: React.FC = () => {
     const renderCompanyManagement = () => (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {renderEditCompanyModal()}
-            <div className="glass p-6 rounded-xl">
+            <div className="glass p-6 rounded-2xl">
                 <SectionHeader title="Create Company" />
-                {userMsg && <div className="mb-4 p-2 bg-blue-500/20 text-blue-200 text-sm rounded">{userMsg}</div>}
+                {userMsg && <div className="mb-4 p-3 bg-ai-accent/10 text-ai-secondary text-sm rounded-xl border border-ai-accent/20">{userMsg}</div>}
                 <FormInput label="Company Name" value={newCompany.name} onChange={e => setNewCompany({ ...newCompany, name: e.target.value })} placeholder="e.g. Agency A" />
                 <FormInput label="Domain (e.g. sitc.sa)" value={newCompany.domain} onChange={e => setNewCompany({ ...newCompany, domain: e.target.value })} placeholder="Do not include @" />
                 <FileUploader label="Company Logo" currentImage={newCompany.logo} onFileSelect={b64 => setNewCompany({ ...newCompany, logo: b64 })} />
                 <Button onClick={handleCreateCompany} className="mt-4">Create Company</Button>
             </div>
-            <div className="glass p-6 rounded-xl">
+            <div className="glass p-6 rounded-2xl">
                 <SectionHeader title="Existing Companies" />
-                <div className="space-y-4 max-h-96 overflow-y-auto">
+                <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
                     {companies.map(c => (
-                        <div key={c.id} className="p-4 bg-slate-800/50 rounded flex justify-between items-center">
+                        <div key={c.id} className="p-4 bg-white/[0.03] rounded-xl border border-white/[0.06] flex justify-between items-center card-hover">
                             <div className="flex items-center gap-3">
-                                {c.logo ? <img src={c.logo} className="w-8 h-8 object-contain bg-white rounded p-0.5" /> : <div className="w-8 h-8 bg-gray-600 rounded"></div>}
+                                {c.logo ? <img src={c.logo} className="w-8 h-8 object-contain bg-white rounded-lg p-0.5" /> : <div className="w-8 h-8 bg-white/10 rounded-lg"></div>}
                                 <div>
-                                    <div className="font-bold text-white">{c.name}</div>
-                                    <div className="text-xs text-gray-400">@{c.domain}</div>
+                                    <div className="font-semibold text-white text-sm">{c.name}</div>
+                                    <div className="text-xs text-white/40">@{c.domain}</div>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => setEditingCompany(c)} className="text-blue-400 hover:text-blue-300 text-xs uppercase font-bold">Edit</button>
-                                <button onClick={() => handleDeleteCompany(c.id)} className="text-red-400 hover:text-red-300 text-xs uppercase font-bold">Delete</button>
+                            <div className="flex gap-3">
+                                <button onClick={() => setEditingCompany(c)} className="text-ai-secondary hover:text-white text-xs font-semibold transition-colors">Edit</button>
+                                <button onClick={() => handleDeleteCompany(c.id)} className="text-red-400/70 hover:text-red-300 text-xs font-semibold transition-colors">Delete</button>
                             </div>
                         </div>
                     ))}
@@ -538,9 +538,9 @@ const App: React.FC = () => {
 
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="glass p-6 rounded-xl">
+                <div className="glass p-6 rounded-2xl">
                     <SectionHeader title={isSuper ? "Create Company Admin" : "Create Sub User"} />
-                    {userMsg && <div className="mb-4 p-2 bg-blue-500/20 text-blue-200 text-sm rounded">{userMsg}</div>}
+                    {userMsg && <div className="mb-4 p-3 bg-ai-accent/10 text-ai-secondary text-sm rounded-xl border border-ai-accent/20">{userMsg}</div>}
 
                     {isSuper && (
                         <FormSelect
@@ -567,20 +567,20 @@ const App: React.FC = () => {
                     </Button>
                 </div>
 
-                <div className="glass p-6 rounded-xl">
+                <div className="glass p-6 rounded-2xl">
                     <SectionHeader title="Users Directory" />
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                    <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
                         {visibleUsers.map((u, i) => {
                             if (u.role === 'super_admin' && user?.email !== u.email) return null;
                             return (
-                                <div key={i} className="p-3 bg-slate-800/50 rounded flex justify-between items-center border-l-2 border-slate-600">
+                                <div key={i} className="p-4 bg-white/[0.03] rounded-xl flex justify-between items-center border-l-2 border-ai-accent/30 card-hover">
                                     <div>
-                                        <div className="font-bold text-white">{u.firstName} {u.lastName}</div>
-                                        <div className="text-xs text-gray-400">{u.email} <span className="text-ai-accent ml-2 capitalize">({u.role})</span></div>
-                                        {isSuper && u.companyId && <div className="text-[10px] text-gray-500">{companies.find(c => c.id === u.companyId)?.name}</div>}
+                                        <div className="font-semibold text-white text-sm">{u.firstName} {u.lastName}</div>
+                                        <div className="text-xs text-white/40">{u.email} <span className="text-ai-secondary ml-2 capitalize">({u.role})</span></div>
+                                        {isSuper && u.companyId && <div className="text-[10px] text-white/30 mt-0.5">{companies.find(c => c.id === u.companyId)?.name}</div>}
                                     </div>
                                     {u.email !== user?.email && (
-                                        <button onClick={() => { setEditingUser(u); setEditUserPass(''); }} className="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-500">Manage</button>
+                                        <button onClick={() => { setEditingUser(u); setEditUserPass(''); }} className="px-4 py-1.5 gradient-accent text-white text-xs rounded-lg font-semibold hover:shadow-glow transition-all">Manage</button>
                                     )}
                                 </div>
                             );
@@ -594,11 +594,11 @@ const App: React.FC = () => {
     const renderEditUserModal = () => {
         if (!editingUser) return null;
         return (
-            <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
-                <div className="bg-ai-card w-full max-w-lg rounded-2xl border border-slate-600 shadow-2xl flex flex-col">
-                    <div className="p-6 border-b border-slate-700 flex justify-between items-center">
-                        <h3 className="text-xl font-bold text-white">Manage User</h3>
-                        <button onClick={() => setEditingUser(null)} className="text-gray-400 hover:text-white">Close</button>
+            <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-md">
+                <div className="glass w-full max-w-lg rounded-2xl shadow-card flex flex-col animate-fade-up">
+                    <div className="p-6 border-b border-white/[0.06] flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-white">Manage User</h3>
+                        <button onClick={() => setEditingUser(null)} className="text-white/40 hover:text-white transition-colors">Close</button>
                     </div>
                     <div className="p-6 space-y-4">
                         <FormInput label="Email Address" value={editingUser.email} onChange={e => setEditingUser({ ...editingUser, email: e.target.value })} />
@@ -607,14 +607,14 @@ const App: React.FC = () => {
                             <FormInput label="Last Name" value={editingUser.lastName} onChange={e => setEditingUser({ ...editingUser, lastName: e.target.value })} />
                         </div>
                         <FormInput label="Phone" value={editingUser.phone} onChange={e => setEditingUser({ ...editingUser, phone: e.target.value })} />
-                        <div className="p-4 bg-slate-800/50 rounded border border-slate-700">
-                            <label className="text-xs uppercase tracking-wider font-bold text-ai-accent mb-1 block">
+                        <div className="p-4 bg-white/[0.03] rounded-xl border border-white/[0.06]">
+                            <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80 mb-2 block">
                                 {user?.role === 'super_admin' ? 'Set Temporary Password (Force Reset)' : 'Set New Password'}
                             </label>
-                            <input type="password" placeholder="Leave blank to keep current" className="bg-ai-bg/50 border border-gray-600 rounded-lg p-3 w-full text-white" value={editUserPass} onChange={e => setEditUserPass(e.target.value)} />
+                            <input type="password" placeholder="Leave blank to keep current" className="bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 w-full text-white text-sm focus:ring-2 focus:ring-ai-accent/40 focus:border-ai-accent focus:outline-none transition-all" value={editUserPass} onChange={e => setEditUserPass(e.target.value)} />
                         </div>
-                        <div className="pt-4 border-t border-slate-700 flex justify-between items-center">
-                            <button onClick={() => handleDeleteUser(editingUser.email)} className="text-red-400 hover:text-red-300 text-sm font-bold flex items-center gap-2"><TrashIcon /> Delete User</button>
+                        <div className="pt-4 border-t border-white/[0.06] flex justify-between items-center">
+                            <button onClick={() => handleDeleteUser(editingUser.email)} className="text-red-400/70 hover:text-red-300 text-sm font-semibold flex items-center gap-2 transition-colors"><TrashIcon /> Delete User</button>
                             <Button onClick={handleUpdateUser}>Save Changes</Button>
                         </div>
                     </div>
@@ -1112,60 +1112,59 @@ const App: React.FC = () => {
         }
 
         return (
-            <div className="w-full max-w-7xl mx-auto p-6">
+            <div className="w-full max-w-7xl mx-auto p-6 md:p-8">
                 {renderEditUserModal()}
-                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                {/* Premium Navbar */}
+                <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 pb-6 border-b border-white/[0.06]">
                     {/* Header Branding */}
                     {isSuper ? (
-                        // Super User: No Logo, Text Only
                         <div className="flex items-center gap-4">
-                            <h1 className="text-3xl font-display font-bold text-white tracking-tight">Travel Proposal Portal</h1>
+                            <img src="/sitc_logo_final.png" className="h-9 object-contain opacity-90" alt="SITC" />
+                            <div className="h-6 w-px bg-white/10"></div>
+                            <h1 className="text-xl font-display font-semibold text-white tracking-tight">Travel Proposal Portal</h1>
                         </div>
                     ) : (
-                        // Admin/User: Company Logo
                         <div className="flex items-center gap-4">
                             {companyLogo ? (
-                                <img src={companyLogo} className="h-16 w-auto object-contain bg-white/10 rounded p-1 backdrop-blur-sm border border-white/20" alt="Company Logo" />
+                                <img src={companyLogo} className="h-12 w-auto object-contain bg-white/[0.06] rounded-xl p-1.5 backdrop-blur-sm border border-white/[0.08]" alt="Company Logo" />
                             ) : (
-                                <SITCLogo className="w-24 h-auto opacity-50 grayscale" />
+                                <SITCLogo className="w-20 h-auto opacity-40" />
                             )}
-                            <div>
-                                <h1 className="text-4xl font-display font-bold text-white">Portal</h1>
-                            </div>
+                            <div className="h-6 w-px bg-white/10"></div>
+                            <h1 className="text-xl font-display font-semibold text-white">Portal</h1>
                         </div>
                     )}
 
                     <div className="flex items-center gap-4">
                         <div className="flex flex-col items-end">
-                            {/* 15.1 Super User Name Display */}
-                            <span className="text-sm font-bold text-white">{user.firstName} {user.lastName}</span>
-                            <span className="text-xs text-gray-400">{user.email}</span>
-                            <button onClick={handleLogout} className="text-xs text-red-400 hover:text-red-300 mt-1">Log Out</button>
+                            <span className="text-sm font-semibold text-white">{user.firstName} {user.lastName}</span>
+                            <span className="text-xs text-white/40">{user.email}</span>
+                            <button onClick={handleLogout} className="text-xs text-red-400/70 hover:text-red-300 mt-1 transition-colors">Log Out</button>
                         </div>
-                        <div className="h-10 w-10 bg-slate-700 rounded-full flex items-center justify-center text-xl text-ai-accent">
+                        <div className="h-10 w-10 bg-ai-accent/10 rounded-xl flex items-center justify-center text-ai-accent border border-ai-accent/20">
                             <UserIcon />
                         </div>
                     </div>
                 </div>
 
-                <div className="flex gap-4 mb-6 border-b border-gray-700 pb-1 overflow-x-auto">
-                    <button onClick={() => setSubMode('my_proposals')} className={`pb-2 px-4 font-bold whitespace-nowrap ${subMode === 'my_proposals' ? 'text-ai-accent border-b-2 border-ai-accent' : 'text-gray-400 hover:text-white'}`}>My Proposals</button>
+                <div className="flex gap-1 mb-8 overflow-x-auto bg-white/[0.03] p-1 rounded-xl border border-white/[0.05]">
+                    <button onClick={() => setSubMode('my_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'my_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'}`}>My Proposals</button>
 
                     {(isSuper || isAdmin) && (
-                        <button onClick={() => setSubMode('all_proposals')} className={`pb-2 px-4 font-bold whitespace-nowrap ${subMode === 'all_proposals' ? 'text-ai-accent border-b-2 border-ai-accent' : 'text-gray-400 hover:text-white'}`}>
-                            {isSuper ? 'All Company Proposals' : 'Company Proposals'}
+                        <button onClick={() => setSubMode('all_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'all_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'}`}>
+                            {isSuper ? 'All Proposals' : 'Company Proposals'}
                         </button>
                     )}
 
                     {isSuper && (
-                        <button onClick={() => setSubMode('companies')} className={`pb-2 px-4 font-bold whitespace-nowrap ${subMode === 'companies' ? 'text-ai-accent border-b-2 border-ai-accent' : 'text-gray-400 hover:text-white'}`}>Manage Companies</button>
+                        <button onClick={() => setSubMode('companies')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'companies' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'}`}>Companies</button>
                     )}
 
                     {(isSuper || isAdmin) && (
-                        <button onClick={() => setSubMode('company_users')} className={`pb-2 px-4 font-bold whitespace-nowrap ${subMode === 'company_users' ? 'text-ai-accent border-b-2 border-ai-accent' : 'text-gray-400 hover:text-white'}`}>User Management</button>
+                        <button onClick={() => setSubMode('company_users')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'company_users' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'}`}>Users</button>
                     )}
 
-                    <button onClick={() => setSubMode('account_settings')} className={`pb-2 px-4 font-bold whitespace-nowrap ${subMode === 'account_settings' ? 'text-ai-accent border-b-2 border-ai-accent' : 'text-gray-400 hover:text-white'}`}>Account Settings</button>
+                    <button onClick={() => setSubMode('account_settings')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'account_settings' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'}`}>Settings</button>
                 </div>
 
                 {(subMode === 'my_proposals' || subMode === 'all_proposals') && (
@@ -1174,40 +1173,40 @@ const App: React.FC = () => {
                             <h2 className="text-2xl font-bold text-white">
                                 {subMode === 'my_proposals' ? 'My Proposals' : (isSuper ? 'All System Proposals' : 'Team Proposals')}
                             </h2>
-                            <Button onClick={handleCreateNew} className="bg-ai-accent text-slate-900">+ Create Proposal</Button>
+                            <Button onClick={handleCreateNew}>+ Create Proposal</Button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {displayedProposals.length === 0 && <div className="text-gray-500 col-span-3 text-center py-10 bg-slate-800/30 rounded-xl border border-dashed border-gray-700">No proposals found.</div>}
+                            {displayedProposals.length === 0 && <div className="text-white/30 col-span-3 text-center py-16 glass rounded-2xl border border-dashed border-white/[0.08]">No proposals found. Create your first proposal to get started.</div>}
                             {displayedProposals.map((p) => (
-                                <div key={p.id} className="bg-slate-800/80 p-6 rounded-xl border border-slate-700 hover:border-ai-accent/50 transition shadow-lg flex flex-col relative group">
+                                <div key={p.id} className="glass p-6 rounded-2xl hover:border-ai-accent/30 transition-all duration-300 flex flex-col relative group card-hover">
                                     {sharingId === p.id && (
-                                        <div className="absolute inset-0 bg-slate-900/95 z-10 flex flex-col items-center justify-center p-4 rounded-xl animate-fadeIn">
-                                            <h4 className="text-white font-bold mb-2">Share Proposal</h4>
+                                        <div className="absolute inset-0 bg-ai-bg/95 z-10 flex flex-col items-center justify-center p-4 rounded-2xl animate-fade-up backdrop-blur-md">
+                                            <h4 className="text-white font-semibold mb-3">Share Proposal</h4>
                                             <FormInput label="Enter Email" value={shareEmail} onChange={e => setShareEmail(e.target.value)} className="w-full mb-2" />
                                             <div className="flex gap-2">
-                                                <button onClick={() => setSharingId(null)} className="text-xs text-gray-400">Cancel</button>
+                                                <button onClick={() => setSharingId(null)} className="text-xs text-white/40 hover:text-white transition-colors">Cancel</button>
                                             </div>
                                         </div>
                                     )}
 
                                     <div className="flex items-start justify-between mb-4">
                                         <div>
-                                            <h3 className="text-xl font-bold text-white truncate w-48">{p.proposalName || p.customerName || 'Untitled'}</h3>
-                                            <div className="text-sm text-gray-400 truncate">{p.customerName}</div>
+                                            <h3 className="text-lg font-semibold text-white truncate w-48">{p.proposalName || p.customerName || 'Untitled'}</h3>
+                                            <div className="text-sm text-white/40 truncate">{p.customerName}</div>
                                             <div className="flex flex-col mt-2">
-                                                <span className="text-xs text-gray-500">Created: {new Date(Number(p.id)).toLocaleDateString()}</span>
-                                                {p.createdBy !== user.email && <span className="text-[10px] text-ai-accent uppercase tracking-wide mt-1 font-bold">By: {p.createdBy}</span>}
-                                                {isSuper && p.companyId && <span className="text-[10px] text-gray-500 uppercase mt-1">Comp: {companies.find(c => c.id === p.companyId)?.name}</span>}
+                                                <span className="text-xs text-white/30">Created: {new Date(Number(p.id)).toLocaleDateString()}</span>
+                                                {p.createdBy !== user.email && <span className="text-[10px] text-ai-secondary uppercase tracking-wide mt-1 font-semibold">By: {p.createdBy}</span>}
+                                                {isSuper && p.companyId && <span className="text-[10px] text-white/25 uppercase mt-1">Comp: {companies.find(c => c.id === p.companyId)?.name}</span>}
                                             </div>
                                         </div>
-                                        <span className="px-2 py-1 bg-ai-accent/10 text-ai-accent rounded text-xs font-bold">{p.pricing.currency}</span>
+                                        <span className="px-2.5 py-1 bg-ai-accent/10 text-ai-secondary rounded-lg text-xs font-semibold border border-ai-accent/20">{p.pricing.currency}</span>
                                     </div>
 
-                                    <div className="flex gap-2 pt-4 border-t border-gray-700 mt-auto">
-                                        <button onClick={() => handleEdit(p)} className="flex-1 py-2 bg-ai-accent text-slate-900 rounded font-bold flex justify-center items-center gap-2 text-sm hover:brightness-110 transition-all"><EditIcon /> Edit</button>
-                                        <button onClick={() => handleDuplicate(p)} className="p-2 bg-slate-700 text-white rounded hover:bg-slate-600" title="Duplicate"><CopyIcon /></button>
+                                    <div className="flex gap-2 pt-4 border-t border-white/[0.06] mt-auto">
+                                        <button onClick={() => handleEdit(p)} className="flex-1 py-2 gradient-accent text-white rounded-lg font-semibold flex justify-center items-center gap-2 text-sm hover:shadow-glow transition-all"><EditIcon /> Edit</button>
+                                        <button onClick={() => handleDuplicate(p)} className="p-2 bg-white/[0.05] text-white/60 rounded-lg hover:bg-white/[0.1] hover:text-white transition-all" title="Duplicate"><CopyIcon /></button>
                                         {(isSuper || isAdmin || p.createdBy === user.email) && (
-                                            <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-900/30 text-red-400 rounded hover:bg-red-900/50" title="Delete"><TrashIcon /></button>
+                                            <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-500/10 text-red-400/70 rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all" title="Delete"><TrashIcon /></button>
                                         )}
                                     </div>
                                 </div>
@@ -1220,9 +1219,9 @@ const App: React.FC = () => {
                 {subMode === 'company_users' && (isSuper || isAdmin) && renderUserManagement()}
 
                 {subMode === 'account_settings' && (
-                    <div className="glass p-6 rounded-xl max-w-md mx-auto">
+                    <div className="glass p-8 rounded-2xl max-w-md mx-auto">
                         <SectionHeader title="Change Password" icon={<LockIcon />} />
-                        {passMsg.text && <div className={`mb-4 p-3 rounded text-sm ${passMsg.type === 'success' ? 'bg-green-500/20 text-green-200' : 'bg-red-500/20 text-red-200'}`}>{passMsg.text}</div>}
+                        {passMsg.text && <div className={`mb-5 p-3.5 rounded-xl text-sm border ${passMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-300' : 'bg-red-500/10 border-red-500/20 text-red-300'}`}>{passMsg.text}</div>}
                         <FormInput label="Current Password" type="password" value={passData.current} onChange={e => setPassData({ ...passData, current: e.target.value })} />
                         <FormInput label="New Password" type="password" value={passData.new} onChange={e => setPassData({ ...passData, new: e.target.value })} />
                         <Button onClick={() => { try { changePassword(user.email, passData.current, passData.new); setPassMsg({ type: 'success', text: 'Updated' }); } catch (e: any) { setPassMsg({ type: 'error', text: e.message }); } }}>Update Password</Button>
@@ -1232,7 +1231,7 @@ const App: React.FC = () => {
         );
     };
 
-    if (viewMode === 'dashboard') return <div className="min-h-screen bg-ai-bg bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-black text-white">{renderDashboard()}</div>;
+    if (viewMode === 'dashboard') return <div className="min-h-screen bg-premium text-white">{renderDashboard()}</div>;
 
     if (viewMode === 'preview') return (
         <div className="min-h-screen bg-gray-100 pb-20">
@@ -1249,23 +1248,23 @@ const App: React.FC = () => {
     );
 
     return (
-        <div className="min-h-screen bg-ai-bg bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-black flex flex-col items-center justify-center p-2 md:p-8">
-            <div className="w-full max-w-4xl glass rounded-2xl shadow-2xl overflow-hidden border border-slate-700 flex flex-col h-[90vh] md:h-auto">
-                <div className="h-1 w-full bg-slate-800"><div className="h-full bg-gradient-to-r from-ai-accent to-purple-500 transition-all duration-500" style={{ width: `${((step + 1) / Steps.length) * 100}%` }}></div></div>
+        <div className="min-h-screen bg-premium flex flex-col items-center justify-center p-2 md:p-8">
+            <div className="w-full max-w-4xl glass rounded-2xl shadow-card overflow-hidden flex flex-col h-[90vh] md:h-auto">
+                <div className="h-1 w-full bg-white/[0.03]"><div className="h-full gradient-accent transition-all duration-500" style={{ width: `${((step + 1) / Steps.length) * 100}%` }}></div></div>
 
-                <div className="p-4 md:p-6 border-b border-slate-700 flex justify-between items-center bg-slate-900/50">
-                    <div className="flex items-center gap-2 md:gap-4"><button onClick={() => setViewMode('dashboard')} className="text-gray-400 hover:text-white flex items-center gap-2"><HomeIcon /> Back</button></div>
+                <div className="p-4 md:p-6 border-b border-white/[0.06] flex justify-between items-center bg-ai-bg/50 backdrop-blur-sm">
+                    <div className="flex items-center gap-2 md:gap-4"><button onClick={() => setViewMode('dashboard')} className="text-white/40 hover:text-white flex items-center gap-2 transition-colors text-sm"><HomeIcon /> Back</button></div>
                     <div className="flex items-center gap-4">
-                        <span className="text-gray-400 text-sm">Step {step + 1} of {Steps.length}</span>
-                        <Button onClick={() => handleSaveProposal(true)} className="bg-green-600 text-white gap-2 h-8 text-sm"><SaveIcon /> Save Draft</Button>
+                        <span className="text-white/35 text-sm">Step {step + 1} of {Steps.length}</span>
+                        <Button variant="secondary" onClick={() => handleSaveProposal(true)} className="gap-2 h-8 text-sm"><SaveIcon /> Save Draft</Button>
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">{Steps[step]}</div>
 
-                <div className="p-4 border-t border-slate-700 bg-slate-900/50 flex justify-between items-center">
+                <div className="p-4 border-t border-white/[0.06] bg-ai-bg/50 backdrop-blur-sm flex justify-between items-center">
                     <Button variant="secondary" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0}>Previous</Button>
-                    {step < Steps.length - 1 ? <Button onClick={() => setStep(s => Math.min(Steps.length - 1, s + 1))}>Next Step</Button> : <Button onClick={() => handleSaveProposal(false)} className="bg-ai-accent text-slate-900">Generate Proposal</Button>}
+                    {step < Steps.length - 1 ? <Button onClick={() => setStep(s => Math.min(Steps.length - 1, s + 1))}>Next Step</Button> : <Button onClick={() => handleSaveProposal(false)}>Generate Proposal</Button>}
                 </div>
             </div>
         </div>
