@@ -624,8 +624,8 @@ const App: React.FC = () => {
     };
 
     // Step Renders
-    const renderBrandingStep = () => (<div className="glass p-6 rounded-xl w-full max-w-4xl mx-auto"> <SectionHeader title="Proposal Details & Branding" icon={<PalmLogo className="w-6 h-6" />} /> <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"> <FormInput label="Proposal Name (Required)" value={formData.proposalName} onChange={(e) => setFormData({ ...formData, proposalName: e.target.value })} placeholder="e.g. London Group Nov 2025" /> <FormInput label="Customer / Client Name" value={formData.customerName} onChange={(e) => setFormData({ ...formData, customerName: e.target.value })} placeholder="e.g. Acme Corp" /> </div> <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4"> <FileUploader label="Client Logo" currentImage={formData.branding.clientLogo} onFileSelect={(b64) => setFormData({ ...formData, branding: { ...formData.branding, clientLogo: b64 } })} /> <div className="opacity-75 pointer-events-none filter"> <label className="text-xs uppercase tracking-wider font-bold text-ai-accent mb-1">Company Logo (Auto-filled)</label> <div className="p-4 border border-gray-600 rounded bg-slate-800 text-center text-sm text-gray-400 h-32 flex items-center justify-center"> {formData.branding.companyLogo ? <img src={formData.branding.companyLogo} className="h-24 mx-auto object-contain" /> : <span>No Logo</span>} </div> </div> </div> <div className="mt-6 p-4 bg-slate-800/50 rounded border border-slate-600"> <h4 className="font-bold text-ai-accent mb-3 text-sm">Contact Details (Auto-filled)</h4> <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> <FormInput label="Company Name" value={formData.branding.companyName || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, companyName: e.target.value } })} /> <FormInput label="Prepared By" value={formData.branding.contactName || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, contactName: e.target.value } })} /> <FormInput label="Email" value={formData.branding.contactEmail || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, contactEmail: e.target.value } })} /> <FormInput label="Phone" value={formData.branding.contactPhone || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, contactPhone: e.target.value } })} /> </div> </div> </div>);
-    const renderPricingConfigStep = () => (<div className="glass p-6 rounded-xl w-full max-w-4xl mx-auto"> <SectionHeader title="Pricing & Markup" icon={<span className="text-xl">💰</span>} /> <div className="mb-6 p-4 bg-indigo-900/20 rounded border border-indigo-500/30 grid grid-cols-1 md:grid-cols-2 gap-4"> <FormSelect label="Currency" options={['SAR', 'USD', 'EUR', 'GBP', 'AED'].map(c => ({ label: c, value: c }))} value={formData.pricing.currency} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, currency: e.target.value } })} /> <div className="md:mt-6"><FormCheckbox label="Show Prices in Proposal" checked={formData.pricing.showPrices} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, showPrices: e.target.checked } })} /></div> </div> <div className="mb-6"> <h4 className="font-bold text-ai-accent mb-4 border-b border-gray-700 pb-2">Service Markups</h4> {(Object.entries(formData.pricing.markups) as [string, MarkupConfig][]).map(([cat, config]) => (<div key={cat} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center mb-4 p-3 bg-slate-800/50 rounded border border-slate-700"> <div className="col-span-12 md:col-span-4 font-bold text-white capitalize">{cat}</div> <div className="col-span-12 md:col-span-4"> <FormSelect label="Type" options={[{ label: 'Percentage %', value: MarkupType.Percent }, { label: 'Fixed Amount', value: MarkupType.Fixed }]} value={config.type} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, markups: { ...formData.pricing.markups, [cat]: { ...config, type: e.target.value } } } })} className="mb-0" /> </div> <div className="col-span-12 md:col-span-4"> <FormInput label="Value" type="number" value={config.value} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, markups: { ...formData.pricing.markups, [cat]: { ...config, value: parseFloat(e.target.value) } } } })} className="mb-0" /> </div> </div>))} </div> <div className="p-4 bg-slate-800/50 rounded border border-slate-600"> <h4 className="font-bold text-ai-accent mb-2">VAT Settings</h4> <div className="flex flex-col md:flex-row md:items-center gap-6"> <FormCheckbox label="Enable VAT" checked={formData.pricing.enableVat} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, enableVat: e.target.checked } })} /> {formData.pricing.enableVat && <div className="w-32"><FormInput label="VAT %" type="number" value={formData.pricing.vatPercent} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, vatPercent: parseFloat(e.target.value) } })} className="mb-0" /></div>} </div> </div> </div>);
+    const renderBrandingStep = () => (<div className="glass p-6 rounded-xl w-full max-w-4xl mx-auto"> <SectionHeader title="Proposal Details & Branding" icon={<PalmLogo className="w-6 h-6" />} /> <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"> <FormInput label="Proposal Name (Required)" value={formData.proposalName} onChange={(e) => setFormData({ ...formData, proposalName: e.target.value })} placeholder="e.g. London Group Nov 2025" /> <FormInput label="Customer / Client Name" value={formData.customerName} onChange={(e) => setFormData({ ...formData, customerName: e.target.value })} placeholder="e.g. Acme Corp" /> </div> <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4"> <FileUploader label="Client Logo" currentImage={formData.branding.clientLogo} onFileSelect={(b64) => setFormData({ ...formData, branding: { ...formData.branding, clientLogo: b64 } })} /> <div className="opacity-75 pointer-events-none filter"> <label className="text-xs uppercase tracking-wider font-bold text-ai-accent mb-1">Company Logo (Auto-filled)</label> <div className="p-4 rounded-xl section-surface text-center text-sm text-white/40 h-32 flex items-center justify-center"> {formData.branding.companyLogo ? <img src={formData.branding.companyLogo} className="h-24 mx-auto object-contain" /> : <span>No Logo</span>} </div> </div> </div> <div className="mt-6 p-4 section-surface"> <h4 className="font-bold text-ai-accent mb-3 text-sm">Contact Details (Auto-filled)</h4> <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> <FormInput label="Company Name" value={formData.branding.companyName || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, companyName: e.target.value } })} /> <FormInput label="Prepared By" value={formData.branding.contactName || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, contactName: e.target.value } })} /> <FormInput label="Email" value={formData.branding.contactEmail || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, contactEmail: e.target.value } })} /> <FormInput label="Phone" value={formData.branding.contactPhone || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, contactPhone: e.target.value } })} /> </div> </div> </div>);
+    const renderPricingConfigStep = () => (<div className="glass p-6 rounded-xl w-full max-w-4xl mx-auto"> <SectionHeader title="Pricing & Markup" icon={<span className="text-xl">💰</span>} /> <div className="mb-6 p-4 section-surface grid grid-cols-1 md:grid-cols-2 gap-4"> <FormSelect label="Currency" options={['SAR', 'USD', 'EUR', 'GBP', 'AED'].map(c => ({ label: c, value: c }))} value={formData.pricing.currency} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, currency: e.target.value } })} /> <div className="md:mt-6"><FormCheckbox label="Show Prices in Proposal" checked={formData.pricing.showPrices} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, showPrices: e.target.checked } })} /></div> </div> <div className="mb-6"> <h4 className="font-bold text-ai-accent mb-4 border-b border-white/[0.06] pb-2">Service Markups</h4> {(Object.entries(formData.pricing.markups) as [string, MarkupConfig][]).map(([cat, config]) => (<div key={cat} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center mb-4 p-3 section-surface"> <div className="col-span-12 md:col-span-4 font-bold text-white capitalize">{cat}</div> <div className="col-span-12 md:col-span-4"> <FormSelect label="Type" options={[{ label: 'Percentage %', value: MarkupType.Percent }, { label: 'Fixed Amount', value: MarkupType.Fixed }]} value={config.type} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, markups: { ...formData.pricing.markups, [cat]: { ...config, type: e.target.value } } } })} className="mb-0" /> </div> <div className="col-span-12 md:col-span-4"> <FormInput label="Value" type="number" value={config.value} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, markups: { ...formData.pricing.markups, [cat]: { ...config, value: parseFloat(e.target.value) } } } })} className="mb-0" /> </div> </div>))} </div> <div className="p-4 section-surface"> <h4 className="font-bold text-ai-accent mb-2">VAT Settings</h4> <div className="flex flex-col md:flex-row md:items-center gap-6"> <FormCheckbox label="Enable VAT" checked={formData.pricing.enableVat} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, enableVat: e.target.checked } })} /> {formData.pricing.enableVat && <div className="w-32"><FormInput label="VAT %" type="number" value={formData.pricing.vatPercent} onChange={(e) => setFormData({ ...formData, pricing: { ...formData.pricing, vatPercent: parseFloat(e.target.value) } })} className="mb-0" /></div>} </div> </div> </div>);
 
     // Hotel Logic
     const addHotel = () => {
@@ -702,7 +702,7 @@ const App: React.FC = () => {
         <div className="glass p-6 rounded-xl w-full max-w-4xl mx-auto space-y-8">
             <div className="flex justify-between items-center"><SectionHeader title="Accommodation" icon={<BedIcon />} /><Button variant="secondary" onClick={addHotel}>+ Add Another Hotel</Button></div>
             {formData.hotelOptions.map((hotel, index) => (
-                <div key={hotel.id} className="bg-slate-800/40 p-6 rounded-xl border border-slate-700 relative">
+                <div key={hotel.id} className="section-surface p-6 rounded-xl relative">
                     <button onClick={() => removeHotel(index)} className="absolute top-4 right-4 text-red-400 text-xs hover:text-red-300 flex items-center gap-1"><TrashIcon /> Remove Hotel</button>
                     <h3 className="text-xl font-bold text-white mb-4">Hotel Option {index + 1}</h3>
                     {/* Hotel Fields */}
@@ -714,10 +714,10 @@ const App: React.FC = () => {
                     </div>
 
                     {/* Room Types */}
-                    <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-700 mb-6">
+                    <div className="p-4 section-surface mb-6">
                         <h4 className="font-bold text-ai-secondary mb-3 uppercase text-sm tracking-wider flex items-center gap-2"><BedIcon /> Room Configuration</h4>
                         {hotel.roomTypes.map((rt, rtIdx) => (
-                            <div key={rt.id} className="flex flex-col gap-4 mb-4 pb-4 border-b border-slate-800 last:border-0 last:pb-0">
+                            <div key={rt.id} className="flex flex-col gap-4 mb-4 pb-4 border-b border-white/[0.06] last:border-0 last:pb-0">
                                 <div className="flex flex-col md:flex-row gap-4 items-end">
                                     <div className="flex-[2] w-full"><FormInput label="Room Type Name" value={rt.name} onChange={e => updateRoomType(index, rtIdx, 'name', e.target.value)} placeholder="e.g. Deluxe Room" className="mb-0" /></div>
                                     <div className="flex-1 w-full"><FormInput label={`Net Price (${formData.pricing.currency})`} type="number" value={rt.netPrice} onChange={e => updateRoomType(index, rtIdx, 'netPrice', parseFloat(e.target.value))} className="mb-0" /></div>
@@ -744,14 +744,14 @@ const App: React.FC = () => {
                     </div>
 
                     {/* Meeting Rooms Block */}
-                    <div className="mb-6 p-4 bg-slate-900/50 rounded border border-slate-700">
+                    <div className="mb-6 p-4 section-surface">
                         <h4 className="font-bold text-ai-secondary mb-3 uppercase text-sm flex items-center gap-2"><MeetingIcon /> Meeting Rooms</h4>
                         {hotel.meetingRooms.map((m, mIdx) => {
                             const isStandard = MEETING_ROOM_OPTIONS.some(o => o.value === m.name && o.value !== 'Other');
                             const dropdownValue = isStandard ? m.name : 'Other';
 
                             return (
-                                <div key={m.id} className="mb-4 pb-4 border-b border-slate-800 last:border-0 last:pb-0">
+                                <div key={m.id} className="mb-4 pb-4 border-b border-white/[0.06] last:border-0 last:pb-0">
                                     {/* Row 1: Main Inputs */}
                                     <div className="flex flex-col md:flex-row gap-4 items-end mb-4">
                                         <div className="flex-[2] flex gap-2 w-full">
@@ -800,7 +800,7 @@ const App: React.FC = () => {
                     </div>
 
                     {/* Dining Block */}
-                    <div className="p-4 bg-slate-900/50 rounded border border-slate-700">
+                    <div className="p-4 section-surface">
                         <h4 className="font-bold text-ai-secondary mb-3 uppercase text-sm flex items-center gap-2"><UtensilsIcon /> Dining (Optional)</h4>
                         {hotel.dining.map((d, dIdx) => {
                             const isStandard = DINING_OPTIONS.some(o => o.value === d.name && o.value !== 'Other');
@@ -808,7 +808,7 @@ const App: React.FC = () => {
                             const hasDates = !!(d.startDate || d.endDate);
 
                             return (
-                                <div key={d.id} className="mb-4 pb-4 border-b border-slate-800 last:border-0 last:pb-0">
+                                <div key={d.id} className="mb-4 pb-4 border-b border-white/[0.06] last:border-0 last:pb-0">
                                     {/* Row 1: Main Inputs */}
                                     <div className="flex flex-col md:flex-row gap-4 items-end mb-4">
                                         <div className="flex-[2] flex gap-2 w-full">
@@ -867,7 +867,7 @@ const App: React.FC = () => {
                         <h4 className="font-bold text-gray-400 text-xs uppercase mb-3">Hotel Gallery</h4>
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                             {hotel.images.map((img, imgIdx) => (
-                                <div key={imgIdx} className="relative group aspect-square bg-slate-900 rounded overflow-hidden">
+                                <div key={imgIdx} className="relative group aspect-square bg-[rgba(8,9,12,0.9)] rounded overflow-hidden">
                                     <img src={img.url} className="w-full h-full object-cover" />
                                     <div className="absolute bottom-0 inset-x-0 bg-black/70 p-1">
                                         <select className="w-full bg-transparent text-[10px] text-white border-none p-0" value={img.tag || 'none'} onChange={e => updateHotelImageTag(index, imgIdx, e.target.value)}><option value="none">No Tag</option><option value="exterior">Exterior</option><option value="rooms">Rooms</option><option value="interior">Interior</option></select>
@@ -922,7 +922,7 @@ const App: React.FC = () => {
                 </div>
             </div>
             {formData.inclusions.flights && formData.flightOptions.map((flight, index) => (
-                <div key={flight.id} className="bg-slate-800/40 p-6 rounded-xl border border-slate-700 relative">
+                <div key={flight.id} className="section-surface p-6 rounded-xl relative">
                     <h3 className="text-xl font-bold text-white mb-4 flex justify-between items-center">
                         Flight Option {index + 1}
                         <div className="flex items-center gap-4">
@@ -932,7 +932,7 @@ const App: React.FC = () => {
                     </h3>
                     <div className="mb-6"><FormInput label="Route Description" value={flight.routeDescription} onChange={e => updateFlight(index, 'routeDescription', e.target.value)} placeholder="e.g. Riyadh to London" /></div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div className="p-4 bg-slate-900/50 rounded border border-slate-700">
+                        <div className="p-4 section-surface">
                             <h4 className="font-bold text-ai-secondary mb-3 text-xs uppercase">Outbound Journey</h4>
                             {flight.outbound.map((leg, i) => (
                                 <div key={i} className="mb-4 border-l-2 border-gray-600 pl-3 relative">
@@ -944,7 +944,7 @@ const App: React.FC = () => {
                             ))}
                             <Button variant="secondary" onClick={() => addFlightLeg(index, 'outbound')} className="text-xs">+ Add Connection</Button>
                         </div>
-                        <div className="p-4 bg-slate-900/50 rounded border border-slate-700">
+                        <div className="p-4 section-surface">
                             <h4 className="font-bold text-ai-secondary mb-3 text-xs uppercase">Return Journey</h4>
                             {flight.return.map((leg, i) => (
                                 <div key={i} className="mb-4 border-l-2 border-gray-600 pl-3 relative">
@@ -957,7 +957,7 @@ const App: React.FC = () => {
                             <Button variant="secondary" onClick={() => addFlightLeg(index, 'return')} className="text-xs">+ Add Connection</Button>
                         </div>
                     </div>
-                    <div className="mb-6 p-4 bg-slate-900/50 rounded border border-slate-700">
+                    <div className="mb-6 p-4 section-surface">
                         <h4 className="font-bold text-ai-accent mb-2 text-sm uppercase">Price Quotes</h4>
                         {flight.quotes.map((q, qIdx) => (
                             <div key={qIdx} className="flex items-end gap-4 mb-2">
@@ -984,7 +984,7 @@ const App: React.FC = () => {
                 <FormCheckbox label="Skip Transportation" checked={!formData.inclusions.transportation} onChange={(e) => setFormData({ ...formData, inclusions: { ...formData.inclusions, transportation: !e.target.checked } })} />
             </div>
             {formData.inclusions.transportation && formData.transportation.map((item, idx) => (
-                <div key={idx} className="mb-6 p-4 bg-slate-800/50 rounded border border-slate-700 relative group">
+                <div key={idx} className="mb-6 p-4 section-surface relative group">
                     <button onClick={() => removeItem('transportation', idx)} className="absolute top-2 right-2 text-red-400 text-xs">REMOVE</button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormSelect label="Type" options={Object.values(VehicleType).map(v => ({ label: v, value: v }))} value={item.type} onChange={(e) => updateItem('transportation', idx, 'type', e.target.value)} />
@@ -1021,7 +1021,7 @@ const App: React.FC = () => {
         <div className="glass p-6 rounded-xl w-full max-w-4xl mx-auto">
             <SectionHeader title="Custom Services" icon={<CustomIcon />} />
             {formData.customItems.map((item, idx) => (
-                <div key={idx} className="mb-4 p-4 bg-slate-800/50 rounded border border-slate-700 relative">
+                <div key={idx} className="mb-4 p-4 section-surface relative">
                     <button onClick={() => removeItem('customItems', idx)} className="absolute top-2 right-2 text-red-400 text-xs">REMOVE</button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="col-span-1 md:col-span-2"><FormInput label="Description" value={item.description} onChange={(e) => updateItem('customItems', idx, 'description', e.target.value)} /></div>
@@ -1051,7 +1051,7 @@ const App: React.FC = () => {
         <div className="glass p-6 rounded-xl w-full max-w-4xl mx-auto">
             <SectionHeader title="Activities" icon={<ActivityIcon />} />
             {formData.activities.map((item, idx) => (
-                <div key={idx} className="mb-4 p-4 bg-slate-800/50 rounded border border-slate-700 relative">
+                <div key={idx} className="mb-4 p-4 section-surface relative">
                     <button onClick={() => removeItem('activities', idx)} className="absolute top-2 right-2 text-red-400 text-xs">REMOVE</button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormInput label="Name" value={item.name} onChange={(e) => updateItem('activities', idx, 'name', e.target.value)} />
@@ -1078,7 +1078,7 @@ const App: React.FC = () => {
         </div>
     );
 
-    const renderInclusionsStep = () => (<div className="glass p-6 rounded-xl w-full max-w-4xl mx-auto"> <SectionHeader title="Inclusions Check" icon={<PalmLogo className="w-6 h-6" />} /> <p className="text-sm text-gray-400 mb-4">Final check of what will appear on the generated proposal.</p> <div className="space-y-4"> {Object.keys(formData.inclusions).map((key) => (<label key={key} className="flex items-center gap-3 p-4 bg-slate-800/50 rounded border border-slate-600 cursor-pointer"> <input type="checkbox" checked={formData.inclusions[key as keyof Inclusions]} onChange={(e) => setFormData({ ...formData, inclusions: { ...formData.inclusions, [key]: e.target.checked } })} className="w-5 h-5 text-ai-accent rounded bg-slate-900 border-gray-500" /> <span className="capitalize font-semibold text-white">{key.replace(/([A-Z])/g, ' $1').trim()}</span> </label>))} </div> </div>);
+    const renderInclusionsStep = () => (<div className="glass p-6 rounded-xl w-full max-w-4xl mx-auto"> <SectionHeader title="Inclusions Check" icon={<PalmLogo className="w-6 h-6" />} /> <p className="text-sm text-white/50 mb-4">Final check of what will appear on the generated proposal.</p> <div className="space-y-4"> {Object.keys(formData.inclusions).map((key) => (<label key={key} className="flex items-center gap-3 p-4 section-surface cursor-pointer"> <input type="checkbox" checked={formData.inclusions[key as keyof Inclusions]} onChange={(e) => setFormData({ ...formData, inclusions: { ...formData.inclusions, [key]: e.target.checked } })} className="w-5 h-5 text-ai-accent rounded bg-white/5 border-white/20" /> <span className="capitalize font-semibold text-white">{key.replace(/([A-Z])/g, ' $1').trim()}</span> </label>))} </div> </div>);
 
     const Steps = [renderBrandingStep(), renderPricingConfigStep(), renderHotelStep(), renderFlightStep(), renderTransportationStep(), renderCustomStep(), renderActivitiesStep(), renderInclusionsStep()];
 
@@ -1248,11 +1248,11 @@ const App: React.FC = () => {
     );
 
     return (
-        <div className="min-h-screen bg-premium flex flex-col items-center justify-center p-2 md:p-8">
-            <div className="w-full max-w-4xl glass rounded-2xl shadow-card overflow-hidden flex flex-col h-[90vh] md:h-auto">
+        <div className="min-h-screen bg-premium flex items-center justify-center p-0 md:p-4">
+            <div className="w-full max-w-4xl glass rounded-2xl overflow-hidden flex flex-col page-shell compact">
                 <div className="h-1 w-full bg-white/[0.03]"><div className="h-full gradient-accent transition-all duration-500" style={{ width: `${((step + 1) / Steps.length) * 100}%` }}></div></div>
 
-                <div className="p-4 md:p-6 border-b border-white/[0.06] flex justify-between items-center bg-ai-bg/50 backdrop-blur-sm">
+                <div className="page-header border-b border-white/[0.06] bg-ai-bg/50 backdrop-blur-sm flex justify-between items-center">
                     <div className="flex items-center gap-2 md:gap-4"><button onClick={() => setViewMode('dashboard')} className="text-white/40 hover:text-white flex items-center gap-2 transition-colors text-sm"><HomeIcon /> Back</button></div>
                     <div className="flex items-center gap-4">
                         <span className="text-white/35 text-sm">Step {step + 1} of {Steps.length}</span>
@@ -1260,9 +1260,9 @@ const App: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">{Steps[step]}</div>
+                <div className="page-content overflow-y-auto custom-scrollbar">{Steps[step]}</div>
 
-                <div className="p-4 border-t border-white/[0.06] bg-ai-bg/50 backdrop-blur-sm flex justify-between items-center">
+                <div className="page-footer border-t border-white/[0.06] bg-ai-bg/50 backdrop-blur-sm flex justify-between items-center">
                     <Button variant="secondary" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0}>Previous</Button>
                     {step < Steps.length - 1 ? <Button onClick={() => setStep(s => Math.min(Steps.length - 1, s + 1))}>Next Step</Button> : <Button onClick={() => handleSaveProposal(false)}>Generate Proposal</Button>}
                 </div>
