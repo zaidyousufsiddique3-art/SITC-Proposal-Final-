@@ -646,6 +646,7 @@ const App: React.FC = () => {
     const addHotelImage = (index: number, url: string) => { const h = [...formData.hotelOptions]; if (h[index].images.length >= 3) return; h[index].images.push({ url, tag: undefined }); setFormData({ ...formData, hotelOptions: h }); };
     const addMultipleHotelImages = (index: number, urls: string[]) => { const h = [...formData.hotelOptions]; const remaining = 3 - h[index].images.length; const toAdd = urls.slice(0, remaining); toAdd.forEach(url => h[index].images.push({ url, tag: undefined })); setFormData({ ...formData, hotelOptions: h }); };
     const removeHotelImage = (index: number, imgIdx: number) => { const h = [...formData.hotelOptions]; h[index].images.splice(imgIdx, 1); setFormData({ ...formData, hotelOptions: h }); };
+    const reorderHotelImages = (hotelIndex: number, fromIdx: number, toIdx: number) => { const h = [...formData.hotelOptions]; const imgs = [...h[hotelIndex].images]; const [moved] = imgs.splice(fromIdx, 1); imgs.splice(toIdx, 0, moved); h[hotelIndex] = { ...h[hotelIndex], images: imgs }; setFormData({ ...formData, hotelOptions: h }); };
     const addRoomType = (hotelIndex: number) => { const h = [...formData.hotelOptions]; h[hotelIndex].roomTypes.push({ ...initialRoomType, id: Date.now().toString(), includeInSummary: true }); setFormData({ ...formData, hotelOptions: h }); };
 
     // Date Update Logics
@@ -865,11 +866,21 @@ const App: React.FC = () => {
 
                     {/* Images */}
                     <div className="mt-6 p-4 section-surface">
-                        <h4 className="font-bold text-white/40 text-xs uppercase mb-3">Hotel Gallery ({hotel.images.length}/3)</h4>
+                        <h4 className="font-bold text-white/40 text-xs uppercase mb-3">Hotel Gallery ({hotel.images.length}/3) {hotel.images.length > 1 && <span className="text-white/20 normal-case font-normal">· Drag to reorder</span>}</h4>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             {hotel.images.map((img, imgIdx) => (
-                                <div key={imgIdx} className="relative group aspect-square bg-[rgba(8,9,12,0.9)] rounded overflow-hidden">
-                                    <img src={img.url} className="w-full h-full object-cover" />
+                                <div
+                                    key={imgIdx}
+                                    className="relative group aspect-square bg-[rgba(8,9,12,0.9)] rounded-lg overflow-hidden cursor-grab active:cursor-grabbing"
+                                    draggable
+                                    onDragStart={(e) => { e.dataTransfer.setData('text/plain', imgIdx.toString()); (e.currentTarget as HTMLElement).style.opacity = '0.4'; }}
+                                    onDragEnd={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
+                                    onDragOver={(e) => { e.preventDefault(); (e.currentTarget as HTMLElement).style.outline = '2px solid #0a62f0'; }}
+                                    onDragLeave={(e) => { (e.currentTarget as HTMLElement).style.outline = 'none'; }}
+                                    onDrop={(e) => { e.preventDefault(); (e.currentTarget as HTMLElement).style.outline = 'none'; const from = parseInt(e.dataTransfer.getData('text/plain')); if (from !== imgIdx) reorderHotelImages(index, from, imgIdx); }}
+                                >
+                                    <img src={img.url} className="w-full h-full object-cover pointer-events-none" />
+                                    <div className="absolute top-1 left-1 bg-black/60 text-white/60 text-[10px] px-1.5 py-0.5 rounded font-bold">{imgIdx + 1}</div>
                                     <div className="absolute bottom-0 inset-x-0 bg-black/70 p-1">
                                         <select className="w-full bg-transparent text-[10px] text-white border-none p-0" value={img.tag || 'none'} onChange={e => updateHotelImageTag(index, imgIdx, e.target.value)}><option value="none">No Tag</option><option value="exterior">Exterior</option><option value="rooms">Rooms</option><option value="interior">Interior</option></select>
                                     </div>
