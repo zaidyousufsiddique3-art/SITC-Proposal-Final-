@@ -1175,8 +1175,8 @@ const App: React.FC = () => {
                             </h2>
                             <Button onClick={handleCreateNew}>+ Create Proposal</Button>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {displayedProposals.length === 0 && <div className="text-white/30 col-span-3 text-center py-16 glass rounded-2xl border border-dashed border-white/[0.08]">No proposals found. Create your first proposal to get started.</div>}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
+                            {displayedProposals.length === 0 && <div className="col-span-3 text-center py-20 empty-state flex items-center justify-center">No proposals found. Create your first proposal to get started.</div>}
                             {displayedProposals.map((p) => (
                                 <div key={p.id} className="glass p-6 rounded-2xl hover:border-ai-accent/30 transition-all duration-300 flex flex-col relative group card-hover">
                                     {sharingId === p.id && (

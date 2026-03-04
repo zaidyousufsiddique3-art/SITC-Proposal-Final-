@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { User } from '../types';
 import { loginUser, changePassword, sendResetEmail, logoutUser } from '../services/authService';
 import { FormInput, Button } from './InputComponents';
@@ -169,7 +170,10 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-premium p-4">
-            <div className="w-full max-w-md glass p-10 rounded-2xl shadow-card animate-fade-up">
+            <div className="w-full max-w-md glass-elevated p-10 rounded-2xl animate-fade-up">
+                <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors mb-6">
+                    ← Back to Home
+                </Link>
                 <div className="flex flex-col items-center mb-8">
                     <img src="/sitc_logo_final.png" className="h-20 mb-6 object-contain" alt="SITC Logo" />
                     <h1 className="text-2xl font-bold text-white tracking-tight text-center font-display">

@@ -50,7 +50,7 @@ export default function HeroAntigravity() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <img src="/sitc_logo_final.png" alt="SITC" style={{ height: 36, objectFit: 'contain', opacity: 0.9 }} />
+          <img src="/sitc_logo_final.png" alt="SITC" style={{ height: 180, objectFit: 'contain', opacity: 0.9 }} />
         </div>
         <Link
           to="/login"
@@ -144,8 +144,6 @@ export default function HeroAntigravity() {
         {/* CTA Buttons */}
         <div
           style={{
-            display: 'flex',
-            gap: 16,
             marginTop: 40,
             pointerEvents: 'auto',
           }}
@@ -167,23 +165,6 @@ export default function HeroAntigravity() {
           >
             Get Started →
           </Link>
-          <a
-            href="#features"
-            style={{
-              textDecoration: 'none',
-              padding: '14px 36px',
-              borderRadius: 12,
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: 'rgba(255,255,255,0.7)',
-              fontWeight: 500,
-              fontSize: '0.95rem',
-              transition: 'all 0.25s ease',
-              backdropFilter: 'blur(10px)',
-            }}
-          >
-            Learn More
-          </a>
         </div>
       </div>
 

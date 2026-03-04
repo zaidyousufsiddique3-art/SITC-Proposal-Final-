@@ -11,7 +11,7 @@ export const FormInput: React.FC<InputProps> = ({ label, error, className, ...pr
   <div className="flex flex-col gap-1.5 mb-4 w-full">
     <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80">{label}</label>
     <input
-      className={`bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-white placeholder-white/30 focus:ring-2 focus:ring-ai-accent/40 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${error ? 'border-red-500/60' : ''} ${className}`}
+      className={`bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-white placeholder-white/[0.45] focus:ring-2 focus:ring-ai-accent/30 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${error ? 'border-red-500/60' : ''} ${className}`}
       {...props}
     />
     {error && <span className="text-xs text-red-400 mt-0.5">{error}</span>}
@@ -27,7 +27,7 @@ export const FormSelect: React.FC<SelectProps> = ({ label, options, className, .
   <div className="flex flex-col gap-1.5 mb-4 w-full">
     <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80">{label}</label>
     <select
-      className={`bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-ai-accent/40 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${className}`}
+      className={`bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-ai-accent/30 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${className}`}
       {...props}
     >
       {options.map((opt) => (
@@ -147,9 +147,9 @@ export const SectionHeader: React.FC<{ title: string; icon?: React.ReactNode }> 
 );
 
 export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'danger' }> = ({ children, variant = 'primary', className, ...props }) => {
-  const baseStyle = "px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-sm";
+  const baseStyle = "px-6 py-2.5 rounded-[10px] font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-sm";
   const variants = {
-    primary: "gradient-accent text-white shadow-lg shadow-ai-accent/15 hover:shadow-ai-accent/25 hover:scale-[1.03] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 disabled:shadow-none",
+    primary: "gradient-accent text-white shadow-lg shadow-ai-accent/15 hover:shadow-ai-accent/25 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 disabled:shadow-none",
     secondary: "bg-white/[0.05] border border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white hover:border-white/[0.12]",
     danger: "bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/40"
   };
