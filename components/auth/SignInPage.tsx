@@ -86,60 +86,68 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 {/* Global Dark Overlay */}
                 <div className="absolute inset-0 z-1 bg-black/40 backdrop-blur-[2px] pointer-events-none" />
 
-                {/* Login Card */}
-                <div className="relative z-10 w-full max-w-md animate-fade-up">
+                {/* Login Card Container */}
+                <div className="relative z-10 w-full max-w-[380px] animate-fade-up">
                     <button
                         onClick={() => window.location.href = '/'}
-                        className="md:absolute md:-top-16 left-0 mb-8 md:mb-0 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors group"
+                        className="mb-6 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 hover:text-white transition-all duration-300 group"
                     >
-                        <ArrowLeftIcon size={14} className="group-hover:-translate-x-1 transition-transform" />
-                        Back to Home
+                        <ArrowLeftIcon size={12} className="group-hover:-translate-x-1 transition-transform" />
+                        Back to Portal
                     </button>
 
-                    <div className="glass-elevated p-8 md:p-10 rounded-[28px] border-white/10 shadow-2xl relative overflow-hidden">
-                        {/* Glossy inner glow */}
-                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none" />
+                    <div className="relative bg-[#0a0c12]/72 backdrop-blur-md border border-white/10 rounded-[18px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.5)] overflow-hidden">
+                        {/* Subtle inner top highlight */}
+                        <div className="absolute inset-x-0 top-0 h-px bg-white/5 pointer-events-none" />
 
-                        <div className="flex flex-col items-center mb-8">
-                            <h2 className="text-2xl font-bold text-white tracking-tight mb-1">
+                        <div className="flex flex-col items-center mb-6">
+                            <h2 className="text-[22px] font-bold text-white tracking-tight mb-0.5">
                                 {role === 'admin' ? 'Admin Portal' : 'Staff Portal'}
                             </h2>
-                            <p className="text-gray-400 text-xs font-medium uppercase tracking-widest">Sign in to continue</p>
+                            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-white/65">Sign in to continue</p>
                         </div>
 
                         <RoleToggle role={role} onChange={setRole} />
 
-                        <form onSubmit={handleSignIn} className="space-y-5">
-                            <FormInput
-                                label="Email address"
-                                type="email"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                placeholder="name@sitc.sa"
-                                className="bg-black/20 border-white/5 py-3"
-                            />
-
-                            <div className="space-y-2">
+                        <form onSubmit={handleSignIn} className="space-y-4">
+                            <div className="space-y-1">
+                                <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/70 ml-1">Email Address</label>
                                 <FormInput
-                                    label="Password"
+                                    label=""
+                                    type="email"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    placeholder="name@sitc.sa"
+                                    className="!bg-white/[0.06] !border-white/10 !rounded-xl !h-11 !py-0 !text-sm !mb-0 !placeholder-white/45 focus:!border-blue-500/90 focus:!ring-[3px] focus:!ring-blue-500/20"
+                                    required
+                                />
+                            </div>
+
+                            <div className="space-y-1">
+                                <div className="flex justify-between items-center ml-1">
+                                    <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/70">Password</label>
+                                </div>
+                                <FormInput
+                                    label=""
                                     type="password"
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
                                     placeholder="••••••••"
-                                    className="bg-black/20 border-white/5 py-3"
+                                    className="!bg-white/[0.06] !border-white/10 !rounded-xl !h-11 !py-0 !text-sm !mb-0 !placeholder-white/45 focus:!border-blue-500/90 focus:!ring-[3px] focus:!ring-blue-500/20"
+                                    required
                                 />
-                                <div className="flex justify-between items-center px-1">
-                                    <button type="button" onClick={onForgotPassword} className="text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-blue-300 transition-colors">
+                                <div className="flex justify-between items-center px-1 mt-1.5">
+                                    <button type="button" onClick={onForgotPassword} className="text-[12px] font-medium text-blue-400/75 hover:text-blue-400 hover:underline transition-all">
                                         Forgot Password?
                                     </button>
-                                    <button type="button" onClick={onForgotUsername} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
+                                    <button type="button" onClick={onForgotUsername} className="text-[12px] font-medium text-white/40 hover:text-white/70 hover:underline transition-all">
                                         Forgot Username?
                                     </button>
                                 </div>
                             </div>
 
                             {error && (
-                                <div className="p-3.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-bold text-center animate-shake">
+                                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-[11px] font-bold text-center animate-shake">
                                     {error}
                                 </div>
                             )}
@@ -147,17 +155,27 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className={`w-full py-4 text-sm font-black uppercase tracking-[0.15em] transition-all duration-300 shadow-2xl
+                                className={`relative w-full h-[46px] text-[13px] font-black uppercase tracking-[0.14em] rounded-xl transition-all duration-300 overflow-hidden group/btn hover:-translate-y-0.5 active:translate-y-0 shadow-lg
                   ${role === 'user'
-                                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:shadow-blue-500/40'
-                                        : 'bg-gradient-to-r from-amber-600 to-amber-500 hover:shadow-amber-500/40'}`}
+                                        ? 'bg-gradient-to-br from-blue-600 to-blue-500 hover:shadow-blue-500/25'
+                                        : 'bg-gradient-to-br from-amber-600 to-amber-500 hover:shadow-amber-500/25'}`}
                             >
-                                {isLoading ? 'Verifying...' : 'Sign In Now'}
+                                {isLoading ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <span>Signing In...</span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <span>Sign In Now</span>
+                                        <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none" />
+                                    </>
+                                )}
                             </Button>
                         </form>
                     </div>
 
-                    <div className="mt-8 text-center text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                    <div className="mt-8 text-center text-[10px] text-gray-500/45 font-bold uppercase tracking-[0.18em]">
                         Protected by enterprise-grade security
                     </div>
                 </div>
