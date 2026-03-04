@@ -39,8 +39,24 @@ export const getProposals = async (user: User): Promise<ProposalData[]> => {
     }
 };
 
+// Recursively strip undefined values — Firestore rejects them
+const sanitize = (obj: any): any => {
+    if (obj === null || obj === undefined) return null;
+    if (Array.isArray(obj)) return obj.map(sanitize);
+    if (typeof obj === 'object' && !(obj instanceof Date)) {
+        const cleaned: any = {};
+        for (const [key, value] of Object.entries(obj)) {
+            if (value !== undefined) {
+                cleaned[key] = sanitize(value);
+            }
+        }
+        return cleaned;
+    }
+    return obj;
+};
+
 export const saveProposal = async (proposal: ProposalData) => {
-    await setDoc(doc(db, "proposals", proposal.id), proposal);
+    await setDoc(doc(db, "proposals", proposal.id), sanitize(proposal));
 };
 
 export const deleteProposal = async (id: string) => {
