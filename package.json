@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@google/genai": "^1.30.0",
+    "@react-three/fiber": "^9.5.0",
     "firebase": "^12.6.0",
     "firebase-admin": "^13.7.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
