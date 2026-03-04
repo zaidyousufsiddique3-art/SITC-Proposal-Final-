@@ -4,8 +4,14 @@ import { Link } from 'react-router-dom';
 import { User } from '../types';
 import { loginUser, changePassword, sendResetEmail, logoutUser } from '../services/authService';
 import { FormInput, Button } from './InputComponents';
-import { ArrowLeftIcon } from './Icons';
+import { ArrowLeftIcon, CheckIcon } from './Icons';
 import { getGlobalSettings } from '../services/authService';
+
+interface AuthProps {
+    onLogin: (user: User) => void;
+}
+
+import { SignInPage } from './auth/SignInPage';
 
 interface AuthProps {
     onLogin: (user: User) => void;
@@ -13,12 +19,11 @@ interface AuthProps {
 
 export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
     const [mode, setMode] = useState<'login' | 'forgot_password' | 'forgot_username' | 'force_change'>('login');
-    const [loginType, setLoginType] = useState<'admin' | 'user'>('user');
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const settings = getGlobalSettings();
 
-    // Login State
+    // Shared credentials (used by the new SignInPage)
     const [loginEmail, setLoginEmail] = useState('');
     const [loginPass, setLoginPass] = useState('');
 
@@ -32,29 +37,27 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
     const [verificationCode, setVerificationCode] = useState('');
     const [step, setStep] = useState(0); // 0: Input, 1: Verify
 
-    const handleLogin = async () => {
+    const handleLoginProcess = async (email: string, pass: string, type: 'admin' | 'user') => {
         setError('');
+        setIsLoading(true);
         try {
-            const user = await loginUser(loginEmail, loginPass);
+            const user = await loginUser(email, pass);
 
-            // 20.4 Login Flow Logic & Visibility
-            if (loginType === 'admin') {
+            // Access Control Logic
+            if (type === 'admin') {
                 if (user.role !== 'admin' && user.role !== 'super_admin' && user.role !== 'owner') {
-                    setError('You are not authorised to access the Admin Panel.');
-                    await logoutUser();
-                    return;
+                    throw new Error('You are not authorised to access the Admin Panel.');
                 }
             } else {
                 if (user.role === 'admin' || user.role === 'super_admin' || user.role === 'owner') {
-                    setError('Administrators must use the Admin Login.');
-                    await logoutUser();
-                    return;
+                    throw new Error('Administrators must use the Admin Login.');
                 }
             }
 
             // Check for Temporary Password
             if (user.mustChangePassword) {
                 setTempUser(user);
+                setLoginPass(pass); // store current pass to use in changePassword
                 setMode('force_change');
                 return;
             }
@@ -62,6 +65,9 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
             onLogin(user);
         } catch (e: any) {
             setError(e.message || 'Invalid credentials');
+            await logoutUser();
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -94,107 +100,78 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
         setError('Please contact your administrator to recover your username.');
     };
 
-    const renderLogin = () => (
-        <>
-            {/* Login Type Toggle */}
-            <div className="flex bg-[var(--bg-secondary)] p-1 rounded-xl mb-8 border border-[var(--border-color)]">
-                <button
-                    onClick={() => { setLoginType('user'); setError(''); }}
-                    className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${loginType === 'user' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/20' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                >
-                    User Login
-                </button>
-                <button
-                    onClick={() => { setLoginType('admin'); setError(''); }}
-                    className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${loginType === 'admin' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/20' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                >
-                    Admin Login
-                </button>
-            </div>
-
-            <h3 className="text-center text-[var(--text-secondary)] font-medium mb-6 text-sm">
-                {loginType === 'admin' ? 'Admin & Management Portal' : 'Staff Portal'}
-            </h3>
-
-            <FormInput label="Email" type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} placeholder="Enter your email" />
-            <FormInput label="Password" type="password" value={loginPass} onChange={e => setLoginPass(e.target.value)} placeholder="Enter your password" />
-
-            <div className="flex justify-between text-xs mb-6 px-1">
-                <button onClick={() => { setMode('forgot_password'); setError(''); setSuccess(''); }} className="text-ai-secondary hover:text-[var(--text-primary)] transition-colors duration-200">Forgot Password?</button>
-                <button onClick={() => { setMode('forgot_username'); setError(''); setSuccess(''); }} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200">Forgot Username?</button>
-            </div>
-
-            <Button onClick={handleLogin} className="w-full mt-2 pt-[11px] pb-[13px] text-base shadow-[0_8px_30px_rgba(10,98,240,0.4)]">
-                Sign In
-            </Button>
-        </>
-    );
-
+    // Keep legacy renderers for specific recovery/force modes
     const renderForceChange = () => (
-        <div className="animate-fade-up">
-            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Password Expired</h3>
-            <p className="text-sm text-[var(--text-secondary)] mb-6">Your temporary password has expired. Please set a new one.</p>
-            <FormInput label="New Password" type="password" value={newPass} onChange={e => setNewPass(e.target.value)} />
-            <Button onClick={handleForceChange} className="w-full pt-[11px] pb-[13px]">Update Password</Button>
+        <div className="min-h-screen flex items-center justify-center bg-[#05060a] p-4">
+            <div className="w-full max-w-md glass-elevated p-10 rounded-3xl animate-fade-up">
+                <h3 className="text-xl font-bold text-white mb-2">Password Expired</h3>
+                <p className="text-sm text-gray-400 mb-6">Your temporary password has expired. Please set a new one to continue.</p>
+                <form onSubmit={(e) => { e.preventDefault(); handleForceChange(); }}>
+                    <FormInput label="New Password" type="password" value={newPass} onChange={e => setNewPass(e.target.value)} className="bg-white/5 border-white/10" />
+                    <Button type="submit" className="w-full mt-4 py-4">Update Password</Button>
+                </form>
+            </div>
         </div>
     );
 
     const renderForgotPassword = () => (
-        <div className="animate-fade-up">
-            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Reset Password</h3>
-            {step === 0 ? (
-                <>
-                    <p className="text-sm text-[var(--text-secondary)] mb-6">Enter your registered email to receive a verification code.</p>
-                    <FormInput label="Email Address" value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)} />
-                    <Button onClick={handleRecoverPassword} className="w-full mb-3 py-3">Send Code</Button>
-                </>
-            ) : (
-                <>
-                    <p className="text-sm text-[var(--text-secondary)] mb-6">Enter the verification code sent to your email.</p>
-                    <FormInput label="Verification Code" value={verificationCode} onChange={e => setVerificationCode(e.target.value)} />
-                    <Button onClick={handleRecoverPassword} className="w-full mb-3 py-3">Verify & Reset</Button>
-                </>
-            )}
-            <button onClick={() => { setMode('login'); setStep(0); }} className="w-full text-center text-xs text-[var(--text-secondary)] mt-3 hover:text-[var(--text-primary)] transition-colors flex items-center justify-center gap-1.5">
-                <ArrowLeftIcon size={12} /> Back to Login
-            </button>
+        <div className="min-h-screen flex items-center justify-center bg-[#05060a] p-4">
+            <div className="w-full max-w-md glass-elevated p-10 rounded-3xl animate-fade-up">
+                <h3 className="text-xl font-bold text-white mb-2">Reset Password</h3>
+                {step === 0 ? (
+                    <>
+                        <p className="text-sm text-gray-400 mb-6 font-medium leading-relaxed">Enter your registered email to receive a password reset link.</p>
+                        <FormInput label="Email Address" value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)} className="bg-white/5 border-white/10" />
+                        <Button onClick={handleRecoverPassword} className="w-full mt-3 py-4">Send Link</Button>
+                    </>
+                ) : (
+                    <div className="text-center py-4">
+                        <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500 mx-auto mb-4">
+                            <CheckIcon size={24} />
+                        </div>
+                        <p className="text-gray-300 text-sm">{success}</p>
+                    </div>
+                )}
+                <button onClick={() => { setMode('login'); setStep(0); }} className="w-full text-center text-[11px] font-black uppercase tracking-widest text-gray-500 mt-8 hover:text-white transition-colors flex items-center justify-center gap-2">
+                    <ArrowLeftIcon size={12} /> Back to Sign In
+                </button>
+            </div>
         </div>
     );
 
     const renderForgotUsername = () => (
-        <div className="animate-fade-up">
-            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Recover Username</h3>
-            <p className="text-sm text-[var(--text-secondary)] mb-6">Enter your registered phone number.</p>
-            <FormInput label="Phone Number" value={recoveryPhone} onChange={e => setRecoveryPhone(e.target.value)} />
-            <Button onClick={handleRecoverUsername} className="w-full mb-3 py-3">Find Username</Button>
-            <button onClick={() => setMode('login')} className="w-full text-center text-xs text-[var(--text-secondary)] mt-3 hover:text-[var(--text-primary)] transition-colors flex items-center justify-center gap-1.5">
-                <ArrowLeftIcon size={12} /> Back to Login
-            </button>
-        </div>
-    );
-
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-premium p-4">
-            <div className="w-full max-w-md glass-elevated p-10 rounded-2xl animate-fade-up">
-                <button onClick={() => window.location.href = '/'} className="inline-flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-6">
-                    <ArrowLeftIcon size={12} /> Back to Home
+        <div className="min-h-screen flex items-center justify-center bg-[#05060a] p-4">
+            <div className="w-full max-w-md glass-elevated p-10 rounded-3xl animate-fade-up">
+                <h3 className="text-xl font-bold text-white mb-2">Recover Username</h3>
+                <p className="text-sm text-gray-400 mb-6 leading-relaxed">Enter your registered phone number to identify your account.</p>
+                <FormInput label="Phone Number" value={recoveryPhone} onChange={e => setRecoveryPhone(e.target.value)} className="bg-white/5 border-white/10" />
+                <Button onClick={handleRecoverUsername} className="w-full mt-3 py-4">Find Username</Button>
+                <button onClick={() => setMode('login')} className="w-full text-center text-[11px] font-black uppercase tracking-widest text-gray-500 mt-8 hover:text-white transition-colors flex items-center justify-center gap-2">
+                    <ArrowLeftIcon size={12} /> Back to Sign In
                 </button>
-                <div className="flex flex-col items-center mb-8">
-                    <img src="/sitc_logo_final.png" className="h-20 mb-6 object-contain" alt="SITC Logo" />
-                    <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight text-center font-display">
-                        Travel Proposal Portal
-                    </h1>
-                    <p className="text-[var(--text-secondary)] text-xs mt-2 tracking-wide">Secure Access</p>
-                </div>
-
-                {error && <div className="mb-5 p-3.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm text-center">{error}</div>}
-                {success && <div className="mb-5 p-3.5 bg-green-500/10 border border-green-500/20 rounded-xl text-green-500 text-sm text-center">{success}</div>}
-
-                {mode === 'login' && renderLogin()}
-                {mode === 'force_change' && renderForceChange()}
-                {mode === 'forgot_password' && renderForgotPassword()}
-                {mode === 'forgot_username' && renderForgotUsername()}
             </div>
         </div>
     );
-}
+
+    if (mode === 'login') {
+        return (
+            <SignInPage
+                onLogin={onLogin}
+                onForgotPassword={() => setMode('forgot_password')}
+                onForgotUsername={() => setMode('forgot_username')}
+                handleLoginProcess={handleLoginProcess}
+                error={error}
+                isLoading={isLoading}
+            />
+        );
+    }
+
+    return (
+        <>
+            {error && !isLoading && <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] p-4 bg-red-500 text-white rounded-xl shadow-2xl font-bold text-sm animate-fade-down">{error}</div>}
+            {mode === 'force_change' && renderForceChange()}
+            {mode === 'forgot_password' && renderForgotPassword()}
+            {mode === 'forgot_username' && renderForgotUsername()}
+        </>
+    );
+};
