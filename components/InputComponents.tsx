@@ -9,9 +9,9 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const FormInput: React.FC<InputProps> = ({ label, error, className, ...props }) => (
   <div className="flex flex-col gap-1.5 mb-4 w-full">
-    <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80 theme-text-secondary">{label}</label>
+    <label className="text-[11px] uppercase tracking-widest font-semibold theme-text-secondary">{label}</label>
     <input
-      className={`bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder-[var(--text-secondary)]/50 focus:ring-2 focus:ring-ai-accent/30 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${error ? 'border-red-500/60' : ''} ${className}`}
+      className={`bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl px-4 py-3 text-[var(--text-primary)] placeholder-[var(--placeholder)] focus:ring-2 focus:ring-[var(--input-focus)] focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm hover:border-[var(--input-border-hover)] ${error ? 'border-red-500/60' : ''} ${className}`}
       {...props}
     />
     {error && <span className="text-xs text-red-400 mt-0.5">{error}</span>}
@@ -25,13 +25,13 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 
 export const FormSelect: React.FC<SelectProps> = ({ label, options, className, ...props }) => (
   <div className="flex flex-col gap-1.5 mb-4 w-full">
-    <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80 theme-text-secondary">{label}</label>
+    <label className="text-[11px] uppercase tracking-widest font-semibold theme-text-secondary">{label}</label>
     <select
-      className={`bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:ring-2 focus:ring-ai-accent/30 focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm ${className}`}
+      className={`bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl px-4 py-3 text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--input-focus)] focus:border-ai-accent focus:outline-none transition-all duration-200 text-sm hover:border-[var(--input-border-hover)] ${className}`}
       {...props}
     >
       {options.map((opt) => (
-        <option key={opt.value} value={opt.value} className="bg-[var(--bg-page)] text-[var(--text-primary)]">
+        <option key={opt.value} value={opt.value} className="bg-[var(--bg-primary)] text-[var(--text-primary)]">
           {opt.label}
         </option>
       ))}
@@ -40,14 +40,14 @@ export const FormSelect: React.FC<SelectProps> = ({ label, options, className, .
 );
 
 export const FormCheckbox: React.FC<{ label: string; checked: boolean; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }> = ({ label, checked, onChange }) => (
-  <label className="flex items-center gap-3 px-4 py-3 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl cursor-pointer hover:bg-[var(--row-hover)] transition-all duration-200 mb-4 select-none">
+  <label className="flex items-center gap-3 px-4 py-3 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl cursor-pointer hover:bg-[var(--row-hover)] transition-all duration-200 mb-4 select-none hover:border-[var(--input-border-hover)]">
     <input
       type="checkbox"
       checked={checked}
       onChange={onChange}
       className="w-4 h-4 text-ai-accent rounded focus:ring-ai-accent/40 bg-white/5 border-white/20"
     />
-    <span className="text-sm font-medium text-[var(--text-primary)] opacity-80">{label}</span>
+    <span className="text-sm font-medium text-[var(--text-primary)]">{label}</span>
   </label>
 );
 
@@ -63,8 +63,8 @@ interface DateRangePickerProps {
 export const DateRangePicker: React.FC<DateRangePickerProps> = ({ label, startDate, endDate, onChange, minDate, className }) => {
   return (
     <div className={`flex flex-col gap-1.5 mb-4 w-full ${className}`}>
-      <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80 theme-text-secondary">{label}</label>
-      <div className="flex items-center gap-2 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-ai-accent/40 focus-within:border-ai-accent transition-all duration-200">
+      <label className="text-[11px] uppercase tracking-widest font-semibold theme-text-secondary">{label}</label>
+      <div className="flex items-center gap-2 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl px-3 py-2 focus-within:ring-2 focus-within:ring-[var(--input-focus)] focus-within:border-ai-accent transition-all duration-200 hover:border-[var(--input-border-hover)]">
         <input
           type="date"
           value={startDate}
@@ -73,7 +73,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ label, startDa
           className="bg-transparent text-[var(--text-primary)] text-sm w-full focus:outline-none"
           placeholder="From"
         />
-        <span className="text-[var(--text-secondary)] opacity-30 font-medium text-xs">→</span>
+        <span className="text-[var(--text-disabled)] font-medium text-xs">→</span>
         <input
           type="date"
           value={endDate}
@@ -109,9 +109,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ label, onFileSelect,
 
   return (
     <div className="flex flex-col gap-1.5 mb-4 w-full">
-      <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80 theme-text-secondary">{label}</label>
+      <label className="text-[11px] uppercase tracking-widest font-semibold theme-text-secondary">{label}</label>
       <div
-        className="bg-[var(--bg-secondary)] border border-dashed border-[var(--border-color)] rounded-xl p-4 hover:bg-[var(--row-hover)] hover:border-ai-accent/30 transition-all duration-200 cursor-pointer flex items-center justify-center gap-3"
+        className="bg-[var(--bg-secondary)] border border-dashed border-[var(--panel-border)] rounded-xl p-4 hover:bg-[var(--row-hover)] hover:border-ai-accent/30 transition-all duration-200 cursor-pointer flex items-center justify-center gap-3 shadow-sm"
         onClick={() => inputRef.current?.click()}
       >
         <input
@@ -129,7 +129,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ label, onFileSelect,
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center text-[var(--text-secondary)] opacity-40">
+          <div className="flex flex-col items-center text-[var(--text-disabled)]">
             <UploadIcon />
             <span className="text-xs mt-1.5 font-medium">Click to upload</span>
           </div>
@@ -188,7 +188,7 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({ label, onF
 
   return (
     <div
-      className="bg-[var(--bg-secondary)] border border-dashed border-[var(--border-color)] rounded-xl p-4 hover:bg-[var(--row-hover)] hover:border-ai-accent/30 transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-1"
+      className="bg-[var(--bg-secondary)] border border-dashed border-[var(--panel-border)] rounded-xl p-4 hover:bg-[var(--row-hover)] hover:border-ai-accent/30 transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-1 shadow-sm"
       onClick={() => inputRef.current?.click()}
     >
       <input
@@ -199,15 +199,15 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({ label, onF
         multiple
         onChange={handleFiles}
       />
-      <UploadIcon className="text-[var(--text-secondary)] opacity-40" />
-      <span className="text-xs text-[var(--text-secondary)] opacity-40 font-medium">Click to upload</span>
-      <span className="text-[10px] text-[var(--text-secondary)] opacity-25">{remaining} of {maxFiles} remaining</span>
+      <UploadIcon className="text-[var(--text-disabled)]" />
+      <span className="text-xs text-[var(--text-muted)] font-medium">Click to upload</span>
+      <span className="text-[10px] text-[var(--text-disabled)]">{remaining} of {maxFiles} remaining</span>
     </div>
   );
 };
 
 export const SectionHeader: React.FC<{ title: string; icon?: React.ReactNode }> = ({ title, icon }) => (
-  <div className="flex items-center gap-3 mb-6 pb-3 border-b border-[var(--border-softer)]">
+  <div className="flex items-center gap-3 mb-6 pb-3 border-b border-[var(--divider)]">
     {icon && <div className="text-ai-accent">{icon}</div>}
     <h3 className="text-lg font-semibold text-[var(--text-primary)] tracking-tight">{title}</h3>
   </div>
@@ -217,8 +217,8 @@ export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { 
   const baseStyle = "px-6 py-2.5 rounded-[10px] font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-sm";
   const variants = {
     primary: "gradient-accent text-white shadow-lg shadow-ai-accent/15 hover:shadow-ai-accent/25 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 disabled:shadow-none",
-    secondary: "bg-[var(--bg-secondary)] border border-[var(--input-border)] text-[var(--text-primary)] hover:bg-[var(--row-hover)]",
-    danger: "bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/40"
+    secondary: "bg-[var(--panel-bg)] border border-[var(--panel-border)] text-[var(--text-primary)] hover:bg-[var(--row-hover)] shadow-sm",
+    danger: "bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 hover:border-red-500/40"
   };
 
   return (

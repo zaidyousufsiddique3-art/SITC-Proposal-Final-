@@ -502,15 +502,15 @@ const App: React.FC = () => {
         return (
             <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-md">
                 <div className="glass w-full max-w-lg rounded-2xl shadow-card flex flex-col animate-fade-up">
-                    <div className="p-6 border-b border-white/[0.06] flex justify-between items-center">
+                    <div className="p-6 border-b border-[var(--panel-border)] flex justify-between items-center">
                         <h3 className="text-lg font-semibold text-white">Edit Company</h3>
-                        <button onClick={() => setEditingCompany(null)} className="text-white/40 hover:text-white transition-colors">Close</button>
+                        <button onClick={() => setEditingCompany(null)} className="text-[var(--text-muted)] hover:text-white transition-colors">Close</button>
                     </div>
                     <div className="p-6 space-y-4">
                         <FormInput label="Company Name" value={editingCompany.name} onChange={e => setEditingCompany({ ...editingCompany, name: e.target.value })} />
                         <FormInput label="Domain" value={editingCompany.domain} onChange={e => setEditingCompany({ ...editingCompany, domain: e.target.value })} />
                         <FileUploader label="Company Logo" currentImage={editingCompany.logo} onFileSelect={b64 => setEditingCompany({ ...editingCompany, logo: b64 })} />
-                        <div className="pt-4 border-t border-white/[0.06] flex justify-end items-center gap-4">
+                        <div className="pt-4 border-t border-[var(--panel-border)] flex justify-end items-center gap-4">
                             <Button variant="secondary" onClick={() => setEditingCompany(null)}>Cancel</Button>
                             <Button onClick={handleUpdateCompany}>Save Changes</Button>
                         </div>
@@ -540,7 +540,7 @@ const App: React.FC = () => {
                                 {c.logo ? <img src={c.logo} className="w-8 h-8 object-contain bg-white rounded-lg p-0.5" /> : <div className="w-8 h-8 bg-white/10 rounded-lg"></div>}
                                 <div>
                                     <div className="font-semibold text-white text-sm">{c.name}</div>
-                                    <div className="text-xs text-white/40">@{c.domain}</div>
+                                    <div className="text-xs text-[var(--text-muted)]">@{c.domain}</div>
                                 </div>
                             </div>
                             <div className="flex gap-3">
@@ -602,8 +602,8 @@ const App: React.FC = () => {
                                 <div key={i} className="p-4 inner-row flex justify-between items-center border-l-2 border-ai-accent/30 card-hover">
                                     <div>
                                         <div className="font-semibold text-white text-sm">{u.firstName} {u.lastName}</div>
-                                        <div className="text-xs text-white/40">{u.email} <span className="text-ai-secondary ml-2 capitalize">({u.role})</span></div>
-                                        {isSuper && u.companyId && <div className="text-[10px] text-white/30 mt-0.5">{companies.find(c => c.id === u.companyId)?.name}</div>}
+                                        <div className="text-xs text-[var(--text-muted)]">{u.email} <span className="text-ai-secondary ml-2 capitalize">({u.role})</span></div>
+                                        {isSuper && u.companyId && <div className="text-[10px] text-[var(--text-muted)] mt-0.5">{companies.find(c => c.id === u.companyId)?.name}</div>}
                                     </div>
                                     {u.email !== user?.email && (
                                         <button onClick={() => { setEditingUser(u); setEditUserPass(''); }} className="px-4 py-1.5 gradient-accent text-white text-xs rounded-lg font-semibold hover:shadow-glow transition-all">Manage</button>
@@ -622,9 +622,9 @@ const App: React.FC = () => {
         return (
             <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-md">
                 <div className="glass w-full max-w-lg rounded-2xl shadow-card flex flex-col animate-fade-up">
-                    <div className="p-6 border-b border-white/[0.06] flex justify-between items-center">
+                    <div className="p-6 border-b border-[var(--panel-border)] flex justify-between items-center">
                         <h3 className="text-lg font-semibold text-white">Manage User</h3>
-                        <button onClick={() => setEditingUser(null)} className="text-white/40 hover:text-white transition-colors">Close</button>
+                        <button onClick={() => setEditingUser(null)} className="text-[var(--text-muted)] hover:text-white transition-colors">Close</button>
                     </div>
                     <div className="p-6 space-y-4">
                         <FormInput label="Email Address" value={editingUser.email} onChange={e => setEditingUser({ ...editingUser, email: e.target.value })} />
@@ -633,13 +633,13 @@ const App: React.FC = () => {
                             <FormInput label="Last Name" value={editingUser.lastName} onChange={e => setEditingUser({ ...editingUser, lastName: e.target.value })} />
                         </div>
                         <FormInput label="Phone" value={editingUser.phone} onChange={e => setEditingUser({ ...editingUser, phone: e.target.value })} />
-                        <div className="p-4 bg-white/[0.03] rounded-xl border border-white/[0.06]">
+                        <div className="p-4 bg-white/[0.03] rounded-xl border border-[var(--panel-border)]">
                             <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80 mb-2 block">
                                 {user?.role === 'super_admin' ? 'Set Temporary Password (Force Reset)' : 'Set New Password'}
                             </label>
-                            <input type="password" placeholder="Leave blank to keep current" className="bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 w-full text-white text-sm focus:ring-2 focus:ring-ai-accent/40 focus:border-ai-accent focus:outline-none transition-all" value={editUserPass} onChange={e => setEditUserPass(e.target.value)} />
+                            <input type="password" placeholder="Leave blank to keep current" className="bg-[var(--divider)] border border-[var(--panel-border)] rounded-xl px-4 py-3 w-full text-white text-sm focus:ring-2 focus:ring-ai-accent/40 focus:border-ai-accent focus:outline-none transition-all" value={editUserPass} onChange={e => setEditUserPass(e.target.value)} />
                         </div>
-                        <div className="pt-4 border-t border-white/[0.06] flex justify-between items-center">
+                        <div className="pt-4 border-t border-[var(--panel-border)] flex justify-between items-center">
                             <button onClick={() => handleDeleteUser(editingUser.email)} className="text-red-400/70 hover:text-red-300 text-sm font-semibold flex items-center gap-2 transition-colors"><TrashIcon /> Delete User</button>
                             <Button onClick={handleUpdateUser}>Save Changes</Button>
                         </div>
@@ -684,11 +684,11 @@ const App: React.FC = () => {
                     <div className="col-span-1">
                         <div className="opacity-75 pointer-events-none filter">
                             <label className="text-[11px] uppercase tracking-wider font-bold text-ai-accent mb-2 block">Company Logo (Auto-filled)</label>
-                            <div className="p-4 rounded-xl section-surface text-center h-[110px] flex items-center justify-center border border-white/[0.05]">
+                            <div className="p-4 rounded-xl section-surface text-center h-[110px] flex items-center justify-center border border-[var(--divider)]">
                                 {formData.branding.companyLogo ? (
                                     <img src={formData.branding.companyLogo} className="h-20 object-contain" alt="Company Logo" />
                                 ) : (
-                                    <span className="text-xs text-white/30 uppercase font-black">SITC Standard</span>
+                                    <span className="text-xs text-[var(--text-muted)] uppercase font-black">SITC Standard</span>
                                 )}
                             </div>
                         </div>
@@ -732,7 +732,7 @@ const App: React.FC = () => {
                 <SectionHeader title="Service Markups" icon={<EditIcon />} />
                 <div className="mt-6 space-y-3">
                     {(Object.entries(formData.pricing.markups) as [string, MarkupConfig][]).map(([cat, config]) => (
-                        <div key={cat} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center p-3 section-surface rounded-xl border border-white/[0.04]">
+                        <div key={cat} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center p-3 section-surface rounded-xl border border-[var(--panel-border)]">
                             <div className="col-span-12 md:col-span-4 font-bold text-white capitalize text-sm">{cat}</div>
                             <div className="col-span-12 md:col-span-4">
                                 <FormSelect
@@ -870,12 +870,12 @@ const App: React.FC = () => {
                         {/* Header / Accordion Trigger */}
                         <div className="flex items-center justify-between cursor-pointer" onClick={toggleExpanded}>
                             <div className="flex items-center gap-4">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors ${isExpanded ? 'bg-ai-accent text-white' : 'bg-white/5 text-white/40'}`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors ${isExpanded ? 'bg-ai-accent text-white' : 'bg-white/5 text-[var(--text-muted)]'}`}>
                                     {index + 1}
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-white capitalize">{hotel.name || `Hotel Option ${index + 1}`}</h3>
-                                    {!isExpanded && <p className="text-xs text-white/40">{hotel.location || 'No location set'} • {hotel.roomTypes.length} Room Types</p>}
+                                    {!isExpanded && <p className="text-xs text-[var(--text-muted)]">{hotel.location || 'No location set'} • {hotel.roomTypes.length} Room Types</p>}
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
@@ -886,7 +886,7 @@ const App: React.FC = () => {
                                 >
                                     <TrashIcon />
                                 </button>
-                                <div className={`text-white/20 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                                <div className={`text-[var(--text-disabled)] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
                                     ▼
                                 </div>
                             </div>
@@ -894,7 +894,7 @@ const App: React.FC = () => {
 
                         {/* Collapsible Content */}
                         {isExpanded && (
-                            <div className="mt-8 pt-8 border-t border-white/[0.06] animate-fade-in">
+                            <div className="mt-8 pt-8 border-t border-[var(--panel-border)] animate-fade-in">
                                 <div className="form-grid">
                                     <div className="col-span-1 md:col-span-2">
                                         <FormInput label="Hotel Name" value={hotel.name} onChange={(e) => updateHotel(index, 'name', e.target.value)} />
@@ -908,7 +908,7 @@ const App: React.FC = () => {
 
                                 <div className="space-y-6 mt-8">
                                     {/* Sub-panel: Rooms */}
-                                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.04]">
+                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
                                         <div className="flex justify-between items-center mb-4">
                                             <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
                                                 <BedIcon /> Room Configuration
@@ -927,17 +927,17 @@ const App: React.FC = () => {
                                                             <FormInput label="Qty" type="number" value={rt.quantity} onChange={e => updateRoomType(index, rtIdx, 'quantity', parseInt(e.target.value))} className="mb-0 text-sm" />
                                                         </div>
                                                     </div>
-                                                    <div className="flex flex-col md:flex-row gap-4 items-center pt-4 border-t border-white/[0.04]">
+                                                    <div className="flex flex-col md:flex-row gap-4 items-center pt-4 border-t border-[var(--panel-border)]">
                                                         <div className="flex-1 w-full">
                                                             <DateRangePicker label="Stay Dates" startDate={rt.checkIn} endDate={rt.checkOut} onChange={(s, e) => updateRoomTypeDates(index, rtIdx, s, e)} />
                                                         </div>
                                                         <div className="flex items-center gap-6 px-4">
                                                             <div className="text-center">
-                                                                <div className="text-[10px] text-white/30 uppercase font-bold">Nights</div>
+                                                                <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Nights</div>
                                                                 <div className="text-sm font-black text-ai-secondary">{rt.numNights}</div>
                                                             </div>
                                                             <div className="pt-2"><FormCheckbox label="Sum" checked={rt.includeInSummary !== false} onChange={e => updateRoomType(index, rtIdx, 'includeInSummary', e.target.checked)} /></div>
-                                                            <button onClick={() => removeRoomType(index, rtIdx)} className="p-2 hover:bg-red-500/10 text-white/20 hover:text-red-400 transition-colors"><TrashIcon /></button>
+                                                            <button onClick={() => removeRoomType(index, rtIdx)} className="p-2 hover:bg-red-500/10 text-[var(--text-disabled)] hover:text-red-400 transition-colors"><TrashIcon /></button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -946,7 +946,7 @@ const App: React.FC = () => {
                                     </div>
 
                                     {/* Sub-panel: Meetings */}
-                                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.04]">
+                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
                                         <div className="flex justify-between items-center mb-4">
                                             <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
                                                 <MeetingIcon /> Meeting Rooms
@@ -967,17 +967,17 @@ const App: React.FC = () => {
                                                                 <FormInput label="Guests" type="number" value={m.quantity} onChange={e => updateMeeting(index, mIdx, 'quantity', parseInt(e.target.value))} className="mb-0 text-sm" />
                                                             </div>
                                                         </div>
-                                                        <div className="flex flex-col md:flex-row gap-4 items-center pt-4 border-t border-white/[0.04]">
+                                                        <div className="flex flex-col md:flex-row gap-4 items-center pt-4 border-t border-[var(--panel-border)]">
                                                             <div className="flex-1 w-full">
                                                                 <DateRangePicker label="Event Dates" startDate={m.startDate || ''} endDate={m.endDate || ''} onChange={(s, e) => updateMeetingDates(index, mIdx, s, e)} />
                                                             </div>
                                                             <div className="flex items-center gap-6 px-4">
                                                                 <div className="text-center">
-                                                                    <div className="text-[10px] text-white/30 uppercase font-bold">Days</div>
+                                                                    <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Days</div>
                                                                     <div className="text-sm font-black text-ai-secondary">{m.days}</div>
                                                                 </div>
                                                                 <div className="pt-2"><FormCheckbox label="Sum" checked={m.includeInSummary !== false} onChange={e => updateMeeting(index, mIdx, 'includeInSummary', e.target.checked)} /></div>
-                                                                <button onClick={() => removeMeeting(index, mIdx)} className="p-2 hover:bg-red-500/10 text-white/20 hover:text-red-400 transition-colors"><TrashIcon /></button>
+                                                                <button onClick={() => removeMeeting(index, mIdx)} className="p-2 hover:bg-red-500/10 text-[var(--text-disabled)] hover:text-red-400 transition-colors"><TrashIcon /></button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -987,7 +987,7 @@ const App: React.FC = () => {
                                     </div>
 
                                     {/* Sub-panel: Dining */}
-                                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.04]">
+                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
                                         <div className="flex justify-between items-center mb-4">
                                             <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
                                                 <UtensilsIcon /> Dining & Catering
@@ -1004,17 +1004,17 @@ const App: React.FC = () => {
                                                             <FormInput label="Guests" type="number" value={d.quantity} onChange={e => updateDining(index, dIdx, 'quantity', parseInt(e.target.value))} className="mb-0 text-sm" />
                                                         </div>
                                                     </div>
-                                                    <div className="flex flex-col md:flex-row gap-4 items-center pt-4 border-t border-white/[0.04]">
+                                                    <div className="flex flex-col md:flex-row gap-4 items-center pt-4 border-t border-[var(--panel-border)]">
                                                         <div className="flex-1 w-full">
                                                             <DateRangePicker label="Dates" startDate={d.startDate || ''} endDate={d.endDate || ''} onChange={(s, e) => updateDiningDates(index, dIdx, s, e)} />
                                                         </div>
                                                         <div className="flex items-center gap-6 px-4">
                                                             <div className="text-center">
-                                                                <div className="text-[10px] text-white/30 uppercase font-bold">Days</div>
+                                                                <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Days</div>
                                                                 <div className="text-sm font-black text-ai-secondary">{d.days}</div>
                                                             </div>
                                                             <div className="pt-2"><FormCheckbox label="Sum" checked={d.includeInSummary !== false} onChange={e => updateDining(index, dIdx, 'includeInSummary', e.target.checked)} /></div>
-                                                            <button onClick={() => removeDining(index, dIdx)} className="p-2 hover:bg-red-500/10 text-white/20 hover:text-red-400 transition-colors"><TrashIcon /></button>
+                                                            <button onClick={() => removeDining(index, dIdx)} className="p-2 hover:bg-red-500/10 text-[var(--text-disabled)] hover:text-red-400 transition-colors"><TrashIcon /></button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1023,9 +1023,9 @@ const App: React.FC = () => {
                                     </div>
 
                                     {/* Sub-panel: Gallery */}
-                                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.04]">
+                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
                                         <div className="flex justify-between items-center mb-4">
-                                            <h4 className="text-[11px] uppercase tracking-widest font-black text-white/40">Hotel Photo Gallery (Max 3)</h4>
+                                            <h4 className="text-[11px] uppercase tracking-widest font-black text-[var(--text-muted)]">Hotel Photo Gallery (Max 3)</h4>
                                             {hotel.images.length > 1 && <span className="text-[10px] text-ai-accent font-bold uppercase animate-pulse">· Drag to reorder</span>}
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -1042,12 +1042,12 @@ const App: React.FC = () => {
                                                         onDragOver={(e) => { e.preventDefault(); (e.currentTarget as HTMLElement).style.outline = '2px solid #0a62f0'; }}
                                                         onDragLeave={(e) => { (e.currentTarget as HTMLElement).style.outline = 'none'; }}
                                                         onDrop={(e) => { e.preventDefault(); (e.currentTarget as HTMLElement).style.outline = 'none'; const from = parseInt(e.dataTransfer.getData('sourceIdx')); reorderHotelImages(index, from, ii); }}
-                                                        className="relative w-28 h-28 rounded-xl border border-white/[0.06] overflow-hidden group cursor-move shadow-lg shrink-0 transition-premium"
+                                                        className="relative w-28 h-28 rounded-xl border border-[var(--panel-border)] overflow-hidden group cursor-move shadow-lg shrink-0 transition-premium"
                                                     >
                                                         <img src={img.url} className="w-full h-full object-cover" alt="Hotel" />
                                                         <div className="absolute top-1 left-1 bg-black/60 text-[8px] text-white/80 px-1.5 py-0.5 rounded font-bold">{ii + 1}</div>
                                                         <div className="absolute bottom-0 inset-x-0 bg-black/70 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <select className="w-full bg-transparent text-[8px] text-white border-none p-0 outline-none" value={img.tag || 'none'} onChange={e => updateHotelImageTag(index, ii, e.target.value)}><option value="none">No Tag</option><option value="exterior">Exterior</option><option value="rooms">Rooms</option><option value="interior">Interior</option></select>
+                                                            <select className="w-full bg-transparent text-[8px] text-[var(--text-primary)] border-none p-0 outline-none" value={img.tag || 'none'} onChange={e => updateHotelImageTag(index, ii, e.target.value)}><option value="none">No Tag</option><option value="exterior">Exterior</option><option value="rooms">Rooms</option><option value="interior">Interior</option></select>
                                                         </div>
                                                         <button onClick={() => removeHotelImage(index, ii)} className="absolute top-1 right-1 bg-red-600/60 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity text-white"><TrashIcon className="w-3 h-3" /></button>
                                                     </div>
@@ -1118,12 +1118,12 @@ const App: React.FC = () => {
                         {/* Header / Accordion Trigger */}
                         <div className="flex items-center justify-between cursor-pointer" onClick={toggleExpanded}>
                             <div className="flex items-center gap-4">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors ${isExpanded ? 'bg-ai-accent text-white' : 'bg-white/5 text-white/40'}`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors ${isExpanded ? 'bg-ai-accent text-white' : 'bg-white/5 text-[var(--text-muted)]'}`}>
                                     {index + 1}
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-white capitalize">{flight.routeDescription || `Flight Option ${index + 1}`}</h3>
-                                    {!isExpanded && <p className="text-xs text-white/40">{flight.quotes.length} Price Quotes • {flight.outbound.length} Outbound / {flight.return.length} Return</p>}
+                                    {!isExpanded && <p className="text-xs text-[var(--text-muted)]">{flight.quotes.length} Price Quotes • {flight.outbound.length} Outbound / {flight.return.length} Return</p>}
                                 </div>
                             </div>
                             <div className="flex items-center gap-4">
@@ -1137,7 +1137,7 @@ const App: React.FC = () => {
                                 >
                                     <TrashIcon />
                                 </button>
-                                <div className={`text-white/20 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                                <div className={`text-[var(--text-disabled)] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
                                     ▼
                                 </div>
                             </div>
@@ -1145,7 +1145,7 @@ const App: React.FC = () => {
 
                         {/* Collapsible Content */}
                         {isExpanded && (
-                            <div className="mt-8 pt-8 border-t border-white/[0.06] animate-fade-in">
+                            <div className="mt-8 pt-8 border-t border-[var(--panel-border)] animate-fade-in">
                                 <div className="mb-6">
                                     <FormInput
                                         label="Route Description"
@@ -1157,7 +1157,7 @@ const App: React.FC = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                                     {/* Outbound Sub-panel */}
-                                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.04]">
+                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
                                         <div className="flex justify-between items-center mb-4">
                                             <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
                                                 <PlaneIcon /> Outbound Journey
@@ -1198,7 +1198,7 @@ const App: React.FC = () => {
                                     </div>
 
                                     {/* Return Sub-panel */}
-                                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.04]">
+                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
                                         <div className="flex justify-between items-center mb-4">
                                             <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
                                                 <PlaneIcon /> Return Journey
@@ -1240,9 +1240,9 @@ const App: React.FC = () => {
                                 </div>
 
                                 {/* Quotes Sub-panel */}
-                                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.04] mb-6">
+                                <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)] mb-6">
                                     <div className="flex justify-between items-center mb-4">
-                                        <h4 className="text-[11px] uppercase tracking-widest font-black text-white/40">Price Quotes</h4>
+                                        <h4 className="text-[11px] uppercase tracking-widest font-black text-[var(--text-muted)]">Price Quotes</h4>
                                         <Button variant="secondary" onClick={() => addFlightQuote(index)} className="h-7 text-[10px] px-3">+ Add Quote</Button>
                                     </div>
                                     <div className="space-y-3">
@@ -1257,7 +1257,7 @@ const App: React.FC = () => {
                                                         <FormInput label={`Net Price (${formData.pricing.currency})`} type="number" value={q.price} onChange={e => updateFlightQuote(index, qIdx, 'price', parseFloat(e.target.value))} className="mb-0 text-sm" />
                                                     </div>
                                                     <div className="col-span-2 flex justify-end">
-                                                        <button onClick={() => removeFlightQuote(index, qIdx)} className="p-2.5 hover:bg-red-500/10 text-white/20 hover:text-red-400 transition-colors"><TrashIcon /></button>
+                                                        <button onClick={() => removeFlightQuote(index, qIdx)} className="p-2.5 hover:bg-red-500/10 text-[var(--text-disabled)] hover:text-red-400 transition-colors"><TrashIcon /></button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1265,7 +1265,7 @@ const App: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="pt-6 border-t border-white/[0.06]">
+                                <div className="pt-6 border-t border-[var(--panel-border)]">
                                     <FormSelect
                                         label="VAT Rule"
                                         options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]}
@@ -1320,18 +1320,18 @@ const App: React.FC = () => {
                             <FormInput label="Route or Service Description" value={item.description} onChange={(e) => updateItem('transportation', idx, 'description', e.target.value)} placeholder="e.g. Airport Transfers & Local Disposal" />
                             <FormSelect label="VAT Rule" options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]} value={item.vatRule} onChange={(e) => updateItem('transportation', idx, 'vatRule', e.target.value)} />
                         </div>
-                        <div className="col-span-1 md:col-span-1 border border-white/[0.04] bg-white/[0.01] rounded-xl p-4">
+                        <div className="col-span-1 md:col-span-1 border border-[var(--panel-border)] bg-white/[0.01] rounded-xl p-4">
                             <FileUploader label="Vehicle Image" currentImage={item.image} onFileSelect={(b64) => updateItem('transportation', idx, 'image', b64)} />
                         </div>
                     </div>
 
-                    <div className="mt-6 pt-6 border-t border-white/[0.04] grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                    <div className="mt-6 pt-6 border-t border-[var(--panel-border)] grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                         <div className="form-grid grid-cols-12 gap-3 items-center">
                             <div className="col-span-9">
                                 <DateRangePicker label="Service Dates" startDate={item.startDate} endDate={item.endDate} onChange={(s, e) => updateItemDates('transportation', idx, s, e)} />
                             </div>
                             <div className="col-span-3 text-center">
-                                <div className="text-[10px] text-white/30 uppercase font-bold">Days</div>
+                                <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Days</div>
                                 <div className="text-sm font-black text-ai-secondary">{item.days}</div>
                             </div>
                         </div>
@@ -1372,7 +1372,7 @@ const App: React.FC = () => {
                 <div key={idx} className="form-panel group">
                     <div className="flex justify-between items-start mb-6">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-black text-white/40 border border-white/10">
+                            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-black text-[var(--text-muted)] border border-white/10">
                                 {idx + 1}
                             </div>
                             <h3 className="text-sm font-bold text-white uppercase tracking-wider">{item.description || 'Custom Item'}</h3>
@@ -1389,13 +1389,13 @@ const App: React.FC = () => {
                         <FormSelect label="VAT Rule" options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]} value={item.vatRule} onChange={(e) => updateItem('customItems', idx, 'vatRule', e.target.value)} />
                     </div>
 
-                    <div className="mt-6 pt-6 border-t border-white/[0.04] grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                    <div className="mt-6 pt-6 border-t border-[var(--panel-border)] grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                         <div className="form-grid grid-cols-12 gap-3 items-center">
                             <div className="col-span-9">
                                 <DateRangePicker label="Service Dates" startDate={item.startDate || ''} endDate={item.endDate || ''} onChange={(s, e) => updateItemDates('customItems', idx, s, e)} />
                             </div>
                             <div className="col-span-3 text-center">
-                                <div className="text-[10px] text-white/30 uppercase font-bold">Days</div>
+                                <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Days</div>
                                 <div className="text-sm font-black text-ai-secondary">{item.days}</div>
                             </div>
                         </div>
@@ -1451,18 +1451,18 @@ const App: React.FC = () => {
                             <FormInput label="Activity Name" value={item.name} onChange={(e) => updateItem('activities', idx, 'name', e.target.value)} />
                             <FormSelect label="VAT Rule" options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]} value={item.vatRule} onChange={(e) => updateItem('activities', idx, 'vatRule', e.target.value)} />
                         </div>
-                        <div className="col-span-1 md:col-span-1 border border-white/[0.04] bg-white/[0.01] rounded-xl p-4">
+                        <div className="col-span-1 md:col-span-1 border border-[var(--panel-border)] bg-white/[0.01] rounded-xl p-4">
                             <FileUploader label="Activity Image" currentImage={item.image} onFileSelect={(b64) => updateItem('activities', idx, 'image', b64)} />
                         </div>
                     </div>
 
-                    <div className="mt-6 pt-6 border-t border-white/[0.04] grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                    <div className="mt-6 pt-6 border-t border-[var(--panel-border)] grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                         <div className="form-grid grid-cols-12 gap-3 items-center">
                             <div className="col-span-9">
                                 <DateRangePicker label="Activity Dates" startDate={item.startDate || ''} endDate={item.endDate || ''} onChange={(s, e) => updateItemDates('activities', idx, s, e)} />
                             </div>
                             <div className="col-span-3 text-center">
-                                <div className="text-[10px] text-white/30 uppercase font-bold">Days</div>
+                                <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Days</div>
                                 <div className="text-sm font-black text-ai-secondary">{item.days}</div>
                             </div>
                         </div>
@@ -1486,7 +1486,7 @@ const App: React.FC = () => {
     const renderInclusionsStep = () => (
         <div className="form-panel">
             <SectionHeader title="Inclusions Check" icon={<PalmLogo className="w-6 h-6" />} />
-            <p className="text-xs text-white/40 mb-8 mt-2">Manage which sections and costings should be visible in the final generated proposal document.</p>
+            <p className="text-xs text-[var(--text-muted)] mb-8 mt-2">Manage which sections and costings should be visible in the final generated proposal document.</p>
 
             <div className="form-grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.keys(formData.inclusions).map((key) => {
@@ -1494,11 +1494,11 @@ const App: React.FC = () => {
                     return (
                         <label
                             key={key}
-                            className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 cursor-pointer group ${isChecked ? 'bg-ai-accent/5 border-ai-accent/20' : 'bg-white/[0.01] border-white/[0.04] hover:border-white/[0.08]'}`}
+                            className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 cursor-pointer group ${isChecked ? 'bg-ai-accent/5 border-ai-accent/20' : 'bg-white/[0.01] border-[var(--panel-border)] hover:border-[var(--panel-border)]'}`}
                         >
                             <div className="flex items-center gap-3">
-                                <div className={`w-2 h-2 rounded-full transition-all ${isChecked ? 'bg-ai-accent shadow-[0_0_8px_rgba(10,98,240,0.6)]' : 'bg-white/10'}`}></div>
-                                <span className={`text-sm font-semibold transition-colors ${isChecked ? 'text-white' : 'text-white/40 group-hover:text-white/60'}`}>
+                                <div className={`w-2 h-2 rounded-full transition-all ${isChecked ? 'bg-ai-accent shadow-[0_0_8px_rgba(10,98,240,0.6)]' : 'bg-[var(--divider)]'}`}></div>
+                                <span className={`text-sm font-semibold transition-colors ${isChecked ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]'}`}>
                                     {key.replace(/([A-Z])/g, ' $1').trim()}
                                 </span>
                             </div>
@@ -1506,7 +1506,7 @@ const App: React.FC = () => {
                                 type="checkbox"
                                 checked={isChecked}
                                 onChange={(e) => setFormData({ ...formData, inclusions: { ...formData.inclusions, [key]: e.target.checked } })}
-                                className="w-5 h-5 text-ai-accent rounded bg-white/5 border-white/20 focus:ring-0 focus:ring-offset-0 transition-all cursor-pointer"
+                                className="w-5 h-5 text-ai-accent rounded bg-[var(--input-bg)] border-[var(--input-border)] focus:ring-0 focus:ring-offset-0 transition-all cursor-pointer"
                             />
                         </label>
                     );
@@ -1518,8 +1518,8 @@ const App: React.FC = () => {
                     <SaveIcon className="w-5 h-5" />
                 </div>
                 <div>
-                    <h4 className="text-sm font-bold text-white mb-1">Final Review Ready</h4>
-                    <p className="text-xs text-white/40 leading-relaxed max-w-lg">Your proposal structure is now defined. You can generate the PDF preview to see how your selections translate to the final export layout.</p>
+                    <h4 className="text-sm font-bold text-[var(--text-primary)] mb-1">Final Review Ready</h4>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed max-w-lg">Your proposal structure is now defined. You can generate the PDF preview to see how your selections translate to the final export layout.</p>
                 </div>
             </div>
         </div>
@@ -1542,8 +1542,8 @@ const App: React.FC = () => {
                 <div className="flex items-center gap-3 mb-6 px-1">
                     <div className="p-2 bg-ai-accent/10 rounded-lg text-ai-secondary"><SaveIcon /></div>
                     <div>
-                        <h4 className="text-sm font-bold text-white leading-none mb-1">Creation Progress</h4>
-                        <div className="h-1.5 w-32 bg-white/5 rounded-full overflow-hidden">
+                        <h4 className="text-sm font-bold text-[var(--text-primary)] leading-none mb-1">Creation Progress</h4>
+                        <div className="h-1.5 w-32 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
                             <div className="h-full gradient-accent transition-all duration-500" style={{ width: `${((step + 1) / StepsNames.length) * 100}%` }}></div>
                         </div>
                     </div>
@@ -1560,7 +1560,7 @@ const App: React.FC = () => {
                         </button>
                     ))}
                 </div>
-                <div className="mt-8 pt-6 border-t border-white/[0.06]">
+                <div className="mt-8 pt-6 border-t border-[var(--panel-border)]">
                     <Button variant="secondary" onClick={() => handleSaveProposal(true)} disabled={isGenerating} className="w-full gap-2">
                         <SaveIcon /> Save Draft
                     </Button>
@@ -1589,41 +1589,41 @@ const App: React.FC = () => {
                 <SectionHeader title="Draft Summary" />
 
                 <div className="space-y-4">
-                    <div className="p-4 bg-white/[0.03] rounded-2xl border border-white/[0.05]">
-                        <div className="text-[10px] uppercase text-white/40 mb-1 font-bold tracking-widest">Proposal Name</div>
-                        <div className="text-sm font-semibold text-white truncate">{formData.proposalName || 'Untitled Proposal'}</div>
+                    <div className="p-4 bg-[var(--panel-bg-2)] rounded-2xl border border-[var(--divider)]">
+                        <div className="text-[10px] uppercase text-[var(--text-muted)] mb-1 font-bold tracking-widest">Proposal Name</div>
+                        <div className="text-sm font-semibold text-[var(--text-primary)] truncate">{formData.proposalName || 'Untitled Proposal'}</div>
                     </div>
 
-                    <div className="p-4 bg-white/[0.03] rounded-2xl border border-white/[0.05]">
-                        <div className="text-[10px] uppercase text-white/40 mb-1 font-bold tracking-widest">Client / Customer</div>
-                        <div className="text-sm font-semibold text-white truncate">{formData.customerName || 'No Client Set'}</div>
+                    <div className="p-4 bg-[var(--panel-bg-2)] rounded-2xl border border-[var(--divider)]">
+                        <div className="text-[10px] uppercase text-[var(--text-muted)] mb-1 font-bold tracking-widest">Client / Customer</div>
+                        <div className="text-sm font-semibold text-[var(--text-primary)] truncate">{formData.customerName || 'No Client Set'}</div>
                     </div>
                 </div>
 
                 <div className="pt-2 space-y-3">
                     <div className="flex justify-between items-center px-1">
-                        <span className="text-xs text-white/40">Total Hotels</span>
+                        <span className="text-xs text-[var(--text-muted)]">Total Hotels</span>
                         <span className="text-xs font-black text-white">{formData.hotelOptions.length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
-                        <span className="text-xs text-white/40">Total Flights</span>
+                        <span className="text-xs text-[var(--text-muted)]">Total Flights</span>
                         <span className="text-xs font-black text-white">{formData.flightOptions.length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
-                        <span className="text-xs text-white/40">Vehicles</span>
+                        <span className="text-xs text-[var(--text-muted)]">Vehicles</span>
                         <span className="text-xs font-black text-white">{formData.transportation.length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
-                        <span className="text-xs text-white/40">Activities</span>
+                        <span className="text-xs text-[var(--text-muted)]">Activities</span>
                         <span className="text-xs font-black text-white">{formData.activities.length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
-                        <span className="text-xs text-white/40">Custom Items</span>
+                        <span className="text-xs text-[var(--text-muted)]">Custom Items</span>
                         <span className="text-xs font-black text-white">{formData.customItems.length}</span>
                     </div>
                 </div>
 
-                <div className="pt-6 border-t border-white/[0.06]">
+                <div className="pt-6 border-t border-[var(--panel-border)]">
                     <div className="flex items-center justify-between mb-6">
                         <div className="text-[10px] text-ai-secondary/80 font-black uppercase tracking-widest">Currency</div>
                         <div className="text-sm font-black text-ai-secondary">{formData.pricing.currency}</div>
@@ -1674,18 +1674,18 @@ const App: React.FC = () => {
             <div className="w-full max-w-7xl mx-auto p-6 md:p-8">
                 {renderEditUserModal()}
                 {/* Premium Navbar */}
-                <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 pb-6 border-b border-white/[0.06]">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 pb-6 border-b border-[var(--panel-border)]">
                     {/* Header Branding */}
                     {isSuper ? (
                         <div className="flex items-center gap-4">
                             <img src="/sitc_logo_final.png" className="h-[72px] object-contain opacity-90" alt="SITC" />
                             <div className="h-6 w-px bg-white/10"></div>
-                            <h1 className="text-xl font-display font-semibold text-white tracking-tight">Travel Proposal Portal</h1>
+                            <h1 className="text-xl font-display font-semibold text-[var(--text-primary)]">Travel Proposal Portal</h1>
                         </div>
                     ) : (
                         <div className="flex items-center gap-4">
                             {companyLogo ? (
-                                <img src={companyLogo} className="h-12 w-auto object-contain bg-white/[0.06] rounded-xl p-1.5 backdrop-blur-sm border border-white/[0.08]" alt="Company Logo" />
+                                <img src={companyLogo} className="h-12 w-auto object-contain bg-white/[0.06] rounded-xl p-1.5 backdrop-blur-sm border border-[var(--panel-border)]" alt="Company Logo" />
                             ) : (
                                 <SITCLogo className="w-20 h-auto opacity-40" />
                             )}
@@ -1696,8 +1696,8 @@ const App: React.FC = () => {
 
                     <div className="flex items-center gap-4">
                         <div className="flex flex-col items-end">
-                            <span className="text-sm font-semibold text-white">{user.firstName} {user.lastName}</span>
-                            <span className="text-xs text-white/40">{user.email}</span>
+                            <span className="text-sm font-semibold text-[var(--text-primary)]">{user.firstName} {user.lastName}</span>
+                            <span className="text-xs text-[var(--text-muted)]">{user.email}</span>
                             <button onClick={handleLogout} className="text-xs text-red-400/70 hover:text-red-300 mt-1 transition-colors">Log Out</button>
                         </div>
                         <button
@@ -1713,24 +1713,24 @@ const App: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex gap-1 mb-8 overflow-x-auto bg-white/[0.03] p-1 rounded-xl border border-white/[0.05]">
-                    <button onClick={() => setSubMode('my_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'my_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'}`}>My Proposals</button>
+                <div className="flex gap-1 mb-8 overflow-x-auto bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--divider)]">
+                    <button onClick={() => setSubMode('my_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'my_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>My Proposals</button>
 
                     {(isSuper || isAdmin) && (
-                        <button onClick={() => setSubMode('all_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'all_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'}`}>
+                        <button onClick={() => setSubMode('all_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'all_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
                             {isSuper ? 'All Proposals' : 'Company Proposals'}
                         </button>
                     )}
 
                     {isSuper && (
-                        <button onClick={() => setSubMode('companies')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'companies' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'}`}>Companies</button>
+                        <button onClick={() => setSubMode('companies')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'companies' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>Companies</button>
                     )}
 
                     {(isSuper || isAdmin) && (
-                        <button onClick={() => setSubMode('company_users')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'company_users' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'}`}>Users</button>
+                        <button onClick={() => setSubMode('company_users')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'company_users' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>Users</button>
                     )}
 
-                    <button onClick={() => setSubMode('account_settings')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'account_settings' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'}`}>Settings</button>
+                    <button onClick={() => setSubMode('account_settings')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'account_settings' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>Settings</button>
                 </div>
 
                 {
@@ -1748,30 +1748,30 @@ const App: React.FC = () => {
                                     <div key={p.id} className="glass p-6 rounded-2xl hover:border-ai-accent/30 transition-all duration-300 flex flex-col relative group card-hover">
                                         {sharingId === p.id && (
                                             <div className="absolute inset-0 bg-ai-bg/95 z-10 flex flex-col items-center justify-center p-4 rounded-2xl animate-fade-up backdrop-blur-md">
-                                                <h4 className="text-white font-semibold mb-3">Share Proposal</h4>
+                                                <h4 className="text-[var(--text-primary)] mb-3">Share Proposal</h4>
                                                 <FormInput label="Enter Email" value={shareEmail} onChange={e => setShareEmail(e.target.value)} className="w-full mb-2" />
                                                 <div className="flex gap-2">
-                                                    <button onClick={() => setSharingId(null)} className="text-xs text-white/40 hover:text-white transition-colors">Cancel</button>
+                                                    <button onClick={() => setSharingId(null)} className="text-xs text-[var(--text-muted)] hover:text-white transition-colors">Cancel</button>
                                                 </div>
                                             </div>
                                         )}
 
                                         <div className="flex items-start justify-between mb-4">
                                             <div>
-                                                <h3 className="text-lg font-semibold text-white truncate w-48">{p.proposalName || p.customerName || 'Untitled'}</h3>
-                                                <div className="text-sm text-white/40 truncate">{p.customerName}</div>
+                                                <h3 className="text-lg font-semibold text-[var(--text-primary)] truncate w-48">{p.proposalName || p.customerName || 'Untitled'}</h3>
+                                                <div className="text-sm text-[var(--text-secondary)] truncate">{p.customerName}</div>
                                                 <div className="flex flex-col mt-2">
-                                                    <span className="text-xs text-white/30">Created: {new Date(Number(p.id)).toLocaleDateString()}</span>
+                                                    <span className="text-xs text-[var(--text-muted)]">Created: {new Date(Number(p.id)).toLocaleDateString()}</span>
                                                     {p.createdBy !== user.email && <span className="text-[10px] text-ai-secondary uppercase tracking-wide mt-1 font-semibold">By: {p.createdBy}</span>}
-                                                    {isSuper && p.companyId && <span className="text-[10px] text-white/25 uppercase mt-1">Comp: {companies.find(c => c.id === p.companyId)?.name}</span>}
+                                                    {isSuper && p.companyId && <span className="text-[10px] text-[var(--text-disabled)] uppercase mt-1">Comp: {companies.find(c => c.id === p.companyId)?.name}</span>}
                                                 </div>
                                             </div>
                                             <span className="px-2.5 py-1 bg-ai-accent/10 text-ai-secondary rounded-lg text-xs font-semibold border border-ai-accent/20">{p.pricing.currency}</span>
                                         </div>
 
-                                        <div className="flex gap-2 pt-4 border-t border-white/[0.06] mt-auto">
+                                        <div className="flex gap-2 pt-4 border-t border-[var(--panel-border)] mt-auto">
                                             <button onClick={() => handleEdit(p)} className="flex-1 py-2 gradient-accent text-white rounded-lg font-semibold flex justify-center items-center gap-2 text-sm hover:shadow-glow transition-all"><EditIcon /> Edit</button>
-                                            <button onClick={() => handleDuplicate(p)} className="p-2 bg-white/[0.05] text-white/60 rounded-lg hover:bg-white/[0.1] hover:text-white transition-all" title="Duplicate"><CopyIcon /></button>
+                                            <button onClick={() => handleDuplicate(p)} className="p-2 bg-[var(--divider)] text-white/60 rounded-lg hover:bg-white/[0.1] hover:text-white transition-all" title="Duplicate"><CopyIcon /></button>
                                             {(isSuper || isAdmin || p.createdBy === user.email) && (
                                                 <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-500/10 text-red-400/70 rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all" title="Delete"><TrashIcon /></button>
                                             )}
@@ -1801,7 +1801,7 @@ const App: React.FC = () => {
         );
     };
 
-    if (viewMode === 'dashboard') return <div className="min-h-screen bg-premium text-white">{renderDashboard()}</div>;
+    if (viewMode === 'dashboard') return <div className="min-h-screen bg-premium">{renderDashboard()}</div>;
 
     if (viewMode === 'preview') return (
         <div className="min-h-screen bg-gray-100 pb-20">
@@ -1838,20 +1838,20 @@ const App: React.FC = () => {
                     {/* Top bar for mobile only */}
                     <div className="mobile-step-header glass p-4 rounded-xl mb-4">
                         <div className="flex justify-between items-center mb-3">
-                            <span className="text-xs text-white/40 uppercase font-black">Step {step + 1} / {StepsNames.length}</span>
-                            <span className="text-sm font-bold text-white">{StepsNames[step].label}</span>
+                            <span className="text-xs text-[var(--text-muted)] uppercase font-black">Step {step + 1} / {StepsNames.length}</span>
+                            <span className="text-sm font-bold text-[var(--text-primary)]">{StepsNames[step].label}</span>
                         </div>
-                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-1.5 w-full bg-[var(--bg-secondary)] rounded-full overflow-hidden">
                             <div className="h-full gradient-accent" style={{ width: `${((step + 1) / StepsNames.length) * 100}%` }}></div>
                         </div>
                     </div>
 
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
-                            <button onClick={() => setViewMode('dashboard')} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-colors">
+                            <button onClick={() => setViewMode('dashboard')} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-[var(--text-muted)] hover:text-white transition-colors">
                                 <HomeIcon />
                             </button>
-                            <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">{StepsNames[step].label}</h2>
+                            <h2 className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">{StepsNames[step].label}</h2>
                         </div>
                         <div className="hidden md:block">
                             <Button variant="secondary" onClick={() => handleSaveProposal(true)} disabled={isGenerating} className="gap-2 h-9 text-xs">
