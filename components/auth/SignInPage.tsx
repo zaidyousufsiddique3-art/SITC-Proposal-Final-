@@ -41,7 +41,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 <div className="absolute inset-0 z-0 opacity-100 pointer-events-none">
                     <LaserFlow
                         horizontalBeamOffset={0.1}
-                        verticalBeamOffset={0.0}
+                        verticalBeamOffset={-0.45}
                         color="#3e91e0"
                         horizontalSizing={0.5}
                         verticalSizing={2}
@@ -67,7 +67,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                     <LaserFlow
                         color={role === 'user' ? "#3e91e0" : "#d97706"}
                         horizontalBeamOffset={0.1}
-                        verticalBeamOffset={0.0}
+                        verticalBeamOffset={-0.45}
                         horizontalSizing={0.5}
                         verticalSizing={2}
                         wispDensity={1.2}
