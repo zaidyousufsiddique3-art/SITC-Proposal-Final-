@@ -310,13 +310,13 @@ const App: React.FC = () => {
         const existing = savedProposals.find(p => p.id === formData.id);
 
         if (existing) {
-            const snapshot = JSON.stringify(existing);
+            // Store only lightweight version metadata — NOT full JSON snapshot
             currentVersions.push({
                 timestamp: Date.now(),
                 savedBy: user.email,
-                data: snapshot
+                // No data snapshot — this was causing 1MB+ documents
             });
-            if (currentVersions.length > 10) currentVersions.shift();
+            if (currentVersions.length > 5) currentVersions.shift();
         }
 
         const historyEntry: ProposalHistory = {

@@ -4,7 +4,6 @@ import {
     doc,
     getDocs,
     setDoc,
-    deleteDoc,
     query,
     where,
     orderBy
@@ -48,33 +47,42 @@ const sanitize = (obj: any): any => {
 };
 
 /**
- * NUCLEAR SAFETY NET: Recursively walk the entire proposal object
- * and replace ANY string that starts with "data:" (base64) with "".
- * This guarantees Firestore NEVER receives base64 image data,
- * regardless of what happens upstream.
+ * NUCLEAR SAFETY NET: Recursively walk the entire object and:
+ * 1. Replace any string starting with "data:" (base64) with ""
+ * 2. Replace any string containing ";base64," with ""
+ * 3. Replace any suspiciously large string (>10KB) in image-related keys with ""
  */
-const stripBase64 = (obj: any): any => {
+const IMAGE_KEYS = new Set([
+    'base64', 'preview', 'dataUrl', 'imageData', 'fileData',
+    'src', 'raw', 'blob', 'attachment', 'dataURL', 'data'
+]);
+
+const stripBase64 = (obj: any, path = ''): any => {
     if (obj === null || obj === undefined) return obj;
 
-    // If it's a string starting with "data:", nuke it
     if (typeof obj === 'string') {
-        if (obj.startsWith('data:')) {
-            console.warn('⚠ Stripped base64 string from Firestore payload (field was not uploaded to Storage)');
+        // Strip any data URI
+        if (obj.startsWith('data:') || obj.includes(';base64,')) {
+            console.warn(`⚠ Stripped base64 at path: ${path} (${obj.length} chars)`);
             return '';
         }
         return obj;
     }
 
-    // Recurse arrays
     if (Array.isArray(obj)) {
-        return obj.map(stripBase64);
+        return obj.map((item, i) => stripBase64(item, `${path}[${i}]`));
     }
 
-    // Recurse objects
     if (typeof obj === 'object' && !(obj instanceof Date)) {
         const cleaned: any = {};
         for (const [key, value] of Object.entries(obj)) {
-            cleaned[key] = stripBase64(value);
+            // Strip large strings in known image-related keys
+            if (typeof value === 'string' && value.length > 10000 && IMAGE_KEYS.has(key)) {
+                console.warn(`⚠ Stripped large string at ${path}.${key} (${value.length} chars)`);
+                cleaned[key] = '';
+                continue;
+            }
+            cleaned[key] = stripBase64(value, `${path}.${key}`);
         }
         return cleaned;
     }
@@ -82,19 +90,110 @@ const stripBase64 = (obj: any): any => {
     return obj;
 };
 
+/**
+ * Strip version snapshot data — these are full JSON copies of previous proposals
+ * that can be 100KB+ each and easily push the doc over 1MB.
+ * Keep only lightweight version metadata.
+ */
+const stripVersionData = (obj: any): any => {
+    if (!obj) return obj;
+
+    // Strip heavy version snapshots
+    if (obj.versions && Array.isArray(obj.versions)) {
+        obj.versions = obj.versions.map((v: any) => ({
+            timestamp: v.timestamp,
+            savedBy: v.savedBy,
+            // Remove the full JSON snapshot — this is the #1 bloat cause
+            // data: v.data  ← REMOVED
+        }));
+    }
+
+    return obj;
+};
+
+/**
+ * Analyze document size — log top 30 largest fields by byte size
+ */
+const analyzeDocSize = (obj: any, maxResults = 30): void => {
+    const sizes: { path: string; bytes: number; type: string }[] = [];
+
+    const walk = (o: any, path: string) => {
+        if (o === null || o === undefined) return;
+
+        if (typeof o === 'string') {
+            const bytes = new TextEncoder().encode(o).length;
+            if (bytes > 100) { // only track fields > 100 bytes
+                sizes.push({ path, bytes, type: 'string' });
+            }
+            return;
+        }
+
+        if (Array.isArray(o)) {
+            const arrBytes = new TextEncoder().encode(JSON.stringify(o)).length;
+            sizes.push({ path, bytes: arrBytes, type: `array[${o.length}]` });
+            o.forEach((item, i) => walk(item, `${path}[${i}]`));
+            return;
+        }
+
+        if (typeof o === 'object') {
+            const objBytes = new TextEncoder().encode(JSON.stringify(o)).length;
+            if (path) sizes.push({ path, bytes: objBytes, type: 'object' });
+            for (const [key, value] of Object.entries(o)) {
+                walk(value, path ? `${path}.${key}` : key);
+            }
+        }
+    };
+
+    walk(obj, '');
+
+    sizes.sort((a, b) => b.bytes - a.bytes);
+    const top = sizes.slice(0, maxResults);
+
+    console.group('📊 FIRESTORE DOC SIZE ANALYSIS — Top fields by size:');
+    top.forEach(({ path, bytes, type }) => {
+        const kb = (bytes / 1024).toFixed(1);
+        console.log(`  ${kb} KB — ${path} (${type})`);
+    });
+    console.groupEnd();
+};
+
 export const saveProposal = async (proposal: ProposalData) => {
     // Step 1: Upload base64 images to Firebase Storage → replace with URLs
     const withUrls = await uploadProposalImages(proposal);
 
-    // Step 2: Strip undefined values (Firestore rejects them)
-    const sanitized = sanitize(withUrls);
+    // Step 2: Strip version snapshot data (biggest bloat source)
+    const withoutVersionData = stripVersionData(withUrls);
 
-    // Step 3: SAFETY NET — strip ANY remaining base64 strings
-    // This guarantees the doc is always under 1MB
+    // Step 3: Strip undefined values (Firestore rejects them)
+    const sanitized = sanitize(withoutVersionData);
+
+    // Step 4: SAFETY NET — strip ANY remaining base64 strings
     const safe = stripBase64(sanitized);
 
-    // Step 4: Write to Firestore
+    // Step 5: Measure final payload size
+    const payload = JSON.stringify(safe);
+    const bytes = new TextEncoder().encode(payload).length;
+    const kb = (bytes / 1024).toFixed(1);
+
+    console.log(`📏 FIRESTORE_DOC_BYTES: ${bytes} (${kb} KB)`);
+
+    // Step 6: Analyze if close to limit
+    if (bytes > 500000) {
+        analyzeDocSize(safe);
+    }
+
+    // Step 7: Block if too large
+    if (bytes > 950000) {
+        throw new Error(
+            `Proposal is too large to save (${kb} KB / 1024 KB max). ` +
+            `Please remove some content or images and try again. ` +
+            `Check browser console for size breakdown.`
+        );
+    }
+
+    // Step 8: Write to Firestore
     await setDoc(doc(db, "proposals", proposal.id), safe);
+    console.log(`✅ Proposal saved: ${proposal.id} (${kb} KB)`);
 };
 
 export const deleteProposal = async (id: string) => {
