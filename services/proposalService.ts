@@ -10,6 +10,7 @@ import {
     orderBy
 } from 'firebase/firestore';
 import { ProposalData, User } from '../types';
+import { uploadProposalImages } from './imageService';
 
 export const getProposals = async (user: User): Promise<ProposalData[]> => {
     try {
@@ -56,7 +57,10 @@ const sanitize = (obj: any): any => {
 };
 
 export const saveProposal = async (proposal: ProposalData) => {
-    await setDoc(doc(db, "proposals", proposal.id), sanitize(proposal));
+    // 1. Upload base64 images to Firebase Storage, replace with URLs
+    const withUrls = await uploadProposalImages(proposal);
+    // 2. Strip undefined values (Firestore rejects them)
+    await setDoc(doc(db, "proposals", proposal.id), sanitize(withUrls));
 };
 
 export const deleteProposal = async (id: string) => {
