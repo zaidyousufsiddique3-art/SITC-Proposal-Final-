@@ -501,12 +501,12 @@ const App: React.FC = () => {
         if (!editingCompany) return null;
         return (
             <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-md">
-                <div className="glass w-full max-w-lg rounded-2xl shadow-card flex flex-col animate-fade-up">
-                    <div className="p-6 border-b border-[var(--panel-border)] flex justify-between items-center">
+                <div className="glass w-full max-w-lg max-h-[90vh] rounded-2xl shadow-card flex flex-col animate-fade-up">
+                    <div className="p-6 border-b border-[var(--panel-border)] flex justify-between items-center flex-shrink-0">
                         <h3 className="text-lg font-semibold text-[var(--text-primary)]">Edit Company</h3>
                         <button onClick={() => setEditingCompany(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">Close</button>
                     </div>
-                    <div className="p-6 space-y-4">
+                    <div className="p-6 space-y-4 overflow-y-auto flex-1">
                         <FormInput label="Company Name" value={editingCompany.name} onChange={e => setEditingCompany({ ...editingCompany, name: e.target.value })} />
                         <FormInput label="Domain" value={editingCompany.domain} onChange={e => setEditingCompany({ ...editingCompany, domain: e.target.value })} />
                         <FileUploader label="Company Logo" currentImage={editingCompany.logo} onFileSelect={b64 => setEditingCompany({ ...editingCompany, logo: b64 })} />
