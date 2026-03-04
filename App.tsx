@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProposalPDF } from './components/ProposalPDF';
 import { AuthScreen } from './components/AuthComponents';
-import { FormInput, FormSelect, FormCheckbox, FileUploader, SectionHeader, Button, DateRangePicker } from './components/InputComponents';
+import { FormInput, FormSelect, FormCheckbox, FileUploader, MultiFileUploader, SectionHeader, Button, DateRangePicker } from './components/InputComponents';
 import { ProposalData, HotelDetails, FlightDetails, FlightClass, TransportationDetails, VehicleType, CustomItem, ActivityDetails, Inclusions, CategoryMarkups, MarkupType, FlightLeg, User, UserRole, ProposalHistory, MarkupConfig, RoomType, HotelImage, ImageTag, MeetingDetails, DiningDetails, FlightQuote, Company } from './types';
 import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo } from './components/Icons';
 import { getGlobalSettings, saveGlobalSettings, getUsers, createSubUserWithAuth, createCompanyAdminWithAuth, deleteUserProfile, validatePassword, changePassword, updateUserProfile, getCompanies, saveCompany, updateCompany, deleteCompany, adminResetUserPassword, validatePhone, logoutUser } from './services/authService';
@@ -643,7 +643,8 @@ const App: React.FC = () => {
     const removeHotel = (index: number) => { const h = [...formData.hotelOptions]; h.splice(index, 1); setFormData({ ...formData, hotelOptions: h }); };
     const updateHotel = (index: number, field: keyof HotelDetails, value: any) => { const h = [...formData.hotelOptions]; h[index] = { ...h[index], [field]: value }; setFormData({ ...formData, hotelOptions: h }); };
     const updateHotelImageTag = (index: number, imgIdx: number, tag: string) => { const h = [...formData.hotelOptions]; h[index].images[imgIdx].tag = tag === 'none' ? undefined : (tag as ImageTag); setFormData({ ...formData, hotelOptions: h }); };
-    const addHotelImage = (index: number, url: string) => { const h = [...formData.hotelOptions]; h[index].images.push({ url, tag: undefined }); setFormData({ ...formData, hotelOptions: h }); };
+    const addHotelImage = (index: number, url: string) => { const h = [...formData.hotelOptions]; if (h[index].images.length >= 3) return; h[index].images.push({ url, tag: undefined }); setFormData({ ...formData, hotelOptions: h }); };
+    const addMultipleHotelImages = (index: number, urls: string[]) => { const h = [...formData.hotelOptions]; const remaining = 3 - h[index].images.length; const toAdd = urls.slice(0, remaining); toAdd.forEach(url => h[index].images.push({ url, tag: undefined })); setFormData({ ...formData, hotelOptions: h }); };
     const removeHotelImage = (index: number, imgIdx: number) => { const h = [...formData.hotelOptions]; h[index].images.splice(imgIdx, 1); setFormData({ ...formData, hotelOptions: h }); };
     const addRoomType = (hotelIndex: number) => { const h = [...formData.hotelOptions]; h[hotelIndex].roomTypes.push({ ...initialRoomType, id: Date.now().toString(), includeInSummary: true }); setFormData({ ...formData, hotelOptions: h }); };
 
@@ -863,9 +864,9 @@ const App: React.FC = () => {
                     </div>
 
                     {/* Images */}
-                    <div className="mt-6 p-4 bg-black/20 rounded border border-gray-700">
-                        <h4 className="font-bold text-gray-400 text-xs uppercase mb-3">Hotel Gallery</h4>
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="mt-6 p-4 section-surface">
+                        <h4 className="font-bold text-white/40 text-xs uppercase mb-3">Hotel Gallery ({hotel.images.length}/3)</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             {hotel.images.map((img, imgIdx) => (
                                 <div key={imgIdx} className="relative group aspect-square bg-[rgba(8,9,12,0.9)] rounded overflow-hidden">
                                     <img src={img.url} className="w-full h-full object-cover" />
@@ -875,7 +876,11 @@ const App: React.FC = () => {
                                     <button onClick={() => removeHotelImage(index, imgIdx)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"><TrashIcon /></button>
                                 </div>
                             ))}
-                            <div className="aspect-square border-2 border-dashed border-gray-600 rounded flex items-center justify-center"><FileUploader label="" onFileSelect={(url) => addHotelImage(index, url)} /></div>
+                            {hotel.images.length < 3 && (
+                                <div className="aspect-square">
+                                    <MultiFileUploader label="" onFilesSelect={(urls) => addMultipleHotelImages(index, urls)} currentCount={hotel.images.length} maxFiles={3} />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

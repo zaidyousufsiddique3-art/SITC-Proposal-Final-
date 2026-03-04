@@ -139,6 +139,73 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ label, onFileSelect,
   );
 };
 
+// Multi-file uploader with limit
+interface MultiFileUploaderProps {
+  label: string;
+  onFilesSelect: (base64Files: string[]) => void;
+  currentCount: number;
+  maxFiles: number;
+}
+
+export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({ label, onFilesSelect, currentCount, maxFiles }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const remaining = maxFiles - currentCount;
+
+  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    // Only take up to remaining slots
+    const toProcess = Array.from(files).slice(0, remaining);
+    if (toProcess.length === 0) return;
+
+    const results: string[] = [];
+    let loaded = 0;
+
+    toProcess.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        results.push(reader.result as string);
+        loaded++;
+        if (loaded === toProcess.length) {
+          onFilesSelect(results);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Reset input so same files can be re-selected
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
+  if (remaining <= 0) {
+    return (
+      <div className="flex flex-col items-center justify-center text-white/25 p-4 text-xs">
+        <span>Max {maxFiles} images reached</span>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="bg-[rgba(12,14,18,0.8)] border border-dashed border-white/[0.15] rounded-xl p-4 hover:bg-[rgba(20,24,30,0.9)] hover:border-ai-accent/30 transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-1"
+      onClick={() => inputRef.current?.click()}
+    >
+      <input
+        type="file"
+        ref={inputRef}
+        className="hidden"
+        accept="image/*"
+        multiple
+        onChange={handleFiles}
+      />
+      <UploadIcon />
+      <span className="text-xs text-white/30 font-medium">Click to upload</span>
+      <span className="text-[10px] text-white/20">{remaining} of {maxFiles} remaining</span>
+    </div>
+  );
+};
+
 export const SectionHeader: React.FC<{ title: string; icon?: React.ReactNode }> = ({ title, icon }) => (
   <div className="flex items-center gap-3 mb-6 pb-3 border-b border-white/[0.06]">
     {icon && <div className="text-ai-accent">{icon}</div>}
