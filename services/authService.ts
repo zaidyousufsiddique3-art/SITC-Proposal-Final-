@@ -48,7 +48,22 @@ const validateDomain = (email: string, domain: string): boolean => {
 export const getCompanies = async (): Promise<Company[]> => {
   try {
     const querySnapshot = await getDocs(collection(db, "companies"));
-    return querySnapshot.docs.map(doc => doc.data() as Company);
+    const companies = querySnapshot.docs.map(doc => doc.data() as Company);
+
+    // Auto-provision SITC HQ if missing
+    if (!companies.find(c => c.id === 'sitc_hq')) {
+      const sitc: Company = {
+        id: 'sitc_hq',
+        name: 'Saudi International Travel Company',
+        domain: 'sitc.sa',
+        logo: '', // Logo will be updated via settings or UI
+        created: Date.now()
+      };
+      await setDoc(doc(db, "companies", "sitc_hq"), sitc);
+      companies.push(sitc);
+    }
+
+    return companies;
   } catch (e) {
     console.error("Error fetching companies:", e);
     return [];
