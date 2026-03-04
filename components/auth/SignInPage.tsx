@@ -42,7 +42,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                     <LaserFlow
                         horizontalBeamOffset={0.1}
                         verticalBeamOffset={-0.45}
-                        color="#3e91e0"
+                        color={role === 'user' ? "#3e91e0" : "#d97706"}
                         horizontalSizing={0.5}
                         verticalSizing={2}
                         wispDensity={1}
@@ -60,11 +60,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
 
                 {/* Hero Text Block */}
                 <div className="relative z-10 animate-[fadeIn_400ms_ease-out_both] max-h-[50vh]">
-                    <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45 mb-6">
-                        Portal v2.0
-                    </span>
-
-                    <h1 className="text-[32px] md:text-[46px] font-bold text-white leading-[1.1] tracking-tight max-w-[480px]">
+                    <h1 className="text-[32px] md:text-[46px] font-bold leading-[1.1] tracking-tight max-w-[480px] bg-gradient-to-r from-blue-300 via-blue-200 to-white bg-clip-text text-transparent">
                         Professional Travel Proposal System
                     </h1>
 
