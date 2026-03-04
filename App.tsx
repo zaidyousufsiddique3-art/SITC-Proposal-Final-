@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { ProposalPDF } from './components/ProposalPDF';
 import { AuthScreen } from './components/AuthComponents';
 import { ProposalGenerationLoader } from './components/ProposalGenerationLoader';
-import { FormInput, FormSelect, FormCheckbox, FileUploader, MultiFileUploader, SectionHeader, Button, DateRangePicker } from './components/InputComponents';
+import { FormInput, FormSelect, FormCheckbox, FileUploader, MultiFileUploader, SectionHeader, Button, DateRangePicker, IconButton } from './components/InputComponents';
 import { ProposalData, HotelDetails, FlightDetails, FlightClass, TransportationDetails, VehicleType, CustomItem, ActivityDetails, Inclusions, CategoryMarkups, MarkupType, FlightLeg, User, UserRole, ProposalHistory, MarkupConfig, RoomType, HotelImage, ImageTag, MeetingDetails, DiningDetails, FlightQuote, Company } from './types';
-import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo } from './components/Icons';
+import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo, SunIcon, MoonIcon, CheckIcon, PlusIcon, ChevronDownIcon, CalendarIcon, LogOutIcon, ProposalIcon, BuildingIcon, SettingsIcon, SearchIcon, ShieldCheckIcon, PresentationIcon, ArrowLeftIcon, ArrowRightIcon, WalletIcon } from './components/Icons';
 import { getGlobalSettings, saveGlobalSettings, getUsers, createSubUserWithAuth, createCompanyAdminWithAuth, deleteUserProfile, validatePassword, changePassword, updateUserProfile, getCompanies, saveCompany, updateCompany, deleteCompany, adminResetUserPassword, validatePhone, logoutUser } from './services/authService';
 import { getProposals, saveProposal, deleteProposal } from './services/proposalService';
 
@@ -503,8 +503,8 @@ const App: React.FC = () => {
             <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-md">
                 <div className="glass w-full max-w-lg rounded-2xl shadow-card flex flex-col animate-fade-up">
                     <div className="p-6 border-b border-[var(--panel-border)] flex justify-between items-center">
-                        <h3 className="text-lg font-semibold text-white">Edit Company</h3>
-                        <button onClick={() => setEditingCompany(null)} className="text-[var(--text-muted)] hover:text-white transition-colors">Close</button>
+                        <h3 className="text-lg font-semibold text-[var(--text-primary)]">Edit Company</h3>
+                        <button onClick={() => setEditingCompany(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">Close</button>
                     </div>
                     <div className="p-6 space-y-4">
                         <FormInput label="Company Name" value={editingCompany.name} onChange={e => setEditingCompany({ ...editingCompany, name: e.target.value })} />
@@ -539,12 +539,12 @@ const App: React.FC = () => {
                             <div className="flex items-center gap-3">
                                 {c.logo ? <img src={c.logo} className="w-8 h-8 object-contain bg-white rounded-lg p-0.5" /> : <div className="w-8 h-8 bg-white/10 rounded-lg"></div>}
                                 <div>
-                                    <div className="font-semibold text-white text-sm">{c.name}</div>
+                                    <div className="font-semibold text-[var(--text-primary)] text-sm">{c.name}</div>
                                     <div className="text-xs text-[var(--text-muted)]">@{c.domain}</div>
                                 </div>
                             </div>
                             <div className="flex gap-3">
-                                <button onClick={() => setEditingCompany(c)} className="text-ai-secondary hover:text-white text-xs font-semibold transition-colors">Edit</button>
+                                <button onClick={() => setEditingCompany(c)} className="text-ai-secondary hover:text-[var(--text-primary)] text-xs font-semibold transition-colors">Edit</button>
                                 <button onClick={() => handleDeleteCompany(c.id)} className="text-red-400/70 hover:text-red-300 text-xs font-semibold transition-colors">Delete</button>
                             </div>
                         </div>
@@ -601,7 +601,7 @@ const App: React.FC = () => {
                             return (
                                 <div key={i} className="p-4 inner-row flex justify-between items-center border-l-2 border-ai-accent/30 card-hover">
                                     <div>
-                                        <div className="font-semibold text-white text-sm">{u.firstName} {u.lastName}</div>
+                                        <div className="font-semibold text-[var(--text-primary)] text-sm">{u.firstName} {u.lastName}</div>
                                         <div className="text-xs text-[var(--text-muted)]">{u.email} <span className="text-ai-secondary ml-2 capitalize">({u.role})</span></div>
                                         {isSuper && u.companyId && <div className="text-[10px] text-[var(--text-muted)] mt-0.5">{companies.find(c => c.id === u.companyId)?.name}</div>}
                                     </div>
@@ -623,8 +623,8 @@ const App: React.FC = () => {
             <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 backdrop-blur-md">
                 <div className="glass w-full max-w-lg rounded-2xl shadow-card flex flex-col animate-fade-up">
                     <div className="p-6 border-b border-[var(--panel-border)] flex justify-between items-center">
-                        <h3 className="text-lg font-semibold text-white">Manage User</h3>
-                        <button onClick={() => setEditingUser(null)} className="text-[var(--text-muted)] hover:text-white transition-colors">Close</button>
+                        <h3 className="text-lg font-semibold text-[var(--text-primary)]">Manage User</h3>
+                        <button onClick={() => setEditingUser(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">Close</button>
                     </div>
                     <div className="p-6 space-y-4">
                         <FormInput label="Email Address" value={editingUser.email} onChange={e => setEditingUser({ ...editingUser, email: e.target.value })} />
@@ -637,7 +637,7 @@ const App: React.FC = () => {
                             <label className="text-[11px] uppercase tracking-widest font-semibold text-ai-secondary/80 mb-2 block">
                                 {user?.role === 'super_admin' ? 'Set Temporary Password (Force Reset)' : 'Set New Password'}
                             </label>
-                            <input type="password" placeholder="Leave blank to keep current" className="bg-[var(--divider)] border border-[var(--panel-border)] rounded-xl px-4 py-3 w-full text-white text-sm focus:ring-2 focus:ring-ai-accent/40 focus:border-ai-accent focus:outline-none transition-all" value={editUserPass} onChange={e => setEditUserPass(e.target.value)} />
+                            <input type="password" placeholder="Leave blank to keep current" className="bg-[var(--divider)] border border-[var(--panel-border)] rounded-xl px-4 py-3 w-full text-[var(--text-primary)] text-sm focus:ring-2 focus:ring-ai-accent/40 focus:border-ai-accent focus:outline-none transition-all" value={editUserPass} onChange={e => setEditUserPass(e.target.value)} />
                         </div>
                         <div className="pt-4 border-t border-[var(--panel-border)] flex justify-between items-center">
                             <button onClick={() => handleDeleteUser(editingUser.email)} className="text-red-400/70 hover:text-red-300 text-sm font-semibold flex items-center gap-2 transition-colors"><TrashIcon /> Delete User</button>
@@ -710,7 +710,7 @@ const App: React.FC = () => {
     const renderPricingConfigStep = () => (
         <div className="space-y-6">
             <div className="form-panel">
-                <SectionHeader title="Currency & Display" icon={<span className="text-xl">💰</span>} />
+                <SectionHeader title="Currency & Display" icon={<WalletIcon />} />
                 <div className="form-grid mt-6">
                     <FormSelect
                         label="Currency"
@@ -758,7 +758,7 @@ const App: React.FC = () => {
             </div>
 
             <div className="form-panel">
-                <SectionHeader title="VAT Settings" icon={<span className="text-xl">🛡️</span>} />
+                <SectionHeader title="VAT Settings" icon={<ShieldCheckIcon />} />
                 <div className="form-grid mt-6 items-center">
                     <FormCheckbox
                         label="Enable VAT"
@@ -858,7 +858,7 @@ const App: React.FC = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center mb-2">
                 <SectionHeader title="Accommodation Options" icon={<BedIcon />} />
-                <Button variant="secondary" onClick={addHotel} className="h-9 text-xs">+ Add Another Hotel Option</Button>
+                <Button variant="secondary" onClick={addHotel} className="h-9 text-xs"><PlusIcon size={14} /> Add Hotel Option</Button>
             </div>
 
             {formData.hotelOptions.map((hotel, index) => {
@@ -874,7 +874,7 @@ const App: React.FC = () => {
                                     {index + 1}
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-white capitalize">{hotel.name || `Hotel Option ${index + 1}`}</h3>
+                                    <h3 className="text-lg font-bold text-[var(--text-primary)] capitalize">{hotel.name || `Hotel Option ${index + 1}`}</h3>
                                     {!isExpanded && <p className="text-xs text-[var(--text-muted)]">{hotel.location || 'No location set'} • {hotel.roomTypes.length} Room Types</p>}
                                 </div>
                             </div>
@@ -887,7 +887,7 @@ const App: React.FC = () => {
                                     <TrashIcon />
                                 </button>
                                 <div className={`text-[var(--text-disabled)] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-                                    ▼
+                                    <ChevronDownIcon size={16} />
                                 </div>
                             </div>
                         </div>
@@ -913,7 +913,7 @@ const App: React.FC = () => {
                                             <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
                                                 <BedIcon /> Room Configuration
                                             </h4>
-                                            <Button variant="secondary" onClick={() => addRoomType(index)} className="h-7 text-[10px] px-3">+ Add Room Type</Button>
+                                            <Button variant="secondary" onClick={() => addRoomType(index)} className="h-7 text-[10px] px-3"><PlusIcon size={14} /> Add Room</Button>
                                         </div>
                                         <div className="space-y-3">
                                             {hotel.roomTypes.map((rt, rtIdx) => (
@@ -951,7 +951,7 @@ const App: React.FC = () => {
                                             <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
                                                 <MeetingIcon /> Meeting Rooms
                                             </h4>
-                                            <Button variant="secondary" onClick={() => addMeeting(index)} className="h-7 text-[10px] px-3">+ Add Meeting</Button>
+                                            <Button variant="secondary" onClick={() => addMeeting(index)} className="h-7 text-[10px] px-3"><PlusIcon size={14} /> Add Meeting</Button>
                                         </div>
                                         <div className="space-y-3">
                                             {hotel.meetingRooms.map((m, mIdx) => {
@@ -1104,7 +1104,7 @@ const App: React.FC = () => {
                         onChange={e => setFormData({ ...formData, inclusions: { ...formData.inclusions, flights: !e.target.checked } })}
                     />
                     {formData.inclusions.flights && (
-                        <Button variant="secondary" onClick={addFlight} className="h-9 text-xs">+ Add Flight Option</Button>
+                        <Button variant="secondary" onClick={addFlight} className="h-9 text-xs"><PlusIcon size={14} /> Add Flight Option</Button>
                     )}
                 </div>
             </div>
@@ -1122,7 +1122,7 @@ const App: React.FC = () => {
                                     {index + 1}
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-white capitalize">{flight.routeDescription || `Flight Option ${index + 1}`}</h3>
+                                    <h3 className="text-lg font-bold text-[var(--text-primary)] capitalize">{flight.routeDescription || `Flight Option ${index + 1}`}</h3>
                                     {!isExpanded && <p className="text-xs text-[var(--text-muted)]">{flight.quotes.length} Price Quotes • {flight.outbound.length} Outbound / {flight.return.length} Return</p>}
                                 </div>
                             </div>
@@ -1138,7 +1138,7 @@ const App: React.FC = () => {
                                     <TrashIcon />
                                 </button>
                                 <div className={`text-[var(--text-disabled)] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-                                    ▼
+                                    <ChevronDownIcon size={16} />
                                 </div>
                             </div>
                         </div>
@@ -1166,7 +1166,7 @@ const App: React.FC = () => {
                                         </div>
                                         <div className="space-y-4">
                                             {flight.outbound.map((leg, i) => (
-                                                <div key={i} className="p-4 section-surface rounded-xl border border-white/[0.03] relative group">
+                                                <div key={i} className="p-4 section-surface rounded-xl border border-[var(--divider)] relative group">
                                                     {flight.outbound.length > 1 && (
                                                         <button
                                                             onClick={() => removeFlightLeg(index, 'outbound', i)}
@@ -1207,7 +1207,7 @@ const App: React.FC = () => {
                                         </div>
                                         <div className="space-y-4">
                                             {flight.return.map((leg, i) => (
-                                                <div key={i} className="p-4 section-surface rounded-xl border border-white/[0.03] relative group">
+                                                <div key={i} className="p-4 section-surface rounded-xl border border-[var(--divider)] relative group">
                                                     {flight.return.length > 1 && (
                                                         <button
                                                             onClick={() => removeFlightLeg(index, 'return', i)}
@@ -1247,7 +1247,7 @@ const App: React.FC = () => {
                                     </div>
                                     <div className="space-y-3">
                                         {flight.quotes.map((q, qIdx) => (
-                                            <div key={qIdx} className="form-grid items-center p-3 section-surface rounded-xl border border-white/[0.03]">
+                                            <div key={qIdx} className="form-grid items-center p-3 section-surface rounded-xl border border-[var(--divider)]">
                                                 <FormInput label="Class / Type" value={q.class} onChange={e => updateFlightQuote(index, qIdx, 'class', e.target.value)} className="mb-0 text-sm" />
                                                 <div className="form-grid grid-cols-12 gap-3 items-end">
                                                     <div className="col-span-4">
@@ -1292,7 +1292,7 @@ const App: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, inclusions: { ...formData.inclusions, transportation: !e.target.checked } })}
                     />
                     {formData.inclusions.transportation && (
-                        <Button variant="secondary" onClick={() => addItem<TransportationDetails>('transportation', { id: Date.now().toString(), type: VehicleType.Sedan, model: '', description: '', startDate: '', endDate: '', days: 1, netPricePerDay: 0, quantity: 1, vatRule: 'domestic' })} className="h-9 text-xs">+ Add Vehicle</Button>
+                        <Button variant="secondary" onClick={() => addItem<TransportationDetails>('transportation', { id: Date.now().toString(), type: VehicleType.Sedan, model: '', description: '', startDate: '', endDate: '', days: 1, netPricePerDay: 0, quantity: 1, vatRule: 'domestic' })} className="h-9 text-xs"><PlusIcon size={14} /> Add Vehicle</Button>
                     )}
                 </div>
             </div>
@@ -1304,7 +1304,7 @@ const App: React.FC = () => {
                             <div className="w-8 h-8 rounded-full bg-ai-secondary/10 flex items-center justify-center text-[10px] font-black text-ai-secondary border border-ai-secondary/20">
                                 {idx + 1}
                             </div>
-                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">{item.type} Service</h3>
+                            <h3 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">{item.type} Service</h3>
                         </div>
                         <button onClick={() => removeItem('transportation', idx)} className="p-2 text-red-400/50 hover:text-red-400 transition-colors">
                             <TrashIcon className="w-4 h-4" />
@@ -1320,7 +1320,7 @@ const App: React.FC = () => {
                             <FormInput label="Route or Service Description" value={item.description} onChange={(e) => updateItem('transportation', idx, 'description', e.target.value)} placeholder="e.g. Airport Transfers & Local Disposal" />
                             <FormSelect label="VAT Rule" options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]} value={item.vatRule} onChange={(e) => updateItem('transportation', idx, 'vatRule', e.target.value)} />
                         </div>
-                        <div className="col-span-1 md:col-span-1 border border-[var(--panel-border)] bg-white/[0.01] rounded-xl p-4">
+                        <div className="col-span-1 md:col-span-1 border border-[var(--panel-border)] bg-[var(--panel-bg-2)] rounded-xl p-4">
                             <FileUploader label="Vehicle Image" currentImage={item.image} onFileSelect={(b64) => updateItem('transportation', idx, 'image', b64)} />
                         </div>
                     </div>
@@ -1363,7 +1363,7 @@ const App: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, inclusions: { ...formData.inclusions, customItems: !e.target.checked } })}
                     />
                     {formData.inclusions.customItems && (
-                        <Button variant="secondary" onClick={() => addItem<CustomItem>('customItems', { id: Date.now().toString(), description: '', unitPrice: 0, quantity: 1, vatRule: 'domestic', days: 1 })} className="h-9 text-xs">+ Add Item</Button>
+                        <Button variant="secondary" onClick={() => addItem<CustomItem>('customItems', { id: Date.now().toString(), description: '', unitPrice: 0, quantity: 1, vatRule: 'domestic', days: 1 })} className="h-9 text-xs"><PlusIcon size={14} /> Add Item</Button>
                     )}
                 </div>
             </div>
@@ -1427,7 +1427,7 @@ const App: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, inclusions: { ...formData.inclusions, activities: !e.target.checked } })}
                     />
                     {formData.inclusions.activities && (
-                        <Button variant="secondary" onClick={() => addItem<ActivityDetails>('activities', { id: Date.now().toString(), name: '', pricePerPerson: 0, guests: 1, vatRule: 'domestic', days: 1 })} className="h-9 text-xs">+ Add Activity</Button>
+                        <Button variant="secondary" onClick={() => addItem<ActivityDetails>('activities', { id: Date.now().toString(), name: '', pricePerPerson: 0, guests: 1, vatRule: 'domestic', days: 1 })} className="h-9 text-xs"><PlusIcon size={14} /> Add Activity</Button>
                     )}
                 </div>
             </div>
@@ -1439,7 +1439,7 @@ const App: React.FC = () => {
                             <div className="w-8 h-8 rounded-full bg-ai-accent/10 flex items-center justify-center text-[10px] font-black text-ai-accent border border-ai-accent/20">
                                 {idx + 1}
                             </div>
-                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">{item.name || 'New Activity'}</h3>
+                            <h3 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">{item.name || 'New Activity'}</h3>
                         </div>
                         <button onClick={() => removeItem('activities', idx)} className="p-2 text-red-400/50 hover:text-red-400 transition-colors">
                             <TrashIcon className="w-4 h-4" />
@@ -1451,7 +1451,7 @@ const App: React.FC = () => {
                             <FormInput label="Activity Name" value={item.name} onChange={(e) => updateItem('activities', idx, 'name', e.target.value)} />
                             <FormSelect label="VAT Rule" options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]} value={item.vatRule} onChange={(e) => updateItem('activities', idx, 'vatRule', e.target.value)} />
                         </div>
-                        <div className="col-span-1 md:col-span-1 border border-[var(--panel-border)] bg-white/[0.01] rounded-xl p-4">
+                        <div className="col-span-1 md:col-span-1 border border-[var(--panel-border)] bg-[var(--panel-bg-2)] rounded-xl p-4">
                             <FileUploader label="Activity Image" currentImage={item.image} onFileSelect={(b64) => updateItem('activities', idx, 'image', b64)} />
                         </div>
                     </div>
@@ -1526,14 +1526,14 @@ const App: React.FC = () => {
     );
 
     const StepsNames = [
-        { label: 'Proposal Details', icon: <UserIcon /> },
-        { label: 'Pricing & Markup', icon: <EditIcon /> },
-        { label: 'Accommodation', icon: <BedIcon /> },
-        { label: 'Flights', icon: <PlaneIcon /> },
-        { label: 'Transportation', icon: <BusIcon /> },
-        { label: 'Custom Services', icon: <CustomIcon /> },
-        { label: 'Activities', icon: <ActivityIcon /> },
-        { label: 'Inclusions Check', icon: <PalmLogo className="w-4 h-4" /> }
+        { label: 'Proposal Details', icon: <UserIcon size={18} /> },
+        { label: 'Pricing & Markup', icon: <WalletIcon size={18} /> },
+        { label: 'Accommodation', icon: <BuildingIcon size={18} /> },
+        { label: 'Flights', icon: <PlaneIcon size={18} /> },
+        { label: 'Transportation', icon: <BusIcon size={18} /> },
+        { label: 'Custom Services', icon: <CustomIcon size={18} /> },
+        { label: 'Activities', icon: <ActivityIcon size={18} /> },
+        { label: 'Inclusions Check', icon: <ShieldCheckIcon size={18} /> }
     ];
 
     const renderStepNav = () => (
@@ -1555,7 +1555,7 @@ const App: React.FC = () => {
                             onClick={() => setStep(idx)}
                             className={`step-nav-item ${step === idx ? 'active' : ''}`}
                         >
-                            <div className="step-nav-icon">{idx < step ? '✓' : s.icon}</div>
+                            <div className="step-nav-icon">{idx < step ? <CheckIcon size={16} strokeWidth={3} /> : s.icon}</div>
                             <span className="step-nav-label">{s.label}</span>
                         </button>
                     ))}
@@ -1568,11 +1568,11 @@ const App: React.FC = () => {
                 <div className="mt-4">
                     <button
                         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                        className="w-full flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:bg-[var(--row-hover)] transition-all group"
+                        className="w-full flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:bg-[var(--row-hover)] transition-all group shadow-sm"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-[var(--input-bg)] text-ai-secondary group-hover:text-ai-accent transition-colors">
-                                {theme === 'dark' ? '🌙' : '☀️'}
+                            <div className="p-2 rounded-lg bg-[var(--input-bg)] text-ai-secondary group-hover:text-ai-accent transition-all duration-300">
+                                {theme === 'dark' ? <SunIcon size={18} /> : <MoonIcon size={18} />}
                             </div>
                             <span className="text-xs font-bold text-[var(--text-primary)]">Theme Mode</span>
                         </div>
@@ -1603,23 +1603,23 @@ const App: React.FC = () => {
                 <div className="pt-2 space-y-3">
                     <div className="flex justify-between items-center px-1">
                         <span className="text-xs text-[var(--text-muted)]">Total Hotels</span>
-                        <span className="text-xs font-black text-white">{formData.hotelOptions.length}</span>
+                        <span className="text-xs font-black text-[var(--text-primary)]">{formData.hotelOptions.length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
                         <span className="text-xs text-[var(--text-muted)]">Total Flights</span>
-                        <span className="text-xs font-black text-white">{formData.flightOptions.length}</span>
+                        <span className="text-xs font-black text-[var(--text-primary)]">{formData.flightOptions.length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
                         <span className="text-xs text-[var(--text-muted)]">Vehicles</span>
-                        <span className="text-xs font-black text-white">{formData.transportation.length}</span>
+                        <span className="text-xs font-black text-[var(--text-primary)]">{formData.transportation.length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
                         <span className="text-xs text-[var(--text-muted)]">Activities</span>
-                        <span className="text-xs font-black text-white">{formData.activities.length}</span>
+                        <span className="text-xs font-black text-[var(--text-primary)]">{formData.activities.length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
                         <span className="text-xs text-[var(--text-muted)]">Custom Items</span>
-                        <span className="text-xs font-black text-white">{formData.customItems.length}</span>
+                        <span className="text-xs font-black text-[var(--text-primary)]">{formData.customItems.length}</span>
                     </div>
                 </div>
 
@@ -1698,49 +1698,59 @@ const App: React.FC = () => {
                         <div className="flex flex-col items-end">
                             <span className="text-sm font-semibold text-[var(--text-primary)]">{user.firstName} {user.lastName}</span>
                             <span className="text-xs text-[var(--text-muted)]">{user.email}</span>
-                            <button onClick={handleLogout} className="text-xs text-red-400/70 hover:text-red-300 mt-1 transition-colors">Log Out</button>
+                            <button onClick={handleLogout} className="text-xs text-red-400/70 hover:text-red-300 mt-1 transition-colors flex items-center gap-1.5 group">
+                                <LogOutIcon size={12} className="group-hover:translate-x-0.5 transition-transform" /> Log Out
+                            </button>
                         </div>
-                        <button
+                        <IconButton
+                            icon={theme === 'dark' ? SunIcon : MoonIcon}
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="h-10 w-10 bg-[var(--input-bg)] rounded-xl flex items-center justify-center text-ai-secondary border border-[var(--border-color)] hover:text-ai-accent transition-all shadow-sm"
                             title="Toggle Theme"
-                        >
-                            {theme === 'dark' ? '🌙' : '☀️'}
-                        </button>
-                        <div className="h-10 w-10 bg-ai-accent/10 rounded-xl flex items-center justify-center text-ai-accent border border-ai-accent/20">
-                            <UserIcon />
+                        />
+                        <div className="h-10 w-10 bg-ai-accent/10 rounded-xl flex items-center justify-center text-ai-accent border border-ai-accent/20 shadow-sm">
+                            <UserIcon size={20} />
                         </div>
                     </div>
                 </div>
 
-                <div className="flex gap-1 mb-8 overflow-x-auto bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--divider)]">
-                    <button onClick={() => setSubMode('my_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'my_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>My Proposals</button>
+                <div className="flex gap-1 mb-8 overflow-x-auto bg-[var(--bg-secondary)] p-1.5 rounded-xl border border-[var(--divider)] shadow-sm">
+                    <button onClick={() => setSubMode('my_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${subMode === 'my_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
+                        <ProposalIcon size={16} /> My Proposals
+                    </button>
 
                     {(isSuper || isAdmin) && (
-                        <button onClick={() => setSubMode('all_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'all_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
-                            {isSuper ? 'All Proposals' : 'Company Proposals'}
+                        <button onClick={() => setSubMode('all_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${subMode === 'all_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
+                            <ProposalIcon size={16} /> {isSuper ? 'All Proposals' : 'Company Proposals'}
                         </button>
                     )}
 
                     {isSuper && (
-                        <button onClick={() => setSubMode('companies')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'companies' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>Companies</button>
+                        <button onClick={() => setSubMode('companies')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${subMode === 'companies' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
+                            <BuildingIcon size={16} /> Companies
+                        </button>
                     )}
 
                     {(isSuper || isAdmin) && (
-                        <button onClick={() => setSubMode('company_users')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'company_users' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>Users</button>
+                        <button onClick={() => setSubMode('company_users')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${subMode === 'company_users' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
+                            <UsersIcon size={16} /> Users
+                        </button>
                     )}
 
-                    <button onClick={() => setSubMode('account_settings')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'account_settings' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>Settings</button>
+                    <button onClick={() => setSubMode('account_settings')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${subMode === 'account_settings' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
+                        <SettingsIcon size={16} /> Settings
+                    </button>
                 </div>
 
                 {
                     (subMode === 'my_proposals' || subMode === 'all_proposals') && (
                         <>
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-bold text-white">
+                                <h2 className="text-2xl font-bold text-[var(--text-primary)]">
                                     {subMode === 'my_proposals' ? 'My Proposals' : (isSuper ? 'All System Proposals' : 'Team Proposals')}
                                 </h2>
-                                <Button onClick={handleCreateNew}>+ Create Proposal</Button>
+                                <Button onClick={handleCreateNew} className="gap-2">
+                                    <PlusIcon size={18} /> Create Proposal
+                                </Button>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
                                 {displayedProposals.length === 0 && <div className="col-span-3 text-center py-20 empty-state flex items-center justify-center">No proposals found. Create your first proposal to get started.</div>}
@@ -1751,7 +1761,7 @@ const App: React.FC = () => {
                                                 <h4 className="text-[var(--text-primary)] mb-3">Share Proposal</h4>
                                                 <FormInput label="Enter Email" value={shareEmail} onChange={e => setShareEmail(e.target.value)} className="w-full mb-2" />
                                                 <div className="flex gap-2">
-                                                    <button onClick={() => setSharingId(null)} className="text-xs text-[var(--text-muted)] hover:text-white transition-colors">Cancel</button>
+                                                    <button onClick={() => setSharingId(null)} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">Cancel</button>
                                                 </div>
                                             </div>
                                         )}
@@ -1770,10 +1780,12 @@ const App: React.FC = () => {
                                         </div>
 
                                         <div className="flex gap-2 pt-4 border-t border-[var(--panel-border)] mt-auto">
-                                            <button onClick={() => handleEdit(p)} className="flex-1 py-2 gradient-accent text-white rounded-lg font-semibold flex justify-center items-center gap-2 text-sm hover:shadow-glow transition-all"><EditIcon /> Edit</button>
-                                            <button onClick={() => handleDuplicate(p)} className="p-2 bg-[var(--divider)] text-white/60 rounded-lg hover:bg-white/[0.1] hover:text-white transition-all" title="Duplicate"><CopyIcon /></button>
+                                            <Button onClick={() => handleEdit(p)} className="flex-1 h-10 gap-2">
+                                                <EditIcon size={16} /> Edit
+                                            </Button>
+                                            <IconButton icon={CopyIcon} onClick={() => handleDuplicate(p)} size={18} title="Duplicate" />
                                             {(isSuper || isAdmin || p.createdBy === user.email) && (
-                                                <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-500/10 text-red-400/70 rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all" title="Delete"><TrashIcon /></button>
+                                                <IconButton icon={TrashIcon} onClick={() => handleDelete(p.id)} variant="ghost" className="text-red-400 hover:text-red-500 hover:bg-red-500/10" size={18} title="Delete" />
                                             )}
                                         </div>
                                     </div>
@@ -1848,7 +1860,7 @@ const App: React.FC = () => {
 
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
-                            <button onClick={() => setViewMode('dashboard')} className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-[var(--text-muted)] hover:text-white transition-colors">
+                            <button onClick={() => setViewMode('dashboard')} className="p-2 rounded-lg bg-[var(--input-bg)] hover:bg-[var(--row-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
                                 <HomeIcon />
                             </button>
                             <h2 className="text-xl md:text-2xl font-bold text-[var(--text-primary)]">{StepsNames[step].label}</h2>
@@ -1870,27 +1882,33 @@ const App: React.FC = () => {
                             variant="secondary"
                             onClick={() => setStep(s => Math.max(0, s - 1))}
                             disabled={step === 0 || isGenerating}
-                            className="flex-1 md:flex-initial"
+                            className="flex-1 md:flex-initial gap-2"
                         >
-                            Previous
+                            <ArrowLeftIcon size={18} /> Previous
                         </Button>
                         <div className="flex-1 md:flex-initial flex justify-end">
                             {step < StepsNames.length - 1 ? (
                                 <Button
                                     onClick={() => setStep(s => Math.min(StepsNames.length - 1, s + 1))}
-                                    className="w-full md:w-auto"
+                                    className="w-full md:w-auto gap-2"
                                 >
-                                    Next Step
+                                    Next Step <ArrowRightIcon size={18} />
                                 </Button>
                             ) : (
                                 <Button
                                     onClick={() => handleSaveProposal(false)}
                                     disabled={isGenerating}
-                                    className="w-full md:w-auto shadow-glow shadow-ai-accent/20"
+                                    className="w-full md:w-auto shadow-glow shadow-ai-accent/20 gap-2"
                                 >
-                                    {isGenerating ? 'Generating...' : 'Generate Proposal'}
+                                    {isGenerating ? (
+                                        <>Generating...</>
+                                    ) : (
+                                        <>
+                                            <SaveIcon size={18} /> Generate Proposal
+                                        </>
+                                    )}
                                 </Button>
-                            )}
+                            ) /* Final step check */}
                         </div>
                     </div>
                 </main>

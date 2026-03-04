@@ -1,6 +1,5 @@
-
 import React, { useRef } from 'react';
-import { UploadIcon } from './Icons';
+import { UploadIcon, CheckIcon, ArrowRightIcon } from './Icons';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -41,12 +40,15 @@ export const FormSelect: React.FC<SelectProps> = ({ label, options, className, .
 
 export const FormCheckbox: React.FC<{ label: string; checked: boolean; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }> = ({ label, checked, onChange }) => (
   <label className="flex items-center gap-3 px-4 py-3 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-xl cursor-pointer hover:bg-[var(--row-hover)] transition-all duration-200 mb-4 select-none hover:border-[var(--input-border-hover)]">
-    <input
-      type="checkbox"
-      checked={checked}
-      onChange={onChange}
-      className="w-4 h-4 text-ai-accent rounded focus:ring-ai-accent/40 bg-white/5 border-white/20"
-    />
+    <div className={`relative flex items-center justify-center w-5 h-5 rounded border transition-all duration-200 ${checked ? 'bg-ai-accent border-ai-accent' : 'bg-[var(--input-bg)] border-[var(--input-border)] group-hover:border-[var(--input-border-hover)]'}`}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+      />
+      {checked && <CheckIcon size={14} className="text-white" strokeWidth={3} />}
+    </div>
     <span className="text-sm font-medium text-[var(--text-primary)]">{label}</span>
   </label>
 );
@@ -73,7 +75,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ label, startDa
           className="bg-transparent text-[var(--text-primary)] text-sm w-full focus:outline-none"
           placeholder="From"
         />
-        <span className="text-[var(--text-disabled)] font-medium text-xs">→</span>
+        <ArrowRightIcon size={14} className="text-[var(--text-disabled)]" />
         <input
           type="date"
           value={endDate}
@@ -180,7 +182,7 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({ label, onF
 
   if (remaining <= 0) {
     return (
-      <div className="flex flex-col items-center justify-center text-white/25 p-4 text-xs">
+      <div className="flex flex-col items-center justify-center text-[var(--text-disabled)] p-4 text-xs">
         <span>Max {maxFiles} images reached</span>
       </div>
     );
@@ -222,8 +224,31 @@ export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { 
   };
 
   return (
-    <button className={`${baseStyle} ${variants[variant]} ${className}`} {...props}>
+    <button className={`${baseStyle} ${variants[variant]} ${className} hover:scale-[1.02] transition-transform`} {...props}>
       {children}
+    </button>
+  );
+};
+
+interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  icon: React.ComponentType<any>;
+  size?: number;
+  variant?: 'primary' | 'secondary' | 'ghost';
+}
+
+export const IconButton: React.FC<IconButtonProps> = ({ icon: Icon, size = 20, variant = 'secondary', className, ...props }) => {
+  const variants = {
+    primary: "gradient-accent text-white",
+    secondary: "icon-button",
+    ghost: "bg-transparent hover:bg-[var(--row-hover)] text-[var(--icon-color)] hover:text-ai-accent"
+  };
+
+  return (
+    <button
+      className={`icon-button ${variants[variant]} ${className}`}
+      {...props}
+    >
+      <Icon size={size} strokeWidth={2} />
     </button>
   );
 };

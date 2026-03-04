@@ -33,6 +33,13 @@
   --footer-bg: rgba(5, 6, 10, 0.8);
   --scrollbar-thumb: rgba(255, 255, 255, 0.08);
   --row-hover: rgba(255, 255, 255, 0.03);
+
+  /* Icon System */
+  --icon-color: rgba(255, 255, 255, 0.85);
+  --icon-active: #0A62F0;
+  --icon-disabled: rgba(255, 255, 255, 0.25);
+  --icon-bg: rgba(255, 255, 255, 0.05);
+  --icon-bg-hover: rgba(255, 255, 255, 0.1);
 }
 
 .theme-light {
@@ -68,6 +75,13 @@
   --footer-bg: rgba(255, 255, 255, 0.8);
   --scrollbar-thumb: rgba(0, 0, 0, 0.08);
   --row-hover: #F1F5F9;
+
+  /* Icon System */
+  --icon-color: rgba(15, 23, 42, 0.85);
+  --icon-active: #0A62F0;
+  --icon-disabled: rgba(15, 23, 42, 0.25);
+  --icon-bg: rgba(0, 0, 0, 0.04);
+  --icon-bg-hover: rgba(0, 0, 0, 0.08);
 }
 
 *,
@@ -263,6 +277,53 @@ body:not(.theme-light) .glass::before {
 /* Transition all */
 .transition-premium {
   transition: all 0.25s ease;
+}
+
+/* Icon System Utilities */
+.icon-base {
+  stroke-width: 2px;
+  stroke: var(--icon-color);
+  transition: all 0.15s ease;
+}
+
+.icon-active {
+  stroke: var(--icon-active);
+}
+
+.icon-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--icon-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--icon-color);
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.icon-button:hover:not(:disabled) {
+  background: var(--icon-bg-hover);
+  transform: scale(1.05);
+  color: var(--icon-active);
+}
+
+.icon-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.icon-label-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 /* ========== COMPACT FORM LAYOUT SYSTEM ========== */

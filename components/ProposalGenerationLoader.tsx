@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Check } from 'lucide-react';
 
 const STATUS_MESSAGES = [
     'Preparing proposal layout...',
@@ -125,7 +126,13 @@ export const ProposalGenerationLoader: React.FC<Props> = ({ isVisible, isComplet
                             letterSpacing: '-0.02em',
                         }}
                     >
-                        {isComplete ? '✓ Proposal Ready' : 'Generating Proposal'}
+                        {isComplete ? (
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                                <Check size={24} strokeWidth={3} color="#5fa9ff" /> Proposal Ready
+                            </div>
+                        ) : (
+                            'Generating Proposal'
+                        )}
                     </h2>
                     <p
                         style={{

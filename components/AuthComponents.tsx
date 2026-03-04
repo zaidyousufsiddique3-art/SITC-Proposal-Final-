@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { User } from '../types';
 import { loginUser, changePassword, sendResetEmail, logoutUser } from '../services/authService';
 import { FormInput, Button } from './InputComponents';
+import { ArrowLeftIcon } from './Icons';
 import { getGlobalSettings } from '../services/authService';
 
 interface AuthProps {
@@ -154,7 +155,9 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
                     <Button onClick={handleRecoverPassword} className="w-full mb-3 py-3">Verify & Reset</Button>
                 </>
             )}
-            <button onClick={() => { setMode('login'); setStep(0); }} className="w-full text-center text-xs text-[var(--text-secondary)] mt-3 hover:text-[var(--text-primary)] transition-colors">← Back to Login</button>
+            <button onClick={() => { setMode('login'); setStep(0); }} className="w-full text-center text-xs text-[var(--text-secondary)] mt-3 hover:text-[var(--text-primary)] transition-colors flex items-center justify-center gap-1.5">
+                <ArrowLeftIcon size={12} /> Back to Login
+            </button>
         </div>
     );
 
@@ -164,7 +167,9 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
             <p className="text-sm text-[var(--text-secondary)] mb-6">Enter your registered phone number.</p>
             <FormInput label="Phone Number" value={recoveryPhone} onChange={e => setRecoveryPhone(e.target.value)} />
             <Button onClick={handleRecoverUsername} className="w-full mb-3 py-3">Find Username</Button>
-            <button onClick={() => setMode('login')} className="w-full text-center text-xs text-[var(--text-secondary)] mt-3 hover:text-[var(--text-primary)] transition-colors">← Back to Login</button>
+            <button onClick={() => setMode('login')} className="w-full text-center text-xs text-[var(--text-secondary)] mt-3 hover:text-[var(--text-primary)] transition-colors flex items-center justify-center gap-1.5">
+                <ArrowLeftIcon size={12} /> Back to Login
+            </button>
         </div>
     );
 
@@ -172,7 +177,7 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
         <div className="min-h-screen flex items-center justify-center bg-premium p-4">
             <div className="w-full max-w-md glass-elevated p-10 rounded-2xl animate-fade-up">
                 <button onClick={() => window.location.href = '/'} className="inline-flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-6">
-                    ← Back to Home
+                    <ArrowLeftIcon size={12} /> Back to Home
                 </button>
                 <div className="flex flex-col items-center mb-8">
                     <img src="/sitc_logo_final.png" className="h-20 mb-6 object-contain" alt="SITC Logo" />

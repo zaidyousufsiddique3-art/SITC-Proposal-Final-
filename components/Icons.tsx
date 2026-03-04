@@ -1,9 +1,44 @@
 
 import React from 'react';
+import {
+  Home,
+  FileText,
+  Building2,
+  Plane,
+  Car,
+  Compass,
+  Layers,
+  Wallet,
+  Plus,
+  Trash2,
+  Pencil,
+  Save,
+  ArrowLeft,
+  ArrowRight,
+  Upload,
+  User,
+  LogOut,
+  Sun,
+  Moon,
+  Copy,
+  Users,
+  Lock,
+  Bus,
+  Bed,
+  UtensilsCrossed,
+  LayoutDashboard,
+  Calendar,
+  Check,
+  ChevronDown,
+  Presentation,
+  ShieldCheck,
+  Search,
+  Settings
+} from 'lucide-react';
 
+/* SITC Branded Logos (SVG) */
 export const SITCLogo = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 500 280" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Palm Tree - Gold */}
     <path d="M250 100 C250 80 265 50 250 20 C235 50 250 80 250 100 Z" fill="#d4af37" className="opacity-90" />
     <g stroke="#d4af37" strokeWidth="4" strokeLinecap="round" fill="none">
       <path d="M250 20 Q220 10 200 40" />
@@ -13,16 +48,10 @@ export const SITCLogo = ({ className }: { className?: string }) => (
       <path d="M250 20 Q230 -10 200 0" />
       <path d="M250 20 Q270 -10 300 0" />
     </g>
-
-    {/* Arabic Text: الدولية */}
     <text x="250" y="180" textAnchor="middle" fill="#d4af37" fontSize="110" fontWeight="800" fontFamily="Arial, sans-serif" letterSpacing="-2" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
       الدولية
     </text>
-
-    {/* Blue Swoosh */}
     <path d="M100 200 Q250 260 400 140" stroke="#0c4a6e" strokeWidth="6" strokeLinecap="round" />
-
-    {/* English Text - White/Light */}
     <text x="250" y="250" textAnchor="middle" fill="#f8fafc" fontSize="26" fontFamily="Montserrat, sans-serif" fontWeight="500" letterSpacing="1">
       Saudi International Travel Company
     </text>
@@ -40,139 +69,40 @@ export const PalmLogo = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export const BedIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8" />
-    <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4" />
-    <path d="M12 4v6" />
-    <path d="M2 18h20" />
-  </svg>
-);
-
-export const MeetingIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M3 21h18" />
-    <path d="M5 21V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14" />
-    <path d="M9 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
-    <path d="M12 14v4" />
-    <path d="M8 14v4" />
-    <path d="M16 14v4" />
-  </svg>
-);
-
-export const UtensilsIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
-    <path d="M7 2v20" />
-    <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
-  </svg>
-);
-
-export const PlaneIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M2 12h20" />
-    <path d="M13 2l9 10-9 10-9-10 9-10z" />
-  </svg>
-);
-
-export const CarIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
-    <circle cx="7" cy="17" r="2" />
-    <path d="M9 17h6" />
-    <circle cx="17" cy="17" r="2" />
-  </svg>
-);
-
-export const ActivityIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <circle cx="12" cy="12" r="10" />
-    <polygon points="10 8 16 12 10 16 10 8" />
-  </svg>
-);
-
-export const CustomIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-    <polyline points="14 2 14 8 20 8" />
-    <line x1="16" y1="13" x2="8" y2="13" />
-    <line x1="16" y1="17" x2="8" y2="17" />
-    <polyline points="10 9 9 9 8 9" />
-  </svg>
-);
-
-export const BusIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="4" y="4" width="16" height="16" rx="2" />
-    <path d="M4 10h16" />
-    <path d="M8 18v2" />
-    <path d="M16 18v2" />
-  </svg>
-);
-
-export const UploadIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <polyline points="17 8 12 3 7 8" />
-    <line x1="12" y1="3" x2="12" y2="15" />
-  </svg>
-);
-
-export const SaveIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-    <polyline points="7 3 7 8 15 8"></polyline>
-  </svg>
-);
-
-export const EditIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-  </svg>
-);
-
-export const TrashIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <polyline points="3 6 5 6 21 6"></polyline>
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-  </svg>
-);
-
-export const CopyIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-  </svg>
-);
-
-export const HomeIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-  </svg>
-);
-
-export const UserIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-);
-
-export const UsersIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-    <circle cx="9" cy="7" r="4"></circle>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-  </svg>
-);
-
-export const LockIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-  </svg>
-);
+/* Enterprise-Grade Icons (Mapped to Lucide) */
+export const DashboardIcon = (props: any) => <LayoutDashboard {...props} strokeWidth={2} size={props.size || 20} />;
+export const ProposalIcon = (props: any) => <FileText {...props} strokeWidth={2} size={props.size || 20} />;
+export const BuildingIcon = (props: any) => <Building2 {...props} strokeWidth={2} size={props.size || 20} />;
+export const PlaneIcon = (props: any) => <Plane {...props} strokeWidth={2} size={props.size || 20} />;
+export const CarIcon = (props: any) => <Car {...props} strokeWidth={2} size={props.size || 20} />;
+export const CompassIcon = (props: any) => <Compass {...props} strokeWidth={2} size={props.size || 20} />;
+export const LayersIcon = (props: any) => <Layers {...props} strokeWidth={2} size={props.size || 20} />;
+export const WalletIcon = (props: any) => <Wallet {...props} strokeWidth={2} size={props.size || 20} />;
+export const PlusIcon = (props: any) => <Plus {...props} strokeWidth={2} size={props.size || 20} />;
+export const TrashIcon = (props: any) => <Trash2 {...props} strokeWidth={2} size={props.size || 20} />;
+export const EditIcon = (props: any) => <Pencil {...props} strokeWidth={2} size={props.size || 20} />;
+export const SaveIcon = (props: any) => <Save {...props} strokeWidth={2} size={props.size || 20} />;
+export const ArrowLeftIcon = (props: any) => <ArrowLeft {...props} strokeWidth={2} size={props.size || 20} />;
+export const ArrowRightIcon = (props: any) => <ArrowRight {...props} strokeWidth={2} size={props.size || 20} />;
+export const UploadIcon = (props: any) => <Upload {...props} strokeWidth={2} size={props.size || 20} />;
+export const UserIcon = (props: any) => <User {...props} strokeWidth={2} size={props.size || 20} />;
+export const LogOutIcon = (props: any) => <LogOut {...props} strokeWidth={2} size={props.size || 20} />;
+export const SunIcon = (props: any) => <Sun {...props} strokeWidth={2} size={props.size || 20} />;
+export const MoonIcon = (props: any) => <Moon {...props} strokeWidth={2} size={props.size || 20} />;
+export const CopyIcon = (props: any) => <Copy {...props} strokeWidth={2} size={props.size || 20} />;
+export const UsersIcon = (props: any) => <Users {...props} strokeWidth={2} size={props.size || 20} />;
+export const LockIcon = (props: any) => <Lock {...props} strokeWidth={2} size={props.size || 20} />;
+export const BusIcon = (props: any) => <Bus {...props} strokeWidth={2} size={props.size || 20} />;
+export const BedIcon = (props: any) => <Bed {...props} strokeWidth={2} size={props.size || 20} />;
+export const UtensilsIcon = (props: any) => <UtensilsCrossed {...props} strokeWidth={2} size={props.size || 20} />;
+export const HomeIcon = (props: any) => <Home {...props} strokeWidth={2} size={props.size || 20} />;
+export const CalendarIcon = (props: any) => <Calendar {...props} strokeWidth={2} size={props.size || 20} />;
+export const CheckIcon = (props: any) => <Check {...props} strokeWidth={2} size={props.size || 20} />;
+export const ChevronDownIcon = (props: any) => <ChevronDown {...props} strokeWidth={2} size={props.size || 20} />;
+export const PresentationIcon = (props: any) => <Presentation {...props} strokeWidth={2} size={props.size || 20} />;
+export const ShieldCheckIcon = (props: any) => <ShieldCheck {...props} strokeWidth={2} size={props.size || 20} />;
+export const SearchIcon = (props: any) => <Search {...props} strokeWidth={2} size={props.size || 20} />;
+export const SettingsIcon = (props: any) => <Settings {...props} strokeWidth={2} size={props.size || 20} />;
+export const MeetingIcon = (props: any) => <Presentation {...props} strokeWidth={2} size={props.size || 20} />;
+export const ActivityIcon = (props: any) => <Compass {...props} strokeWidth={2} size={props.size || 20} />;
+export const CustomIcon = (props: any) => <Layers {...props} strokeWidth={2} size={props.size || 20} />;
