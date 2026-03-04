@@ -96,22 +96,22 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
     const renderLogin = () => (
         <>
             {/* Login Type Toggle */}
-            <div className="flex bg-white/[0.04] p-1 rounded-xl mb-8 border border-white/[0.06]">
+            <div className="flex bg-[var(--bg-secondary)] p-1 rounded-xl mb-8 border border-[var(--border-color)]">
                 <button
                     onClick={() => { setLoginType('user'); setError(''); }}
-                    className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${loginType === 'user' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/20' : 'text-white/50 hover:text-white/70'}`}
+                    className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${loginType === 'user' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/20' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                 >
                     User Login
                 </button>
                 <button
                     onClick={() => { setLoginType('admin'); setError(''); }}
-                    className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${loginType === 'admin' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/20' : 'text-white/50 hover:text-white/70'}`}
+                    className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${loginType === 'admin' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/20' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                 >
                     Admin Login
                 </button>
             </div>
 
-            <h3 className="text-center text-white/70 font-medium mb-6 text-sm">
+            <h3 className="text-center text-[var(--text-secondary)] font-medium mb-6 text-sm">
                 {loginType === 'admin' ? 'Admin & Management Portal' : 'Staff Portal'}
             </h3>
 
@@ -119,11 +119,11 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
             <FormInput label="Password" type="password" value={loginPass} onChange={e => setLoginPass(e.target.value)} placeholder="Enter your password" />
 
             <div className="flex justify-between text-xs mb-6 px-1">
-                <button onClick={() => { setMode('forgot_password'); setError(''); setSuccess(''); }} className="text-ai-secondary hover:text-white transition-colors duration-200">Forgot Password?</button>
-                <button onClick={() => { setMode('forgot_username'); setError(''); setSuccess(''); }} className="text-white/40 hover:text-white/70 transition-colors duration-200">Forgot Username?</button>
+                <button onClick={() => { setMode('forgot_password'); setError(''); setSuccess(''); }} className="text-ai-secondary hover:text-[var(--text-primary)] transition-colors duration-200">Forgot Password?</button>
+                <button onClick={() => { setMode('forgot_username'); setError(''); setSuccess(''); }} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200">Forgot Username?</button>
             </div>
 
-            <Button onClick={handleLogin} className="w-full mt-2 py-3 text-base">
+            <Button onClick={handleLogin} className="w-full mt-2 pt-[11px] pb-[13px] text-base shadow-[0_8px_30px_rgba(10,98,240,0.4)]">
                 Sign In
             </Button>
         </>
@@ -131,59 +131,59 @@ export const AuthScreen: React.FC<AuthProps> = ({ onLogin }) => {
 
     const renderForceChange = () => (
         <div className="animate-fade-up">
-            <h3 className="text-xl font-bold text-white mb-2">Password Expired</h3>
-            <p className="text-sm text-white/45 mb-6">Your temporary password has expired. Please set a new one.</p>
+            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Password Expired</h3>
+            <p className="text-sm text-[var(--text-secondary)] mb-6">Your temporary password has expired. Please set a new one.</p>
             <FormInput label="New Password" type="password" value={newPass} onChange={e => setNewPass(e.target.value)} />
-            <Button onClick={handleForceChange} className="w-full py-3">Update Password</Button>
+            <Button onClick={handleForceChange} className="w-full pt-[11px] pb-[13px]">Update Password</Button>
         </div>
     );
 
     const renderForgotPassword = () => (
         <div className="animate-fade-up">
-            <h3 className="text-xl font-bold text-white mb-2">Reset Password</h3>
+            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Reset Password</h3>
             {step === 0 ? (
                 <>
-                    <p className="text-sm text-white/45 mb-6">Enter your registered email to receive a verification code.</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-6">Enter your registered email to receive a verification code.</p>
                     <FormInput label="Email Address" value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)} />
                     <Button onClick={handleRecoverPassword} className="w-full mb-3 py-3">Send Code</Button>
                 </>
             ) : (
                 <>
-                    <p className="text-sm text-white/45 mb-6">Enter the verification code sent to your email.</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-6">Enter the verification code sent to your email.</p>
                     <FormInput label="Verification Code" value={verificationCode} onChange={e => setVerificationCode(e.target.value)} />
                     <Button onClick={handleRecoverPassword} className="w-full mb-3 py-3">Verify & Reset</Button>
                 </>
             )}
-            <button onClick={() => { setMode('login'); setStep(0); }} className="w-full text-center text-xs text-white/40 mt-3 hover:text-white/60 transition-colors">← Back to Login</button>
+            <button onClick={() => { setMode('login'); setStep(0); }} className="w-full text-center text-xs text-[var(--text-secondary)] mt-3 hover:text-[var(--text-primary)] transition-colors">← Back to Login</button>
         </div>
     );
 
     const renderForgotUsername = () => (
         <div className="animate-fade-up">
-            <h3 className="text-xl font-bold text-white mb-2">Recover Username</h3>
-            <p className="text-sm text-white/45 mb-6">Enter your registered phone number.</p>
+            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Recover Username</h3>
+            <p className="text-sm text-[var(--text-secondary)] mb-6">Enter your registered phone number.</p>
             <FormInput label="Phone Number" value={recoveryPhone} onChange={e => setRecoveryPhone(e.target.value)} />
             <Button onClick={handleRecoverUsername} className="w-full mb-3 py-3">Find Username</Button>
-            <button onClick={() => setMode('login')} className="w-full text-center text-xs text-white/40 mt-3 hover:text-white/60 transition-colors">← Back to Login</button>
+            <button onClick={() => setMode('login')} className="w-full text-center text-xs text-[var(--text-secondary)] mt-3 hover:text-[var(--text-primary)] transition-colors">← Back to Login</button>
         </div>
     );
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-premium p-4">
             <div className="w-full max-w-md glass-elevated p-10 rounded-2xl animate-fade-up">
-                <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors mb-6">
+                <button onClick={() => window.location.href = '/'} className="inline-flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors mb-6">
                     ← Back to Home
-                </Link>
+                </button>
                 <div className="flex flex-col items-center mb-8">
                     <img src="/sitc_logo_final.png" className="h-20 mb-6 object-contain" alt="SITC Logo" />
-                    <h1 className="text-2xl font-bold text-white tracking-tight text-center font-display">
+                    <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight text-center font-display">
                         Travel Proposal Portal
                     </h1>
-                    <p className="text-white/40 text-xs mt-2 tracking-wide">Secure Access</p>
+                    <p className="text-[var(--text-secondary)] text-xs mt-2 tracking-wide">Secure Access</p>
                 </div>
 
-                {error && <div className="mb-5 p-3.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300 text-sm text-center">{error}</div>}
-                {success && <div className="mb-5 p-3.5 bg-green-500/10 border border-green-500/20 rounded-xl text-green-300 text-sm text-center">{success}</div>}
+                {error && <div className="mb-5 p-3.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm text-center">{error}</div>}
+                {success && <div className="mb-5 p-3.5 bg-green-500/10 border border-green-500/20 rounded-xl text-green-500 text-sm text-center">{success}</div>}
 
                 {mode === 'login' && renderLogin()}
                 {mode === 'force_change' && renderForceChange()}

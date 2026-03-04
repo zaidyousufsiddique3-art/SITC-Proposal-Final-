@@ -144,6 +144,15 @@ const App: React.FC = () => {
     const [step, setStep] = useState(0);
     const [savedProposals, setSavedProposals] = useState<ProposalData[]>([]);
     const [formData, setFormData] = useState<ProposalData>(defaultProposalData);
+    const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+        const saved = localStorage.getItem('sitc_theme');
+        return (saved as 'dark' | 'light') || 'dark';
+    });
+
+    useEffect(() => {
+        document.documentElement.className = `theme-${theme}`;
+        localStorage.setItem('sitc_theme', theme);
+    }, [theme]);
 
     // Super Admin / Company State
     const [companies, setCompanies] = useState<Company[]>([]);
@@ -1556,6 +1565,20 @@ const App: React.FC = () => {
                         <SaveIcon /> Save Draft
                     </Button>
                 </div>
+                <div className="mt-4">
+                    <button
+                        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                        className="w-full flex items-center justify-between p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:bg-[var(--row-hover)] transition-all group"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-[var(--input-bg)] text-ai-secondary group-hover:text-ai-accent transition-colors">
+                                {theme === 'dark' ? '🌙' : '☀️'}
+                            </div>
+                            <span className="text-xs font-bold text-[var(--text-primary)]">Theme Mode</span>
+                        </div>
+                        <span className="text-[10px] uppercase tracking-widest font-black text-ai-accent">{theme}</span>
+                    </button>
+                </div>
             </div>
         </div>
     );
@@ -1677,6 +1700,13 @@ const App: React.FC = () => {
                             <span className="text-xs text-white/40">{user.email}</span>
                             <button onClick={handleLogout} className="text-xs text-red-400/70 hover:text-red-300 mt-1 transition-colors">Log Out</button>
                         </div>
+                        <button
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            className="h-10 w-10 bg-[var(--input-bg)] rounded-xl flex items-center justify-center text-ai-secondary border border-[var(--border-color)] hover:text-ai-accent transition-all shadow-sm"
+                            title="Toggle Theme"
+                        >
+                            {theme === 'dark' ? '🌙' : '☀️'}
+                        </button>
                         <div className="h-10 w-10 bg-ai-accent/10 rounded-xl flex items-center justify-center text-ai-accent border border-ai-accent/20">
                             <UserIcon />
                         </div>
@@ -1703,67 +1733,71 @@ const App: React.FC = () => {
                     <button onClick={() => setSubMode('account_settings')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 ${subMode === 'account_settings' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-white/50 hover:text-white/80 hover:bg-white/[0.04]'}`}>Settings</button>
                 </div>
 
-                {(subMode === 'my_proposals' || subMode === 'all_proposals') && (
-                    <>
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-white">
-                                {subMode === 'my_proposals' ? 'My Proposals' : (isSuper ? 'All System Proposals' : 'Team Proposals')}
-                            </h2>
-                            <Button onClick={handleCreateNew}>+ Create Proposal</Button>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
-                            {displayedProposals.length === 0 && <div className="col-span-3 text-center py-20 empty-state flex items-center justify-center">No proposals found. Create your first proposal to get started.</div>}
-                            {displayedProposals.map((p) => (
-                                <div key={p.id} className="glass p-6 rounded-2xl hover:border-ai-accent/30 transition-all duration-300 flex flex-col relative group card-hover">
-                                    {sharingId === p.id && (
-                                        <div className="absolute inset-0 bg-ai-bg/95 z-10 flex flex-col items-center justify-center p-4 rounded-2xl animate-fade-up backdrop-blur-md">
-                                            <h4 className="text-white font-semibold mb-3">Share Proposal</h4>
-                                            <FormInput label="Enter Email" value={shareEmail} onChange={e => setShareEmail(e.target.value)} className="w-full mb-2" />
-                                            <div className="flex gap-2">
-                                                <button onClick={() => setSharingId(null)} className="text-xs text-white/40 hover:text-white transition-colors">Cancel</button>
+                {
+                    (subMode === 'my_proposals' || subMode === 'all_proposals') && (
+                        <>
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-2xl font-bold text-white">
+                                    {subMode === 'my_proposals' ? 'My Proposals' : (isSuper ? 'All System Proposals' : 'Team Proposals')}
+                                </h2>
+                                <Button onClick={handleCreateNew}>+ Create Proposal</Button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
+                                {displayedProposals.length === 0 && <div className="col-span-3 text-center py-20 empty-state flex items-center justify-center">No proposals found. Create your first proposal to get started.</div>}
+                                {displayedProposals.map((p) => (
+                                    <div key={p.id} className="glass p-6 rounded-2xl hover:border-ai-accent/30 transition-all duration-300 flex flex-col relative group card-hover">
+                                        {sharingId === p.id && (
+                                            <div className="absolute inset-0 bg-ai-bg/95 z-10 flex flex-col items-center justify-center p-4 rounded-2xl animate-fade-up backdrop-blur-md">
+                                                <h4 className="text-white font-semibold mb-3">Share Proposal</h4>
+                                                <FormInput label="Enter Email" value={shareEmail} onChange={e => setShareEmail(e.target.value)} className="w-full mb-2" />
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => setSharingId(null)} className="text-xs text-white/40 hover:text-white transition-colors">Cancel</button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
-
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-white truncate w-48">{p.proposalName || p.customerName || 'Untitled'}</h3>
-                                            <div className="text-sm text-white/40 truncate">{p.customerName}</div>
-                                            <div className="flex flex-col mt-2">
-                                                <span className="text-xs text-white/30">Created: {new Date(Number(p.id)).toLocaleDateString()}</span>
-                                                {p.createdBy !== user.email && <span className="text-[10px] text-ai-secondary uppercase tracking-wide mt-1 font-semibold">By: {p.createdBy}</span>}
-                                                {isSuper && p.companyId && <span className="text-[10px] text-white/25 uppercase mt-1">Comp: {companies.find(c => c.id === p.companyId)?.name}</span>}
-                                            </div>
-                                        </div>
-                                        <span className="px-2.5 py-1 bg-ai-accent/10 text-ai-secondary rounded-lg text-xs font-semibold border border-ai-accent/20">{p.pricing.currency}</span>
-                                    </div>
-
-                                    <div className="flex gap-2 pt-4 border-t border-white/[0.06] mt-auto">
-                                        <button onClick={() => handleEdit(p)} className="flex-1 py-2 gradient-accent text-white rounded-lg font-semibold flex justify-center items-center gap-2 text-sm hover:shadow-glow transition-all"><EditIcon /> Edit</button>
-                                        <button onClick={() => handleDuplicate(p)} className="p-2 bg-white/[0.05] text-white/60 rounded-lg hover:bg-white/[0.1] hover:text-white transition-all" title="Duplicate"><CopyIcon /></button>
-                                        {(isSuper || isAdmin || p.createdBy === user.email) && (
-                                            <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-500/10 text-red-400/70 rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all" title="Delete"><TrashIcon /></button>
                                         )}
+
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-white truncate w-48">{p.proposalName || p.customerName || 'Untitled'}</h3>
+                                                <div className="text-sm text-white/40 truncate">{p.customerName}</div>
+                                                <div className="flex flex-col mt-2">
+                                                    <span className="text-xs text-white/30">Created: {new Date(Number(p.id)).toLocaleDateString()}</span>
+                                                    {p.createdBy !== user.email && <span className="text-[10px] text-ai-secondary uppercase tracking-wide mt-1 font-semibold">By: {p.createdBy}</span>}
+                                                    {isSuper && p.companyId && <span className="text-[10px] text-white/25 uppercase mt-1">Comp: {companies.find(c => c.id === p.companyId)?.name}</span>}
+                                                </div>
+                                            </div>
+                                            <span className="px-2.5 py-1 bg-ai-accent/10 text-ai-secondary rounded-lg text-xs font-semibold border border-ai-accent/20">{p.pricing.currency}</span>
+                                        </div>
+
+                                        <div className="flex gap-2 pt-4 border-t border-white/[0.06] mt-auto">
+                                            <button onClick={() => handleEdit(p)} className="flex-1 py-2 gradient-accent text-white rounded-lg font-semibold flex justify-center items-center gap-2 text-sm hover:shadow-glow transition-all"><EditIcon /> Edit</button>
+                                            <button onClick={() => handleDuplicate(p)} className="p-2 bg-white/[0.05] text-white/60 rounded-lg hover:bg-white/[0.1] hover:text-white transition-all" title="Duplicate"><CopyIcon /></button>
+                                            {(isSuper || isAdmin || p.createdBy === user.email) && (
+                                                <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-500/10 text-red-400/70 rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all" title="Delete"><TrashIcon /></button>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    </>
-                )}
+                                ))}
+                            </div>
+                        </>
+                    )
+                }
 
                 {subMode === 'companies' && isSuper && renderCompanyManagement()}
                 {subMode === 'company_users' && (isSuper || isAdmin) && renderUserManagement()}
 
-                {subMode === 'account_settings' && (
-                    <div className="glass p-8 rounded-2xl max-w-md mx-auto">
-                        <SectionHeader title="Change Password" icon={<LockIcon />} />
-                        {passMsg.text && <div className={`mb-5 p-3.5 rounded-xl text-sm border ${passMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-300' : 'bg-red-500/10 border-red-500/20 text-red-300'}`}>{passMsg.text}</div>}
-                        <FormInput label="Current Password" type="password" value={passData.current} onChange={e => setPassData({ ...passData, current: e.target.value })} />
-                        <FormInput label="New Password" type="password" value={passData.new} onChange={e => setPassData({ ...passData, new: e.target.value })} />
-                        <Button onClick={() => { try { changePassword(user.email, passData.current, passData.new); setPassMsg({ type: 'success', text: 'Updated' }); } catch (e: any) { setPassMsg({ type: 'error', text: e.message }); } }}>Update Password</Button>
-                    </div>
-                )}
-            </div>
+                {
+                    subMode === 'account_settings' && (
+                        <div className="glass p-8 rounded-2xl max-w-md mx-auto">
+                            <SectionHeader title="Change Password" icon={<LockIcon />} />
+                            {passMsg.text && <div className={`mb-5 p-3.5 rounded-xl text-sm border ${passMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-300' : 'bg-red-500/10 border-red-500/20 text-red-300'}`}>{passMsg.text}</div>}
+                            <FormInput label="Current Password" type="password" value={passData.current} onChange={e => setPassData({ ...passData, current: e.target.value })} />
+                            <FormInput label="New Password" type="password" value={passData.new} onChange={e => setPassData({ ...passData, new: e.target.value })} />
+                            <Button onClick={() => { try { changePassword(user.email, passData.current, passData.new); setPassMsg({ type: 'success', text: 'Updated' }); } catch (e: any) { setPassMsg({ type: 'error', text: e.message }); } }}>Update Password</Button>
+                        </div>
+                    )
+                }
+            </div >
         );
     };
 
