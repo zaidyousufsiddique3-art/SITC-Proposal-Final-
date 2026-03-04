@@ -69,11 +69,11 @@ export interface RoomType {
   id: string;
   name: string;
   description?: string;
-  netPrice: number; 
+  netPrice: number;
   quantity: number;
-  checkIn: string;  
-  checkOut: string; 
-  numNights: number; 
+  checkIn: string;
+  checkOut: string;
+  numNights: number;
   includeInSummary?: boolean;
 }
 
@@ -129,18 +129,18 @@ export interface FlightLeg {
   duration: string;
   airline: string;
   flightNumber: string;
-  flightClass?: FlightClass; 
+  flightClass?: FlightClass;
   luggage: string;
 }
 
 export interface FlightDetails {
   id: string;
-  routeDescription: string; 
-  outbound: FlightLeg[]; 
-  return: FlightLeg[];   
-  quotes: FlightQuote[]; 
+  routeDescription: string;
+  outbound: FlightLeg[];
+  return: FlightLeg[];
+  quotes: FlightQuote[];
   // quantity: number; // DEPRECATED: Moved to quotes
-  vatRule: VatRule; 
+  vatRule: VatRule;
   included: boolean;
   includeInSummary?: boolean;
 }
@@ -213,7 +213,7 @@ export interface User {
   role: UserRole;
   companyId?: string; // Optional for Super Admin
   created: number;
-  createdBy?: string; 
+  createdBy?: string;
   mustChangePassword?: boolean; // NEW: For temporary passwords
 }
 
@@ -228,7 +228,7 @@ export interface ProposalHistory {
 export interface ProposalVersion {
   timestamp: number;
   savedBy: string;
-  data: string; // JSON string of the ProposalData at that time
+  data?: string; // Optional JSON string of the ProposalData at that time
 }
 
 export interface GlobalSettings {
@@ -236,20 +236,20 @@ export interface GlobalSettings {
 }
 
 export interface ProposalData {
-  id: string; 
+  id: string;
   companyId?: string; // Links proposal to a company
   lastModified: number;
   proposalName: string; // NEW: Required Proposal Name
   customerName: string;
   branding: Branding;
   pricing: PricingConfig;
-  hotelOptions: HotelDetails[]; 
-  flightOptions: FlightDetails[]; 
+  hotelOptions: HotelDetails[];
+  flightOptions: FlightDetails[];
   transportation: TransportationDetails[];
   customItems: CustomItem[];
   activities: ActivityDetails[];
   inclusions: Inclusions;
-  
+
   createdBy: string;
   sharedWith: string[];
   history: ProposalHistory[];
