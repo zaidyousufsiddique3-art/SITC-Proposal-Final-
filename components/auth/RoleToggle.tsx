@@ -8,7 +8,7 @@ interface RoleToggleProps {
 
 export const RoleToggle: React.FC<RoleToggleProps> = ({ role, onChange }) => {
     return (
-        <div className="relative flex p-1 bg-white/[0.04] backdrop-blur-md border border-white/[0.08] rounded-xl w-full h-10 mb-6 group select-none">
+        <div className="relative flex p-1 bg-gray-100 border border-gray-200 rounded-xl w-full h-10 mb-6 group select-none">
             {/* Animated Slider (Active Pill) */}
             <div
                 className={`absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-[9px] transition-all duration-[220ms] ease-[cubic-bezier(0.23,1,0.32,1)] shadow-sm overflow-hidden
@@ -24,7 +24,7 @@ export const RoleToggle: React.FC<RoleToggleProps> = ({ role, onChange }) => {
             <button
                 onClick={() => onChange('user')}
                 className={`relative z-10 flex-1 flex items-center justify-center text-[12px] font-bold tracking-tight transition-all duration-200
-          ${role === 'user' ? 'text-white' : 'text-gray-400/80 hover:text-gray-200'}`}
+          ${role === 'user' ? 'text-white' : 'text-gray-500 hover:text-gray-700'}`}
             >
                 User Login
             </button>
@@ -33,7 +33,7 @@ export const RoleToggle: React.FC<RoleToggleProps> = ({ role, onChange }) => {
             <button
                 onClick={() => onChange('admin')}
                 className={`relative z-10 flex-1 flex items-center justify-center text-[12px] font-bold tracking-tight transition-all duration-200
-          ${role === 'admin' ? 'text-white' : 'text-gray-400/80 hover:text-gray-200'}`}
+          ${role === 'admin' ? 'text-white' : 'text-gray-500 hover:text-gray-700'}`}
             >
                 Admin Login
             </button>
