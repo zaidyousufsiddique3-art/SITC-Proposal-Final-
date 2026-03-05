@@ -25,6 +25,16 @@ const MEETING_ROOM_OPTIONS = [
     { label: 'Other (Custom)', value: 'Other' }
 ];
 
+const ROOM_TYPE_OPTIONS = [
+    { label: 'Select Room Type', value: '' },
+    { label: 'Standard Room', value: 'Standard Room' },
+    { label: 'Deluxe Room', value: 'Deluxe Room' },
+    { label: 'Executive Room', value: 'Executive Room' },
+    { label: 'Junior Suite', value: 'Junior Suite' },
+    { label: 'Suite', value: 'Suite' },
+    { label: 'Other (Custom)', value: 'Other' }
+];
+
 const DINING_OPTIONS = [
     { label: 'Select Type', value: '' },
     { label: 'Lunch', value: 'Lunch' },
@@ -747,18 +757,7 @@ const App: React.FC = () => {
                             onFileSelect={(b64) => setFormData({ ...formData, branding: { ...formData.branding, clientLogo: b64 } })}
                         />
                     </div>
-                    <div className="col-span-1">
-                        <div className="opacity-75 pointer-events-none filter">
-                            <label className="text-[11px] uppercase tracking-wider font-bold text-ai-accent mb-2 block">Company Logo (Auto-filled)</label>
-                            <div className="p-4 rounded-xl section-surface text-center h-[110px] flex items-center justify-center border border-[var(--divider)]">
-                                {formData.branding.companyLogo ? (
-                                    <img src={formData.branding.companyLogo} className="h-20 object-contain" alt="Company Logo" />
-                                ) : (
-                                    <span className="text-xs text-[var(--text-muted)] uppercase font-black">SITC Standard</span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
             </div>
 
@@ -965,7 +964,7 @@ const App: React.FC = () => {
                                     <div className="col-span-1 md:col-span-2">
                                         <FormInput label="Hotel Name" value={hotel.name} onChange={(e) => updateHotel(index, 'name', e.target.value)} />
                                     </div>
-                                    <FormInput label="Website URL (Optional)" value={hotel.website || ''} onChange={(e) => updateHotel(index, 'website', e.target.value)} placeholder="https://..." />
+
                                     <div className="col-span-1 md:col-span-2">
                                         <FormInput label="Location / Address (Optional)" value={hotel.location || ''} onChange={(e) => updateHotel(index, 'location', e.target.value)} placeholder="e.g. King Fahd Rd, Riyadh" />
                                     </div>
@@ -986,7 +985,16 @@ const App: React.FC = () => {
                                                 <div key={rt.id} className="p-4 section-surface rounded-xl border border-white/[0.03]">
                                                     <div className="form-grid mb-4">
                                                         <div className="col-span-1 md:col-span-2">
-                                                            <FormInput label="Room Name" value={rt.name} onChange={e => updateRoomType(index, rtIdx, 'name', e.target.value)} className="mb-0 text-sm" />
+                                                            {(() => {
+                                                                const isStandardRoom = ROOM_TYPE_OPTIONS.some(o => o.value === rt.name && o.value !== 'Other');
+                                                                const roomDropdownValue = isStandardRoom ? rt.name : (rt.name ? 'Other' : '');
+                                                                return (
+                                                                    <>
+                                                                        <FormSelect label="Room Name" options={ROOM_TYPE_OPTIONS} value={roomDropdownValue} onChange={e => updateRoomType(index, rtIdx, 'name', e.target.value === 'Other' ? '' : e.target.value)} className="mb-0 text-sm" />
+                                                                        {roomDropdownValue === 'Other' && <FormInput label="Custom Room Name" value={rt.name} onChange={e => updateRoomType(index, rtIdx, 'name', e.target.value)} className="mb-0 text-sm mt-2" />}
+                                                                    </>
+                                                                );
+                                                            })()}
                                                         </div>
                                                         <div className="form-grid grid-cols-2 gap-3">
                                                             <FormInput label={`Net Price (${formData.pricing.currency})`} type="number" value={rt.netPrice} onChange={e => updateRoomType(index, rtIdx, 'netPrice', parseFloat(e.target.value))} className="mb-0 text-sm" />
@@ -1233,7 +1241,7 @@ const App: React.FC = () => {
                                         <div className="space-y-4">
                                             {flight.outbound.map((leg, i) => (
                                                 <div key={i} className="p-4 section-surface rounded-xl border border-[var(--divider)] relative group">
-                                                    {flight.outbound.length > 1 && (
+                                                    {i > 0 && (
                                                         <button
                                                             onClick={() => removeFlightLeg(index, 'outbound', i)}
                                                             className="absolute right-2 top-2 p-1 text-white/10 hover:text-red-400/70 transition-colors"
@@ -1274,7 +1282,7 @@ const App: React.FC = () => {
                                         <div className="space-y-4">
                                             {flight.return.map((leg, i) => (
                                                 <div key={i} className="p-4 section-surface rounded-xl border border-[var(--divider)] relative group">
-                                                    {flight.return.length > 1 && (
+                                                    {i > 0 && (
                                                         <button
                                                             onClick={() => removeFlightLeg(index, 'return', i)}
                                                             className="absolute right-2 top-2 p-1 text-white/10 hover:text-red-400/70 transition-colors"
@@ -1638,7 +1646,7 @@ const App: React.FC = () => {
                     {StepsNames.map((s, idx) => (
                         <button
                             key={idx}
-                            onClick={() => setStep(idx)}
+                            onClick={() => { setStep(idx); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                             className={`step-nav-item ${step === idx ? 'active' : ''}`}
                         >
                             <div className="step-nav-icon">{idx < step ? <CheckIcon size={16} strokeWidth={3} /> : s.icon}</div>
@@ -1965,7 +1973,7 @@ const App: React.FC = () => {
                     <div className="wizard-footer flex justify-between items-center gap-4">
                         <Button
                             variant="secondary"
-                            onClick={() => setStep(s => Math.max(0, s - 1))}
+                            onClick={() => { setStep(s => Math.max(0, s - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                             disabled={step === 0 || isGenerating}
                             className="flex-1 md:flex-initial gap-2"
                         >
@@ -1974,7 +1982,7 @@ const App: React.FC = () => {
                         <div className="flex-1 md:flex-initial flex justify-end">
                             {step < StepsNames.length - 1 ? (
                                 <Button
-                                    onClick={() => setStep(s => Math.min(StepsNames.length - 1, s + 1))}
+                                    onClick={() => { setStep(s => Math.min(StepsNames.length - 1, s + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                                     className="w-full md:w-auto gap-2"
                                 >
                                     Next Step <ArrowRightIcon size={18} />
