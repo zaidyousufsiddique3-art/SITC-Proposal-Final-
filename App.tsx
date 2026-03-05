@@ -1437,15 +1437,6 @@ const App: React.FC = () => {
                                         onChange={e => updateFlight(index, 'vatRule', e.target.value)}
                                     />
                                 </div>
-
-                                <div className="pt-6 border-t border-[var(--panel-border)]">
-                                    <FormSelect
-                                        label="VAT Rule"
-                                        options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]}
-                                        value={flight.vatRule}
-                                        onChange={e => updateFlight(index, 'vatRule', e.target.value)}
-                                    />
-                                </div>
                             </div>
                         )}
                     </div>
@@ -1712,7 +1703,7 @@ const App: React.FC = () => {
                             <div className="flex items-center gap-3">
                                 <div className={`w-2 h-2 rounded-full transition-all ${isChecked ? 'bg-ai-accent shadow-[0_0_8px_rgba(10,98,240,0.6)]' : 'bg-[var(--divider)]'}`}></div>
                                 <span className={`text-sm font-semibold transition-colors ${isChecked ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]'}`}>
-                                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                                    {({ hotels: 'Accommodation', flights: 'Flights', transportation: 'Transportation', customItems: 'Custom Items', activities: 'Activities' } as Record<string, string>)[key] || key}
                                 </span>
                             </div>
                             <input
@@ -2058,6 +2049,8 @@ const App: React.FC = () => {
                     setIsGenerating(false);
                     setGenerationComplete(false);
                     setViewMode('preview');
+                    // Auto-trigger print/download dialog after preview renders
+                    setTimeout(() => window.print(), 600);
                 }}
             />
 
