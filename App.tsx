@@ -191,6 +191,7 @@ const App: React.FC = () => {
     // UI Expansion State
     const [expandedHotels, setExpandedHotels] = useState<Record<string, boolean>>({});
     const [expandedFlights, setExpandedFlights] = useState<Record<string, boolean>>({});
+    const [expandedTransport, setExpandedTransport] = useState<Record<string, boolean>>({});
 
     // Accordion Expansion State
     const [pricingAccordion, setPricingAccordion] = useState<string | null>(null);
@@ -287,6 +288,7 @@ const App: React.FC = () => {
             },
             hotelOptions: [startHotel],
             flightOptions: [{ ...initialFlight, id: (Date.now() + 1).toString() }],
+            transportation: [{ id: (Date.now() + 2).toString(), type: VehicleType.Sedan, model: '', description: '', startDate: '', endDate: '', days: 1, netPricePerDay: 0, quantity: 1, vatRule: 'domestic', includeInSummary: true }],
             createdBy: user.email,
             history: [{
                 timestamp: Date.now(),
@@ -1463,63 +1465,91 @@ const App: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, inclusions: { ...formData.inclusions, transportation: !e.target.checked } })}
                     />
                     {formData.inclusions.transportation && (
-                        <Button variant="secondary" onClick={() => addItem<TransportationDetails>('transportation', { id: Date.now().toString(), type: VehicleType.Sedan, model: '', description: '', startDate: '', endDate: '', days: 1, netPricePerDay: 0, quantity: 1, vatRule: 'domestic' })} className="h-9 text-xs"><PlusIcon size={14} /> Add Vehicle</Button>
+                        <Button variant="secondary" onClick={() => {
+                            const newId = Date.now().toString();
+                            addItem<TransportationDetails>('transportation', { id: newId, type: VehicleType.Sedan, model: '', description: '', startDate: '', endDate: '', days: 1, netPricePerDay: 0, quantity: 1, vatRule: 'domestic' });
+                            setExpandedTransport(prev => ({ ...prev, [newId]: true }));
+                        }} className="h-9 text-xs"><PlusIcon size={14} /> Add Vehicle</Button>
                     )}
                 </div>
             </div>
 
-            {formData.inclusions.transportation && formData.transportation.map((item, idx) => (
-                <div key={idx} className="form-panel group">
-                    <div className="flex justify-between items-start mb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-ai-secondary/10 flex items-center justify-center text-[10px] font-black text-ai-secondary border border-ai-secondary/20">
-                                {idx + 1}
-                            </div>
-                            <h3 className="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider">{item.type} Service</h3>
-                        </div>
-                        <button onClick={() => removeItem('transportation', idx)} className="p-2 text-red-400/50 hover:text-red-400 transition-colors">
-                            <TrashIcon className="w-4 h-4" />
-                        </button>
-                    </div>
+            {formData.inclusions.transportation && formData.transportation.map((item, idx) => {
+                const tId = item.id || String(idx);
+                const isExpanded = expandedTransport[tId] === true;
+                const toggleExpanded = () => setExpandedTransport(prev => ({ ...prev, [tId]: !isExpanded }));
 
-                    <div className="form-grid">
-                        <div className="col-span-1 md:col-span-2 space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormSelect label="Vehicle Category" options={Object.values(VehicleType).map(v => ({ label: v, value: v }))} value={item.type} onChange={(e) => updateItem('transportation', idx, 'type', e.target.value)} />
-                                <FormInput label="Vehicle Model / Year" value={item.model} onChange={(e) => updateItem('transportation', idx, 'model', e.target.value)} placeholder="e.g. Mercedes V-Class 2024" />
+                return (
+                    <div key={tId} className="form-panel relative overflow-hidden transition-all duration-300">
+                        {/* Header / Accordion Trigger */}
+                        <div className="flex items-center justify-between cursor-pointer" onClick={toggleExpanded}>
+                            <div className="flex items-center gap-4">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-colors ${isExpanded ? 'bg-ai-accent text-white' : 'bg-white/5 text-[var(--text-muted)]'}`}>
+                                    {idx + 1}
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-[var(--text-primary)] capitalize">{item.model || `${item.type} Service`}</h3>
+                                    {!isExpanded && <p className="text-xs text-[var(--text-muted)]">{item.type}{item.description ? ` • ${item.description}` : ''}</p>}
+                                </div>
                             </div>
-                            <FormInput label="Route or Service Description" value={item.description} onChange={(e) => updateItem('transportation', idx, 'description', e.target.value)} placeholder="e.g. Airport Transfers & Local Disposal" />
-                            <FormSelect label="VAT Rule" options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]} value={item.vatRule} onChange={(e) => updateItem('transportation', idx, 'vatRule', e.target.value)} />
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); removeItem('transportation', idx); }}
+                                    className="p-2 text-red-400/50 hover:text-red-400 transition-colors"
+                                    title="Remove Vehicle"
+                                >
+                                    <TrashIcon />
+                                </button>
+                                <div className={`text-[var(--text-disabled)] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
+                                    <ChevronDownIcon size={16} />
+                                </div>
+                            </div>
                         </div>
-                        <div className="col-span-1 md:col-span-1 border border-[var(--panel-border)] bg-[var(--panel-bg-2)] rounded-xl p-4">
-                            <FileUploader label="Vehicle Image" currentImage={item.image} onFileSelect={(b64) => updateItem('transportation', idx, 'image', b64)} />
-                        </div>
-                    </div>
 
-                    <div className="mt-6 pt-6 border-t border-[var(--panel-border)] grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-                        <div className="form-grid grid-cols-12 gap-3 items-center">
-                            <div className="col-span-9">
-                                <DateRangePicker label="Service Dates" startDate={item.startDate} endDate={item.endDate} onChange={(s, e) => updateItemDates('transportation', idx, s, e)} />
+                        {/* Collapsible Content */}
+                        {isExpanded && (
+                            <div className="mt-8 pt-8 border-t border-[var(--panel-border)] animate-fade-in">
+                                <div className="form-grid">
+                                    <div className="col-span-1 md:col-span-2 space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <FormSelect label="Vehicle Category" options={Object.values(VehicleType).map(v => ({ label: v, value: v }))} value={item.type} onChange={(e) => updateItem('transportation', idx, 'type', e.target.value)} />
+                                            <FormInput label="Vehicle Model / Year" value={item.model} onChange={(e) => updateItem('transportation', idx, 'model', e.target.value)} placeholder="e.g. Mercedes V-Class 2024" />
+                                        </div>
+                                        <FormInput label="Route or Service Description" value={item.description} onChange={(e) => updateItem('transportation', idx, 'description', e.target.value)} placeholder="e.g. Airport Transfers & Local Disposal" />
+                                        <FormSelect label="VAT Rule" options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]} value={item.vatRule} onChange={(e) => updateItem('transportation', idx, 'vatRule', e.target.value)} />
+                                    </div>
+                                    <div className="col-span-1 md:col-span-1 border border-[var(--panel-border)] bg-[var(--panel-bg-2)] rounded-xl p-4">
+                                        <FileUploader label="Vehicle Image" currentImage={item.image} onFileSelect={(b64) => updateItem('transportation', idx, 'image', b64)} />
+                                    </div>
+                                </div>
+
+                                <div className="mt-6 pt-6 border-t border-[var(--panel-border)] grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                                    <div className="form-grid grid-cols-12 gap-3 items-center">
+                                        <div className="col-span-9">
+                                            <DateRangePicker label="Service Dates" startDate={item.startDate} endDate={item.endDate} onChange={(s, e) => updateItemDates('transportation', idx, s, e)} />
+                                        </div>
+                                        <div className="col-span-3 text-center">
+                                            <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Days</div>
+                                            <div className="text-sm font-black text-ai-secondary">{item.days}</div>
+                                        </div>
+                                    </div>
+                                    <div className="form-grid grid-cols-12 gap-3 items-end">
+                                        <div className="col-span-5">
+                                            <FormInput label="Net Price/Day" type="number" value={item.netPricePerDay} onChange={(e) => updateItem('transportation', idx, 'netPricePerDay', parseFloat(e.target.value))} className="mb-0 text-sm" />
+                                        </div>
+                                        <div className="col-span-3">
+                                            <FormInput label="Qty" type="number" value={item.quantity} onChange={(e) => updateItem('transportation', idx, 'quantity', parseInt(e.target.value))} className="mb-0 text-sm" />
+                                        </div>
+                                        <div className="col-span-4 flex items-center justify-end h-[42px] px-2">
+                                            <FormCheckbox label="Sum" checked={item.includeInSummary !== false} onChange={(e) => updateItem('transportation', idx, 'includeInSummary', e.target.checked)} />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="col-span-3 text-center">
-                                <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold">Days</div>
-                                <div className="text-sm font-black text-ai-secondary">{item.days}</div>
-                            </div>
-                        </div>
-                        <div className="form-grid grid-cols-12 gap-3 items-end">
-                            <div className="col-span-5">
-                                <FormInput label="Net Price/Day" type="number" value={item.netPricePerDay} onChange={(e) => updateItem('transportation', idx, 'netPricePerDay', parseFloat(e.target.value))} className="mb-0 text-sm" />
-                            </div>
-                            <div className="col-span-3">
-                                <FormInput label="Qty" type="number" value={item.quantity} onChange={(e) => updateItem('transportation', idx, 'quantity', parseInt(e.target.value))} className="mb-0 text-sm" />
-                            </div>
-                            <div className="col-span-4 flex items-center justify-end h-[42px] px-2">
-                                <FormCheckbox label="Sum" checked={item.includeInSummary !== false} onChange={(e) => updateItem('transportation', idx, 'includeInSummary', e.target.checked)} />
-                            </div>
-                        </div>
+                        )}
                     </div>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 
