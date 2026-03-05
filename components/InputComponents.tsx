@@ -1,5 +1,44 @@
 import React, { useRef } from 'react';
-import { UploadIcon, CheckIcon, ArrowRightIcon } from './Icons';
+import { UploadIcon, CheckIcon, ArrowRightIcon, ChevronDownIcon } from './Icons';
+
+export const CollapsiblePanel: React.FC<{
+  title: string;
+  icon?: React.ReactNode;
+  summary?: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+  className?: string;
+}> = ({ title, icon, summary, isOpen, onToggle, children, className }) => {
+  return (
+    <div className={`form-panel !p-0 overflow-hidden transition-all duration-300 ${className}`}>
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-5 hover:bg-[var(--row-hover)] transition-colors text-left"
+        type="button"
+      >
+        <div className="flex items-center gap-3">
+          {icon && <div className="text-ai-accent">{icon}</div>}
+          <div className="flex flex-col">
+            <h3 className="text-base font-semibold text-[var(--text-primary)] tracking-tight">{title}</h3>
+            {summary && <span className="text-[10px] uppercase tracking-widest font-bold text-[var(--text-muted)] mt-0.5">{summary}</span>}
+          </div>
+        </div>
+        <div className={`text-[var(--text-disabled)] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+          <ChevronDownIcon size={18} />
+        </div>
+      </button>
+
+      <div
+        className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[5000px] opacity-100 p-5 pt-0 border-t border-[var(--panel-border)]' : 'max-h-0 opacity-0 overflow-hidden'}`}
+      >
+        <div className="mt-5 animate-fade-in">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;

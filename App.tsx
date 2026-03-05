@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ProposalPDF } from './components/ProposalPDF';
 import { AuthScreen } from './components/AuthComponents';
 import { ProposalGenerationLoader } from './components/ProposalGenerationLoader';
-import { FormInput, FormSelect, FormCheckbox, FileUploader, MultiFileUploader, SectionHeader, Button, DateRangePicker, IconButton } from './components/InputComponents';
+import { FormInput, FormSelect, FormCheckbox, FileUploader, MultiFileUploader, SectionHeader, Button, DateRangePicker, IconButton, CollapsiblePanel } from './components/InputComponents';
 import { ProposalData, HotelDetails, FlightDetails, FlightClass, TransportationDetails, VehicleType, CustomItem, ActivityDetails, Inclusions, CategoryMarkups, MarkupType, FlightLeg, User, UserRole, ProposalHistory, MarkupConfig, RoomType, HotelImage, ImageTag, MeetingDetails, DiningDetails, FlightQuote, Company, ProposalSectionsConfig } from './types';
 import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo, SunIcon, MoonIcon, CheckIcon, PlusIcon, ChevronDownIcon, CalendarIcon, LogOutIcon, ProposalIcon, BuildingIcon, SettingsIcon, SearchIcon, ShieldCheckIcon, PresentationIcon, ArrowLeftIcon, ArrowRightIcon, WalletIcon } from './components/Icons';
 import { getGlobalSettings, saveGlobalSettings, getUsers, createSubUserWithAuth, createCompanyAdminWithAuth, deleteUserProfile, validatePassword, changePassword, updateUserProfile, getCompanies, saveCompany, updateCompany, deleteCompany, adminResetUserPassword, validatePhone, logoutUser, resolveProposalSections } from './services/authService';
@@ -191,6 +191,23 @@ const App: React.FC = () => {
     // UI Expansion State
     const [expandedHotels, setExpandedHotels] = useState<Record<string, boolean>>({});
     const [expandedFlights, setExpandedFlights] = useState<Record<string, boolean>>({});
+
+    // Accordion Expansion State
+    const [pricingAccordion, setPricingAccordion] = useState<string | null>(null);
+    const [accomAccordions, setAccomAccordions] = useState<Record<string, string[]>>({}); // [hotelId]: ['rooms', 'meetings', etc]
+    const [flightAccordions, setFlightAccordions] = useState<Record<string, string[]>>({}); // [flightId]: ['outbound', 'return', 'quotes']
+
+    const toggleAccomAccordion = (hotelId: string, panelId: string) => {
+        const current = accomAccordions[hotelId] || ['rooms']; // default rooms open
+        const next = current.includes(panelId) ? current.filter(id => id !== panelId) : [...current, panelId];
+        setAccomAccordions({ ...accomAccordions, [hotelId]: next });
+    };
+
+    const toggleFlightAccordion = (flightId: string, panelId: string) => {
+        const current = flightAccordions[flightId] || ['outbound', 'return']; // default outbound/return open
+        const next = current.includes(panelId) ? current.filter(id => id !== panelId) : [...current, panelId];
+        setFlightAccordions({ ...flightAccordions, [flightId]: next });
+    };
 
     // --- Init ---
     useEffect(() => {
@@ -793,9 +810,13 @@ const App: React.FC = () => {
                 </div>
             </div>
 
-            <div className="form-panel">
-                <SectionHeader title="Service Markups" icon={<EditIcon />} />
-                <div className="mt-6 space-y-3">
+            <CollapsiblePanel
+                title="Service Markups"
+                icon={<EditIcon />}
+                isOpen={pricingAccordion === 'markups'}
+                onToggle={() => setPricingAccordion(pricingAccordion === 'markups' ? null : 'markups')}
+            >
+                <div className="space-y-3">
                     {(Object.entries(formData.pricing.markups) as [string, MarkupConfig][]).map(([cat, config]) => (
                         <div key={cat} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center p-3 section-surface rounded-xl border border-[var(--panel-border)]">
                             <div className="col-span-12 md:col-span-4 font-bold text-white capitalize text-sm">{cat}</div>
@@ -820,7 +841,7 @@ const App: React.FC = () => {
                         </div>
                     ))}
                 </div>
-            </div>
+            </CollapsiblePanel>
 
             <div className="form-panel">
                 <SectionHeader title="VAT Settings" icon={<ShieldCheckIcon />} />
@@ -971,13 +992,17 @@ const App: React.FC = () => {
                                     <FormSelect label="VAT Rule" options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]} value={hotel.vatRule} onChange={(e) => updateHotel(index, 'vatRule', e.target.value)} />
                                 </div>
 
-                                <div className="space-y-6 mt-8">
+                                <div className="space-y-4 mt-8">
                                     {/* Sub-panel: Rooms */}
-                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
-                                                <BedIcon /> Room Configuration
-                                            </h4>
+                                    <CollapsiblePanel
+                                        title="Room Configuration"
+                                        icon={<BedIcon />}
+                                        summary={`${hotel.roomTypes.length} room${hotel.roomTypes.length !== 1 ? 's' : ''} configured`}
+                                        isOpen={(accomAccordions[hotel.id] || ['rooms']).includes('rooms')}
+                                        onToggle={() => toggleAccomAccordion(hotel.id, 'rooms')}
+                                        className="!bg-[var(--panel-bg-2)]"
+                                    >
+                                        <div className="flex justify-end mb-4">
                                             <Button variant="secondary" onClick={() => addRoomType(index)} className="h-7 text-[10px] px-3"><PlusIcon size={14} /> Add Room</Button>
                                         </div>
                                         <div className="space-y-3">
@@ -1047,14 +1072,18 @@ const App: React.FC = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                    </div>
+                                    </CollapsiblePanel>
 
                                     {/* Sub-panel: Meetings */}
-                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
-                                                <MeetingIcon /> Meeting Rooms
-                                            </h4>
+                                    <CollapsiblePanel
+                                        title="Meeting Rooms"
+                                        icon={<MeetingIcon />}
+                                        summary={`${hotel.meetingRooms.length} meeting room${hotel.meetingRooms.length !== 1 ? 's' : ''} added`}
+                                        isOpen={(accomAccordions[hotel.id] || ['rooms']).includes('meetings')}
+                                        onToggle={() => toggleAccomAccordion(hotel.id, 'meetings')}
+                                        className="!bg-[var(--panel-bg-2)]"
+                                    >
+                                        <div className="flex justify-end mb-4">
                                             <Button variant="secondary" onClick={() => addMeeting(index)} className="h-7 text-[10px] px-3"><PlusIcon size={14} /> Add Meeting</Button>
                                         </div>
                                         <div className="space-y-3">
@@ -1088,14 +1117,18 @@ const App: React.FC = () => {
                                                 );
                                             })}
                                         </div>
-                                    </div>
+                                    </CollapsiblePanel>
 
                                     {/* Sub-panel: Dining */}
-                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
-                                                <UtensilsIcon /> Dining & Catering
-                                            </h4>
+                                    <CollapsiblePanel
+                                        title="Dining & Catering"
+                                        icon={<UtensilsIcon />}
+                                        summary={`${hotel.dining.length} dining option${hotel.dining.length !== 1 ? 's' : ''}`}
+                                        isOpen={(accomAccordions[hotel.id] || ['rooms']).includes('dining')}
+                                        onToggle={() => toggleAccomAccordion(hotel.id, 'dining')}
+                                        className="!bg-[var(--panel-bg-2)]"
+                                    >
+                                        <div className="flex justify-end mb-4">
                                             <Button variant="secondary" onClick={() => addDining(index)} className="h-7 text-[10px] px-3">+ Add Dining</Button>
                                         </div>
                                         <div className="space-y-3">
@@ -1124,14 +1157,17 @@ const App: React.FC = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                    </div>
+                                    </CollapsiblePanel>
 
                                     {/* Sub-panel: Gallery */}
-                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h4 className="text-[11px] uppercase tracking-widest font-black text-[var(--text-muted)]">Hotel Photo Gallery (Max 3)</h4>
-                                            {hotel.images.length > 1 && <span className="text-[10px] text-ai-accent font-bold uppercase animate-pulse">· Drag to reorder</span>}
-                                        </div>
+                                    <CollapsiblePanel
+                                        title="Hotel Photo Gallery"
+                                        icon={<SearchIcon size={18} />}
+                                        summary={`${hotel.images.length} of 3 photos uploaded`}
+                                        isOpen={(accomAccordions[hotel.id] || ['rooms']).includes('gallery')}
+                                        onToggle={() => toggleAccomAccordion(hotel.id, 'gallery')}
+                                        className="!bg-[var(--panel-bg-2)]"
+                                    >
                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                             <div className="md:col-span-1">
                                                 <MultiFileUploader label="Upload Hotel Photos" maxFiles={3} currentCount={hotel.images.length} onFilesSelect={(b64s) => addMultipleHotelImages(index, b64s)} />
@@ -1158,7 +1194,7 @@ const App: React.FC = () => {
                                                 ))}
                                             </div>
                                         </div>
-                                    </div>
+                                    </CollapsiblePanel>
                                 </div>
                             </div>
                         )}
@@ -1259,13 +1295,17 @@ const App: React.FC = () => {
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 items-start">
                                     {/* Outbound Sub-panel */}
-                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
-                                                <PlaneIcon /> Outbound Journey
-                                            </h4>
+                                    <CollapsiblePanel
+                                        title="Outbound Journey"
+                                        icon={<PlaneIcon />}
+                                        summary={`${flight.outbound.length} leg${flight.outbound.length !== 1 ? 's' : ''}`}
+                                        isOpen={(flightAccordions[flight.id] || ['outbound', 'return']).includes('outbound')}
+                                        onToggle={() => toggleFlightAccordion(flight.id, 'outbound')}
+                                        className="!bg-[var(--panel-bg-2)]"
+                                    >
+                                        <div className="flex justify-end mb-4">
                                             <Button variant="secondary" onClick={() => addFlightLeg(index, 'outbound')} className="h-7 text-[10px] px-3">+ Add Connection</Button>
                                         </div>
                                         <div className="space-y-4">
@@ -1300,14 +1340,18 @@ const App: React.FC = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                    </div>
+                                    </CollapsiblePanel>
 
                                     {/* Return Sub-panel */}
-                                    <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)]">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h4 className="text-[11px] uppercase tracking-widest font-black text-ai-secondary/80 flex items-center gap-2">
-                                                <PlaneIcon /> Return Journey
-                                            </h4>
+                                    <CollapsiblePanel
+                                        title="Return Journey"
+                                        icon={<PlaneIcon />}
+                                        summary={`${flight.return.length} leg${flight.return.length !== 1 ? 's' : ''}`}
+                                        isOpen={(flightAccordions[flight.id] || ['outbound', 'return']).includes('return')}
+                                        onToggle={() => toggleFlightAccordion(flight.id, 'return')}
+                                        className="!bg-[var(--panel-bg-2)]"
+                                    >
+                                        <div className="flex justify-end mb-4">
                                             <Button variant="secondary" onClick={() => addFlightLeg(index, 'return')} className="h-7 text-[10px] px-3">+ Add Connection</Button>
                                         </div>
                                         <div className="space-y-4">
@@ -1342,13 +1386,19 @@ const App: React.FC = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                    </div>
+                                    </CollapsiblePanel>
                                 </div>
 
                                 {/* Quotes Sub-panel */}
-                                <div className="p-5 rounded-2xl bg-[var(--panel-bg-2)] border border-[var(--panel-border)] mb-6">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h4 className="text-[11px] uppercase tracking-widest font-black text-[var(--text-muted)]">Price Quotes</h4>
+                                <CollapsiblePanel
+                                    title="Price Quotes"
+                                    icon={<WalletIcon />}
+                                    summary={`${flight.quotes.length} quote${flight.quotes.length !== 1 ? 's' : ''} added`}
+                                    isOpen={(flightAccordions[flight.id] || ['outbound', 'return']).includes('quotes')}
+                                    onToggle={() => toggleFlightAccordion(flight.id, 'quotes')}
+                                    className="!bg-[var(--panel-bg-2)] mb-6"
+                                >
+                                    <div className="flex justify-end mb-4">
                                         <Button variant="secondary" onClick={() => addFlightQuote(index)} className="h-7 text-[10px] px-3">+ Add Quote</Button>
                                     </div>
                                     <div className="space-y-3">
@@ -1369,6 +1419,15 @@ const App: React.FC = () => {
                                             </div>
                                         ))}
                                     </div>
+                                </CollapsiblePanel>
+
+                                <div className="pt-6 border-t border-[var(--panel-border)]">
+                                    <FormSelect
+                                        label="VAT Rule"
+                                        options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]}
+                                        value={flight.vatRule}
+                                        onChange={e => updateFlight(index, 'vatRule', e.target.value)}
+                                    />
                                 </div>
 
                                 <div className="pt-6 border-t border-[var(--panel-border)]">
