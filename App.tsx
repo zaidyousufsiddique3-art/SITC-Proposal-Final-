@@ -275,7 +275,29 @@ const App: React.FC = () => {
     };
 
     const handleEdit = (proposal: ProposalData) => {
-        setFormData(proposal);
+        // Sanitize: ensure all array/object fields have safe defaults
+        // Firestore may omit empty arrays or fields not present at creation time
+        setFormData({
+            ...proposal,
+            hotelOptions: proposal.hotelOptions ?? [],
+            flightOptions: proposal.flightOptions ?? [],
+            transportation: proposal.transportation ?? [],
+            customItems: proposal.customItems ?? [],
+            activities: proposal.activities ?? [],
+            sharedWith: proposal.sharedWith ?? [],
+            history: proposal.history ?? [],
+            versions: proposal.versions ?? [],
+            inclusions: {
+                hotels: true,
+                flights: true,
+                transportation: true,
+                customItems: true,
+                activities: true,
+                ...proposal.inclusions,
+            },
+            branding: proposal.branding ?? {},
+            pricing: proposal.pricing ?? { currency: 'SAR', enableVat: true, vatPercent: 15, markups: { hotels: { type: 'Fixed' as any, value: 0 }, meetings: { type: 'Fixed' as any, value: 0 }, flights: { type: 'Fixed' as any, value: 0 }, transportation: { type: 'Fixed' as any, value: 0 }, activities: { type: 'Fixed' as any, value: 0 }, customItems: { type: 'Fixed' as any, value: 0 } }, showPrices: true },
+        });
         setStep(0);
         setViewMode('form');
     };
