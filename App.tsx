@@ -9,6 +9,7 @@ import { ProposalData, HotelDetails, FlightDetails, FlightClass, TransportationD
 import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo, SunIcon, MoonIcon, CheckIcon, PlusIcon, ChevronDownIcon, CalendarIcon, LogOutIcon, ProposalIcon, BuildingIcon, SettingsIcon, SearchIcon, ShieldCheckIcon, PresentationIcon, ArrowLeftIcon, ArrowRightIcon, WalletIcon } from './components/Icons';
 import { getGlobalSettings, saveGlobalSettings, getUsers, createSubUserWithAuth, createCompanyAdminWithAuth, deleteUserProfile, validatePassword, changePassword, updateUserProfile, getCompanies, saveCompany, updateCompany, deleteCompany, adminResetUserPassword, validatePhone, logoutUser, resolveProposalSections } from './services/authService';
 import { getProposals, saveProposal, deleteProposal, stripDisabledSections } from './services/proposalService';
+import html2pdf from 'html2pdf.js';
 
 // --- Defaults & Init ---
 
@@ -2026,19 +2027,34 @@ const App: React.FC = () => {
 
     if (viewMode === 'dashboard') return <div className="min-h-screen bg-premium">{renderDashboard()}</div>;
 
-    if (viewMode === 'preview') return (
-        <div className="min-h-screen bg-gray-100 pb-20">
-            <div className="sticky top-0 z-50 bg-white shadow-md p-4 no-print flex justify-between items-center">
-                <div className="flex gap-4">
-                    <button onClick={() => setViewMode('dashboard')} className="flex items-center gap-2 text-gray-600 font-semibold hover:text-corporate-blue"><HomeIcon /> Dashboard</button>
-                    <button onClick={() => setViewMode('form')} className="flex items-center gap-2 text-gray-600 font-semibold hover:text-corporate-blue"><EditIcon /> Edit Proposal</button>
+    if (viewMode === 'preview') {
+        const downloadPdf = () => {
+            const element = document.getElementById('proposal-pdf-content');
+            if (!element) return;
+            const opt = {
+                margin: 0,
+                filename: `${formData.proposalName || 'Proposal'}.pdf`,
+                image: { type: 'jpeg' as const, quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' as const }
+            };
+            html2pdf().set(opt).from(element).save();
+        };
+
+        return (
+            <div className="min-h-screen bg-gray-100 pb-20">
+                <div className="sticky top-0 z-50 bg-white shadow-md p-4 no-print flex justify-between items-center">
+                    <div className="flex gap-4">
+                        <button onClick={() => setViewMode('dashboard')} className="flex items-center gap-2 text-gray-600 font-semibold hover:text-corporate-blue"><HomeIcon /> Dashboard</button>
+                        <button onClick={() => setViewMode('form')} className="flex items-center gap-2 text-gray-600 font-semibold hover:text-corporate-blue"><EditIcon /> Edit Proposal</button>
+                    </div>
+                    <h1 className="text-xl font-bold text-corporate-blue flex items-center gap-2">{formData.proposalName}</h1>
+                    <button onClick={downloadPdf} className="px-6 py-2 bg-corporate-blue text-white rounded font-bold hover:bg-sky-900 transition-colors">Download PDF</button>
                 </div>
-                <h1 className="text-xl font-bold text-corporate-blue flex items-center gap-2">{formData.proposalName}</h1>
-                <button onClick={() => window.print()} className="px-6 py-2 bg-corporate-blue text-white rounded font-bold hover:bg-sky-900 transition-colors">Print / Download PDF</button>
+                <div className="mt-8" id="proposal-pdf-content"><ProposalPDF data={formData} /></div>
             </div>
-            <div className="mt-8"><ProposalPDF data={formData} /></div>
-        </div>
-    );
+        );
+    }
 
     return (
         <div className="min-h-screen bg-premium p-0 md:p-4 lg:p-6 overflow-x-hidden">
@@ -2049,8 +2065,19 @@ const App: React.FC = () => {
                     setIsGenerating(false);
                     setGenerationComplete(false);
                     setViewMode('preview');
-                    // Auto-trigger print/download dialog after preview renders
-                    setTimeout(() => window.print(), 600);
+                    // Auto-trigger direct PDF download after preview renders
+                    setTimeout(() => {
+                        const element = document.getElementById('proposal-pdf-content');
+                        if (!element) return;
+                        const opt = {
+                            margin: 0,
+                            filename: `${formData.proposalName || 'Proposal'}.pdf`,
+                            image: { type: 'jpeg' as const, quality: 0.98 },
+                            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' as const }
+                        };
+                        html2pdf().set(opt).from(element).save();
+                    }, 800);
                 }}
             />
 
