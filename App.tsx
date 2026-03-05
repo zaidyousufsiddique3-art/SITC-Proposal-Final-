@@ -1488,7 +1488,7 @@ const App: React.FC = () => {
                                     {idx + 1}
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-[var(--text-primary)] capitalize">{item.model || `${item.type} Service`}</h3>
+                                    <h3 className="text-lg font-bold text-[var(--text-primary)] capitalize">{item.model || `Car Option ${idx + 1}`}</h3>
                                     {!isExpanded && <p className="text-xs text-[var(--text-muted)]">{item.type}{item.description ? ` • ${item.description}` : ''}</p>}
                                 </div>
                             </div>
