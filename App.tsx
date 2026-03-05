@@ -986,13 +986,43 @@ const App: React.FC = () => {
                                                     <div className="form-grid mb-4">
                                                         <div className="col-span-1 md:col-span-2">
                                                             {(() => {
-                                                                const isStandardRoom = ROOM_TYPE_OPTIONS.some(o => o.value === rt.name && o.value !== 'Other');
-                                                                const roomDropdownValue = isStandardRoom ? rt.name : (rt.name ? 'Other' : '');
+                                                                const isStandardRoom = ROOM_TYPE_OPTIONS.some(o => o.value === rt.name && o.value !== '' && o.value !== 'Other');
+                                                                // If it's a standard room, use its name. 
+                                                                // If it's NOT standard but has a name, it must be 'Other'
+                                                                // We use a special internal value 'CUSTOM_VALUE' if name exists but isn't in list
+                                                                const roomDropdownValue = isStandardRoom ? rt.name : (rt.name === '' ? '' : 'Other');
+
                                                                 return (
-                                                                    <>
-                                                                        <FormSelect label="Room Name" options={ROOM_TYPE_OPTIONS} value={roomDropdownValue} onChange={e => updateRoomType(index, rtIdx, 'name', e.target.value === 'Other' ? '' : e.target.value)} className="mb-0 text-sm" />
-                                                                        {roomDropdownValue === 'Other' && <FormInput label="Custom Room Name" value={rt.name} onChange={e => updateRoomType(index, rtIdx, 'name', e.target.value)} className="mb-0 text-sm mt-2" />}
-                                                                    </>
+                                                                    <div className="flex flex-col md:flex-row gap-3">
+                                                                        <div className="flex-1">
+                                                                            <FormSelect
+                                                                                label="Room Name"
+                                                                                options={ROOM_TYPE_OPTIONS}
+                                                                                value={roomDropdownValue}
+                                                                                onChange={e => {
+                                                                                    const val = e.target.value;
+                                                                                    if (val === 'Other') {
+                                                                                        // Set a temporary value so it doesn't reset to 'Select'
+                                                                                        updateRoomType(index, rtIdx, 'name', 'Custom Room');
+                                                                                    } else {
+                                                                                        updateRoomType(index, rtIdx, 'name', val);
+                                                                                    }
+                                                                                }}
+                                                                                className="mb-0 text-sm"
+                                                                            />
+                                                                        </div>
+                                                                        {roomDropdownValue === 'Other' && (
+                                                                            <div className="flex-1 animate-in fade-in slide-in-from-left-2 duration-200">
+                                                                                <FormInput
+                                                                                    label="Custom Room Name"
+                                                                                    value={rt.name}
+                                                                                    onChange={e => updateRoomType(index, rtIdx, 'name', e.target.value)}
+                                                                                    placeholder="Type room name..."
+                                                                                    className="mb-0 text-sm"
+                                                                                />
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                                 );
                                                             })()}
                                                         </div>
@@ -1244,7 +1274,8 @@ const App: React.FC = () => {
                                                     {i > 0 && (
                                                         <button
                                                             onClick={() => removeFlightLeg(index, 'outbound', i)}
-                                                            className="absolute right-2 top-2 p-1 text-white/10 hover:text-red-400/70 transition-colors"
+                                                            className="absolute right-2 top-2 p-1.5 rounded-lg text-red-500 bg-red-500/5 hover:bg-red-500/20 border border-red-500/20 transition-all shadow-sm"
+                                                            title="Remove Connection"
                                                         >
                                                             <TrashIcon className="w-4 h-4" />
                                                         </button>
@@ -1285,7 +1316,8 @@ const App: React.FC = () => {
                                                     {i > 0 && (
                                                         <button
                                                             onClick={() => removeFlightLeg(index, 'return', i)}
-                                                            className="absolute right-2 top-2 p-1 text-white/10 hover:text-red-400/70 transition-colors"
+                                                            className="absolute right-2 top-2 p-1.5 rounded-lg text-red-500 bg-red-500/5 hover:bg-red-500/20 border border-red-500/20 transition-all shadow-sm"
+                                                            title="Remove Connection"
                                                         >
                                                             <TrashIcon className="w-4 h-4" />
                                                         </button>
