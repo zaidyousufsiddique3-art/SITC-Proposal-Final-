@@ -870,15 +870,17 @@ const App: React.FC = () => {
     // Hotel Logic
     const addHotel = () => {
         // FIX: Deep copy arrays to prevent reference sharing between hotel options
+        const hId = Date.now().toString();
         const newHotel: HotelDetails = {
             ...initialHotel,
-            id: Date.now().toString(),
+            id: hId,
             roomTypes: [{ ...initialRoomType, id: `rt_${Date.now()}` }],
             meetingRooms: [],
             dining: [],
             images: []
         };
         setFormData({ ...formData, hotelOptions: [...formData.hotelOptions, newHotel] });
+        setExpandedHotels({ ...expandedHotels, [hId]: true });
     };
     const removeHotel = (index: number) => { const h = [...formData.hotelOptions]; h.splice(index, 1); setFormData({ ...formData, hotelOptions: h }); };
     const updateHotel = (index: number, field: keyof HotelDetails, value: any) => { const h = [...formData.hotelOptions]; h[index] = { ...h[index], [field]: value }; setFormData({ ...formData, hotelOptions: h }); };
@@ -948,7 +950,7 @@ const App: React.FC = () => {
             </div>
 
             {formData.hotelOptions.map((hotel, index) => {
-                const isExpanded = expandedHotels[hotel.id] !== false;
+                const isExpanded = expandedHotels[hotel.id] === true;
                 const toggleExpanded = () => setExpandedHotels({ ...expandedHotels, [hotel.id]: !isExpanded });
 
                 return (
@@ -1204,7 +1206,11 @@ const App: React.FC = () => {
         </div>
     );
 
-    const addFlight = () => { setFormData({ ...formData, flightOptions: [...formData.flightOptions, { ...initialFlight, id: Date.now().toString() }] }); };
+    const addFlight = () => {
+        const fId = Date.now().toString();
+        setFormData({ ...formData, flightOptions: [...formData.flightOptions, { ...initialFlight, id: fId }] });
+        setExpandedFlights({ ...expandedFlights, [fId]: true });
+    };
     const removeFlight = (index: number) => { const f = [...formData.flightOptions]; f.splice(index, 1); setFormData({ ...formData, flightOptions: f }); };
     const updateFlight = (index: number, field: keyof FlightDetails, value: any) => { const f = [...formData.flightOptions]; f[index] = { ...f[index], [field]: value }; setFormData({ ...formData, flightOptions: f }); };
     const addFlightLeg = (flightIndex: number, legType: 'outbound' | 'return') => { const f = [...formData.flightOptions]; f[flightIndex][legType].push({ ...initialFlightLeg }); setFormData({ ...formData, flightOptions: f }); };
@@ -1250,7 +1256,7 @@ const App: React.FC = () => {
             </div>
 
             {formData.inclusions.flights && formData.flightOptions.map((flight, index) => {
-                const isExpanded = expandedFlights[flight.id] !== false;
+                const isExpanded = expandedFlights[flight.id] === true;
                 const toggleExpanded = () => setExpandedFlights({ ...expandedFlights, [flight.id]: !isExpanded });
 
                 return (
