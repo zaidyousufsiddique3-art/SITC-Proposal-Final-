@@ -231,6 +231,7 @@ const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
                             <img
                                 src={data.branding.companyLogo}
                                 alt="Logo"
+                                crossOrigin="anonymous"
                                 style={{ maxWidth: "80%", maxHeight: "80%", objectFit: "contain" }}
                             />
                         ) : (
@@ -337,17 +338,17 @@ const HotelPictureSection: React.FC<{ hotel: HotelDetails }> = ({ hotel }) => {
                 {/* big left */}
                 <div className="rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
                     {img0 ? (
-                        <img src={img0} className="w-full h-full object-cover" alt="Hotel main" />
+                        <img src={img0} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel main" />
                     ) : null}
                 </div>
 
                 {/* right stacked */}
                 <div className="flex flex-col gap-4">
                     <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
-                        {img1 ? <img src={img1} className="w-full h-full object-cover" alt="Hotel 2" /> : null}
+                        {img1 ? <img src={img1} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 2" /> : null}
                     </div>
                     <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
-                        {img2 ? <img src={img2} className="w-full h-full object-cover" alt="Hotel 3" /> : null}
+                        {img2 ? <img src={img2} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 3" /> : null}
                     </div>
                 </div>
             </div>
@@ -743,6 +744,7 @@ const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing 
                         <img
                             src={t.image}
                             alt="Vehicle"
+                            crossOrigin="anonymous"
                             style={{ width: 440, height: 240, objectFit: "contain" }}
                         />
                     ) : (
