@@ -58,49 +58,14 @@ const LandingPage: React.FC = () => {
                 </div>
             </nav>
 
-            <main className="relative z-10 h-full flex flex-col justify-center items-center pt-20">
-
-                {/* 3. Hero Section - Simplified to fit single screen */}
+            <main className="relative z-10 h-full flex flex-col justify-center items-center">
+                {/* 3. Hero Section - Extreme minimal */}
                 <section className="max-w-7xl mx-auto px-6 text-center relative flex flex-col items-center">
                     <div className="hero-glow" />
 
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-indigo-300 text-xs font-bold leading-none mb-6 animate-fade-in">
-                        <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-                        ✦ PREMIUM CORPORATE TRAVEL SYSTEM
-                    </div>
-
-                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-[1.1] tracking-tight text-gradient-premium">
+                    <h1 className="text-6xl md:text-8xl lg:text-[120px] font-black leading-[1.1] tracking-tighter text-gradient-premium animate-fade-in">
                         Travel Proposal Portal
                     </h1>
-
-                    <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
-                        Create professional travel proposals in minutes. Designed for corporate travel teams to build, manage, and deliver premium experiences.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-                        <Link
-                            to="/login"
-                            className="group px-10 py-4 bg-indigo-600 hover:bg-indigo-500 text-white text-base font-black rounded-2xl shadow-2xl shadow-indigo-600/30 transition-all hover:-translate-y-1"
-                        >
-                            Get Started <ArrowRightIcon className="inline-block ml-2 group-hover:translate-x-1 transition-transform" size={20} />
-                        </Link>
-                        <button className="px-10 py-4 bg-white/5 hover:bg-white/10 text-white text-base font-black border border-white/10 rounded-2xl transition-all">
-                            Book Demo
-                        </button>
-                    </div>
-
-                    {/* Hero Visual Mockup - Adjusted sizing for one-page feel */}
-                    <div className="relative max-w-4xl mx-auto animate-float">
-                        <div className="absolute -inset-10 bg-indigo-600/20 blur-[100px] rounded-full opacity-30 pointer-events-none" />
-                        <div className="relative rounded-[24px] border border-white/10 overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)] bg-[#05060a]">
-                            <img
-                                src="/landing/hero-mockup.png"
-                                alt="Proposal Builder Interface"
-                                className="w-full h-auto object-cover opacity-90"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#05060a] via-transparent to-transparent opacity-60" />
-                        </div>
-                    </div>
                 </section>
             </main>
         </div>
