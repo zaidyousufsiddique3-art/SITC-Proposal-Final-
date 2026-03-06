@@ -101,7 +101,7 @@ const Page: React.FC<{
         className={`pdf-page relative mx-auto ${className}`}
         style={{
             width: "297mm",
-            height: "210mm",
+            height: "209.8mm",
             background: bg,
             overflow: "hidden",
             boxSizing: "border-box",
@@ -851,24 +851,22 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
 
   .pdf-page {
     width: 297mm !important;
-    height: 210mm !important;
+    height: 209.8mm !important;
     overflow: hidden !important;
     position: relative;
     box-sizing: border-box !important;
     margin: 0 !important;
     padding: 0 !important;
 
-    page-break-after: always !important;
-    break-after: page !important;
-
     /* Prevent any internal breaks */
     page-break-inside: avoid !important;
     break-inside: avoid-page !important;
   }
 
-  .pdf-page:last-child {
-    page-break-after: auto !important;
-    break-after: auto !important;
+  /* Force new page for sections, but only if they are not the first child */
+  .pdf-page + .pdf-page {
+    page-break-before: always !important;
+    break-before: page !important;
   }
 `}</style>
 
