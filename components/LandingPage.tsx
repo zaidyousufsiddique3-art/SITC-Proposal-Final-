@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Antigravity from './Antigravity';
+import TrueFocus from './TrueFocus';
 import './LandingPage.css';
 import {
     ArrowRightIcon
@@ -37,7 +38,7 @@ const LandingPage: React.FC = () => {
                             <img src="/sitc_logo_final.png" alt="Logo" className="w-6 h-6 object-contain brightness-0 invert" />
                         </div>
                         <span className="text-sm font-bold tracking-tight text-white/90">
-                            Talently<span className="text-blue-400">X</span> Proposal System
+                            Talently<span className="text-blue-400">X</span> <span className="text-white/60 font-medium">Proposal System</span>
                         </span>
                     </div>
 
@@ -61,14 +62,22 @@ const LandingPage: React.FC = () => {
             <main className="relative z-10 h-full flex flex-col justify-center items-center px-6">
 
                 {/* 3. Hero Section - Extreme Minimal, Premium SaaS */}
-                <section className="max-w-6xl mx-auto text-center relative flex flex-col items-center">
+                <section className="max-w-7xl mx-auto text-center relative flex flex-col items-center">
                     <div className="hero-glow-soft" />
 
-                    <h1 className="text-6xl md:text-9xl lg:text-[130px] font-black leading-[0.9] tracking-tighter text-white mb-12 animate-title select-none text-shadow-premium">
-                        Talently<span className="text-blue-400">X</span> <br className="md:hidden" /> Proposal <br className="md:hidden" /> System
-                    </h1>
+                    <div className="mb-12 animate-title select-none text-shadow-premium">
+                        <TrueFocus
+                            sentence="Talently X Proposal System"
+                            manualMode={false}
+                            blurAmount={8}
+                            borderColor="#3B82F6"
+                            glowColor="rgba(59, 130, 246, 0.5)"
+                            animationDuration={0.4}
+                            pauseBetweenAnimations={0.8}
+                        />
+                    </div>
 
-                    <p className="text-lg md:text-2xl text-white/50 max-w-2xl mx-auto mb-16 leading-relaxed font-normal animate-subtitle">
+                    <p className="text-lg md:text-2xl text-white/40 max-w-2xl mx-auto mb-16 leading-relaxed font-normal animate-subtitle">
                         Create professional travel proposals in minutes. <br className="hidden md:block" />
                         Built for corporate travel teams to deliver premium experiences.
                     </p>
