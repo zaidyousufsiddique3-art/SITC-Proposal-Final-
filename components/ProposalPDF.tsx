@@ -37,7 +37,6 @@ const formatCurrency = (amount: number, currency: string) => {
 const safe = (v?: string | null, fallback = "-") => (v && v.trim() ? v : fallback);
 
 const formatISOToHuman = (iso?: string) => {
-    // accepts: YYYY-MM-DD
     if (!iso) return "TBD";
     const parts = iso.split("-").map((x) => parseInt(x, 10));
     if (parts.length !== 3) return iso;
@@ -48,7 +47,6 @@ const formatISOToHuman = (iso?: string) => {
 
 const formatDateRangeHuman = (startISO?: string, endISO?: string) => {
     if (!startISO || !endISO) return "TBD";
-    // e.g. "04 March 2026 - 18 March 2026"
     return `${formatISOToHuman(startISO)} - ${formatISOToHuman(endISO)}`;
 };
 
@@ -98,15 +96,14 @@ const Page: React.FC<{
     className?: string;
 }> = ({ children, bg = "#ffffff", className = "" }) => (
     <div
-        className={`w-full flex justify-center page-break ${className}`}
+        className={`pdf-page w-full flex justify-center ${className}`}
         style={{ background: bg }}
     >
-        {/* A4 content area width. Keeping it consistent with user-provided styles. */}
         <div
             className="relative"
             style={{
-                width: "1123px", // Flipped to Landscape width as per project standard
-                minHeight: "794px",
+                width: "794px",
+                minHeight: "1123px",
             }}
         >
             {children}
@@ -313,7 +310,7 @@ const HotelPictureSection: React.FC<{ hotel: HotelDetails }> = ({ hotel }) => {
             <SectionHeader title={safe(hotel.name)} />
 
             <div className="px-[72px] pt-[28px]">
-                <div className="grid grid-cols-12 gap-4" style={{ height: 500 }}>
+                <div className="grid grid-cols-12 gap-4" style={{ height: 690 }}>
                     {/* big left */}
                     <div className="col-span-7 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
                         {img0 ? (
@@ -498,11 +495,10 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
         <Page bg="#ffffff">
             <SectionHeader title="Flight Itinerary" subtitle={`Grand Total - Option ${index + 1}`} />
 
-            <div className="px-[72px] pt-[18px]">
+            <div className="px-[72px] pt-[18px] pb-[90px]">
                 <SoftCard className="p-0 overflow-hidden">
                     <div className="flex">
-                        {/* left gold bar */}
-                        <div style={{ width: 5, background: COLORS.gold }} />
+                        <div style={{ width: 5, background: COLORS.gold, flexShrink: 0 }} />
                         <div className="flex-1 px-10 py-10">
                             <div className="text-[26px] font-black" style={{ color: COLORS.ink }}>
                                 {routeTitle}
@@ -526,31 +522,33 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
                                 </div>
                             </div>
 
-                            {/* Total cost estimate box */}
-                            <div className="mt-12" style={{ maxWidth: 520 }}>
+                            <div className="mt-10" style={{ maxWidth: 440 }}>
                                 <SoftCard className="px-8 py-6">
-                                    <div className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: COLORS.muted }}>
+                                    <div
+                                        className="text-[11px] font-extrabold uppercase tracking-widest"
+                                        style={{ color: COLORS.muted }}
+                                    >
                                         Total Cost Estimate
                                     </div>
 
                                     <div className="mt-5 space-y-3">
                                         {quotes.map((q, i) => (
-                                            <div key={i} className="flex justify-between items-center">
+                                            <div key={i} className="flex justify-between items-center gap-4">
                                                 <div className="text-[13px] font-semibold" style={{ color: COLORS.muted }}>
                                                     {q.class} <span className="font-normal">({q.quantity} Seats)</span>
                                                 </div>
-                                                <div className="text-[14px] font-extrabold" style={{ color: COLORS.blue }}>
+                                                <div className="text-[14px] font-extrabold shrink-0" style={{ color: COLORS.blue }}>
                                                     {formatCurrency(q.price * q.quantity, pricing.currency)}
                                                 </div>
                                             </div>
                                         ))}
 
                                         <div className="pt-3 mt-3 border-t" style={{ borderColor: "#E5E7EB" }}>
-                                            <div className="flex justify-between items-center">
+                                            <div className="flex justify-between items-center gap-4">
                                                 <div className="text-[14px] font-extrabold" style={{ color: COLORS.ink }}>
                                                     Total
                                                 </div>
-                                                <div className="text-[22px] font-black" style={{ color: COLORS.blue }}>
+                                                <div className="text-[22px] font-black shrink-0" style={{ color: COLORS.blue }}>
                                                     {formatCurrency(totals.grand, pricing.currency)}
                                                 </div>
                                             </div>
@@ -667,29 +665,29 @@ const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing 
         <Page bg="#ffffff">
             <SectionHeader title="Transportation" />
 
-            <div className="px-[72px] pt-[40px] flex flex-col items-center">
+            <div className="px-[72px] pt-[28px] pb-[100px] flex flex-col items-center">
                 <div className="mt-2">
                     {t.image ? (
                         <img
                             src={t.image}
                             alt="Vehicle"
-                            style={{ width: 520, height: 320, objectFit: "contain" }}
+                            style={{ width: 430, height: 250, objectFit: "contain" }}
                         />
                     ) : (
-                        <div className="w-[520px] h-[320px] bg-gray-100 flex items-center justify-center text-gray-300 italic">No Image Available</div>
+                        <div className="w-[430px] h-[250px] bg-gray-100 flex items-center justify-center text-gray-300 italic">No Image Available</div>
                     )}
                 </div>
 
-                <div className="mt-10 text-center">
+                <div className="mt-8 text-center">
                     <div className="text-[22px] font-black" style={{ color: COLORS.ink }}>
                         {safe(t.model)}
                     </div>
                     <div className="mt-2 text-[12px] font-semibold" style={{ color: COLORS.muted }}>
-                        {safe(t.type)} {t.type?.includes("with Driver") ? "(Car with Driver)" : ""}
+                        {safe(t.type)} {t.type?.includes("with Driver") ? "(Car with Driver)" : ""} • {safe(t.city)}
                     </div>
                 </div>
 
-                <div className="mt-12 w-full flex justify-center">
+                <div className="mt-10 w-full flex justify-center">
                     <SoftCard className="px-10 py-8" >
                         <div className="text-center">
                             <div className="text-[34px] font-black" style={{ color: COLORS.blue }}>
@@ -703,6 +701,44 @@ const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing 
                 </div>
             </div>
         </Page>
+    );
+};
+
+// ==============================
+// TRANSPORTATION INVESTMENT SUMMARY
+// ==============================
+const TransportationInvestmentSummary: React.FC<{
+    transportItems: any[];
+    pricing: any;
+}> = ({ transportItems, pricing }) => {
+    const rows = transportItems.map((t) => {
+        const res = calculatePriceBreakdown(
+            t.netPricePerDay,
+            pricing.markups.transportation,
+            t.vatRule,
+            pricing.vatPercent,
+            t.quantity,
+            t.days
+        );
+
+        return {
+            name: t.model,
+            price: t.netPricePerDay,
+            nights: t.days,
+            qty: t.quantity,
+            subTotal: res.subTotal,
+            vat: res.vatAmount,
+            grand: res.grandTotal,
+        };
+    });
+
+    return (
+        <InvestmentSummary
+            title="Investment Summary"
+            subtitle="Transportation"
+            pricing={pricing}
+            rows={rows}
+        />
     );
 };
 
@@ -742,96 +778,126 @@ const ThankYouSection: React.FC<{ data: ProposalData }> = ({ data }) => (
 // MAIN WRAPPER
 // ==============================
 export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
+    const accommodationSummaryBlocks =
+        data.inclusions?.hotels
+            ? data.hotelOptions?.map((h, i) => {
+                const rows = (h.roomTypes || []).map((r) => {
+                    const res = calculatePriceBreakdown(
+                        r.netPrice,
+                        data.pricing.markups.hotels,
+                        h.vatRule,
+                        data.pricing.vatPercent,
+                        r.quantity,
+                        r.numNights
+                    );
+
+                    return {
+                        name: `${h.name} - ${r.name}`,
+                        price: r.netPrice,
+                        nights: r.numNights,
+                        qty: r.quantity,
+                        subTotal: res.subTotal,
+                        vat: res.vatAmount,
+                        grand: res.grandTotal,
+                    };
+                });
+
+                return (
+                    <InvestmentSummary
+                        key={`acc-summary-${i}`}
+                        title="Investment Summary"
+                        subtitle={`Accommodation Option ${i + 1}`}
+                        pricing={data.pricing}
+                        rows={rows}
+                    />
+                );
+            })
+            : [];
+
+    const flightSummaryBlocks =
+        data.inclusions?.flights
+            ? data.flightOptions?.map((f, i) => {
+                const rows = (f.quotes || []).map((q) => {
+                    const res = calculatePriceBreakdown(
+                        q.price,
+                        data.pricing.markups.flights,
+                        f.vatRule,
+                        data.pricing.vatPercent,
+                        q.quantity,
+                        1
+                    );
+
+                    const route = f.routeDescription || "Flight";
+
+                    return {
+                        name: `${route} - ${q.class}`,
+                        price: q.price,
+                        nights: 1,
+                        qty: q.quantity,
+                        subTotal: res.subTotal,
+                        vat: res.vatAmount,
+                        grand: res.grandTotal,
+                    };
+                });
+
+                return (
+                    <InvestmentSummary
+                        key={`flight-summary-${i}`}
+                        title="Investment Summary"
+                        subtitle={`Flight - Option ${i + 1}`}
+                        pricing={data.pricing}
+                        rows={rows}
+                    />
+                );
+            })
+            : [];
+
+    const hasTransportation = Array.isArray(data.transportation) && data.transportation.length > 0;
+
     return (
         <div className="font-sans text-gray-900 bg-white">
             <style>{`
         @media print {
-          .page-break { page-break-after: always; }
+          .pdf-page {
+            page-break-after: always;
+            break-after: page;
+          }
+
+          .pdf-page:last-child {
+            page-break-after: auto;
+            break-after: auto;
+          }
         }
       `}</style>
 
             <OpeningSection data={data} />
             <TermsSection />
 
-            {/* HOTELS */}
             {data.inclusions?.hotels &&
-                data.hotelOptions?.map((h, i) => {
-                    const rows = (h.roomTypes || []).map((r) => {
-                        const res = calculatePriceBreakdown(
-                            r.netPrice,
-                            data.pricing.markups.hotels,
-                            h.vatRule,
-                            data.pricing.vatPercent,
-                            r.quantity,
-                            r.numNights
-                        );
-                        return {
-                            name: `${h.name} - ${r.name}`,
-                            price: r.netPrice,
-                            nights: r.numNights,
-                            qty: r.quantity,
-                            subTotal: res.subTotal,
-                            vat: res.vatAmount,
-                            grand: res.grandTotal,
-                        };
-                    });
+                data.hotelOptions?.map((h, i) => (
+                    <React.Fragment key={i}>
+                        <HotelPictureSection hotel={h} />
+                        <PropertyDetailsSection hotel={h} index={i} pricing={data.pricing} />
+                    </React.Fragment>
+                ))}
 
-                    return (
-                        <React.Fragment key={i}>
-                            <HotelPictureSection hotel={h} />
-                            <PropertyDetailsSection hotel={h} index={i} pricing={data.pricing} />
-                            <InvestmentSummary
-                                title="Investment Summary"
-                                subtitle={`Accommodation Option ${i + 1}`}
-                                pricing={data.pricing}
-                                rows={rows}
-                            />
-                        </React.Fragment>
-                    );
-                })}
-
-            {/* FLIGHTS */}
             {data.inclusions?.flights &&
-                data.flightOptions?.map((f, i) => {
-                    const rows = (f.quotes || []).map((q) => {
-                        const res = calculatePriceBreakdown(
-                            q.price,
-                            data.pricing.markups.flights,
-                            f.vatRule,
-                            data.pricing.vatPercent,
-                            q.quantity,
-                            1
-                        );
-                        const route = f.routeDescription || "Flight";
+                data.flightOptions?.map((f, i) => (
+                    <FlightSection key={i} flight={f} index={i} pricing={data.pricing} />
+                ))}
 
-                        return {
-                            name: `${route} - ${q.class}`,
-                            price: q.price,
-                            nights: 1,
-                            qty: q.quantity,
-                            subTotal: res.subTotal,
-                            vat: res.vatAmount,
-                            grand: res.grandTotal,
-                        };
-                    });
-
-                    return (
-                        <React.Fragment key={i}>
-                            <FlightSection flight={f} index={i} pricing={data.pricing} />
-                            <InvestmentSummary
-                                title="Investment Summary"
-                                subtitle={`Flight - Option ${i + 1}`}
-                                pricing={data.pricing}
-                                rows={rows}
-                            />
-                        </React.Fragment>
-                    );
-                })}
-
-            {/* TRANSPORTATION */}
             {data.transportation?.map((t, i) => (
                 <TransportationSection key={i} t={t} pricing={data.pricing} />
             ))}
+
+            {accommodationSummaryBlocks}
+            {flightSummaryBlocks}
+            {hasTransportation && (
+                <TransportationInvestmentSummary
+                    transportItems={data.transportation}
+                    pricing={data.pricing}
+                />
+            )}
 
             <ThankYouSection data={data} />
         </div>
