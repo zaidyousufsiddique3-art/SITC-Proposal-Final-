@@ -38,7 +38,7 @@ const LandingPage: React.FC = () => {
                             <img src="/sitc_logo_final.png" alt="Logo" className="w-6 h-6 object-contain brightness-0 invert" />
                         </div>
                         <span className="text-sm font-bold tracking-tight text-white/90">
-                            Travel <span className="text-white/60 font-medium">Proposal System</span>
+                            Travel <span className="text-blue-400">Proposal</span> System
                         </span>
                     </div>
 

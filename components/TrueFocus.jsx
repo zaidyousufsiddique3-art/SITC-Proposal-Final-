@@ -66,8 +66,7 @@ const TrueFocus = ({
         <div className="focus-container" ref={containerRef}>
             {words.map((word, index) => {
                 const isActive = index === currentIndex;
-                const reflectsX = word === 'X';
-                const isSystemWord = word === 'Proposal' || word === 'System';
+                const isProposal = word === 'Proposal';
 
                 return (
                     <span
@@ -85,9 +84,7 @@ const TrueFocus = ({
                             '--border-color': borderColor,
                             '--glow-color': glowColor,
                             transition: `filter ${animationDuration}s ease`,
-                            color: reflectsX ? '#60A5FA' : 'white',
-                            fontSize: isSystemWord ? 'clamp(1.5rem, 4vw, 3.5rem)' : undefined,
-                            opacity: isSystemWord ? 0.6 : 1
+                            color: isProposal ? '#60A5FA' : 'white'
                         }}
                         onMouseEnter={() => handleMouseEnter(index)}
                         onMouseLeave={handleMouseLeave}
