@@ -6,7 +6,7 @@ import { AuthScreen } from './components/AuthComponents';
 import { ProposalGenerationLoader } from './components/ProposalGenerationLoader';
 import { FormInput, FormSelect, FormCheckbox, FileUploader, MultiFileUploader, SectionHeader, Button, DateRangePicker, IconButton, CollapsiblePanel } from './components/InputComponents';
 import { ProposalData, HotelDetails, FlightDetails, FlightClass, TransportationDetails, VehicleType, CustomItem, ActivityDetails, Inclusions, CategoryMarkups, MarkupType, FlightLeg, User, UserRole, ProposalHistory, MarkupConfig, RoomType, HotelImage, ImageTag, MeetingDetails, DiningDetails, FlightQuote, Company, ProposalSectionsConfig } from './types';
-import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo, SunIcon, MoonIcon, CheckIcon, PlusIcon, ChevronDownIcon, CalendarIcon, LogOutIcon, ProposalIcon, BuildingIcon, SettingsIcon, SearchIcon, ShieldCheckIcon, PresentationIcon, ArrowLeftIcon, ArrowRightIcon, WalletIcon } from './components/Icons';
+import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo, SunIcon, MoonIcon, CheckIcon, PlusIcon, ChevronDownIcon, CalendarIcon, LogOutIcon, ProposalIcon, BuildingIcon, SettingsIcon, SearchIcon, ShieldCheckIcon, PresentationIcon, ArrowLeftIcon, ArrowRightIcon, WalletIcon, ClockIcon, MapPinIcon } from './components/Icons';
 import { getGlobalSettings, saveGlobalSettings, getUsers, createSubUserWithAuth, createCompanyAdminWithAuth, deleteUserProfile, validatePassword, changePassword, updateUserProfile, getCompanies, saveCompany, updateCompany, deleteCompany, adminResetUserPassword, validatePhone, logoutUser, resolveProposalSections } from './services/authService';
 import { getProposals, saveProposal, deleteProposal, stripDisabledSections } from './services/proposalService';
 import { uploadProposalImage, normalizeImages, normalizeImageUrl, uploadBase64ToProposalImage } from './services/imageService';
@@ -2137,6 +2137,50 @@ const App: React.FC = () => {
                                     <Button onClick={handleCreateNew} className="gap-2">
                                         <PlusIcon size={18} /> Create Proposal
                                     </Button>
+                                </div>
+
+                                {/* Mini Dashboard Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                                    {(() => {
+                                        const now = new Date();
+                                        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+                                        const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+
+                                        const stats = {
+                                            total: displayedProposals.length,
+                                            thisMonth: displayedProposals.filter(p => Number(p.id) >= firstDayOfMonth).length,
+                                            recentlyEdited: displayedProposals.filter(p => (p.lastModified || 0) >= oneDayAgo).length,
+                                            topDest: (() => {
+                                                const counts: Record<string, number> = {};
+                                                displayedProposals.forEach(p => {
+                                                    const dest = getDestination(p);
+                                                    if (dest && dest !== '-') counts[dest] = (counts[dest] || 0) + 1;
+                                                });
+                                                return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
+                                            })()
+                                        };
+
+                                        const Card = ({ icon: Icon, label, value, color }: { icon: any, label: string, value: string | number, color: string }) => (
+                                            <div className="bg-[var(--panel-bg)] p-5 rounded-2xl border border-[var(--panel-border)] shadow-sm hover:translate-y-[-2px] transition-all duration-200 flex items-center gap-4">
+                                                <div className={`p-3 rounded-xl bg-opacity-10 ${color} bg-current`}>
+                                                    <Icon size={24} className={color} />
+                                                </div>
+                                                <div>
+                                                    <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-0.5">{label}</div>
+                                                    <div className="text-xl font-black text-[var(--text-primary)] leading-none">{value}</div>
+                                                </div>
+                                            </div>
+                                        );
+
+                                        return (
+                                            <>
+                                                <Card icon={ProposalIcon} label="Total Proposals" value={stats.total} color="text-blue-500" />
+                                                <Card icon={CalendarIcon} label="This Month" value={stats.thisMonth} color="text-indigo-500" />
+                                                <Card icon={ClockIcon} label="Recently Edited" value={stats.recentlyEdited} color="text-amber-500" />
+                                                <Card icon={MapPinIcon} label="Top Destination" value={stats.topDest} color="text-emerald-500" />
+                                            </>
+                                        );
+                                    })()}
                                 </div>
 
                                 {displayedProposals.length === 0 ? (

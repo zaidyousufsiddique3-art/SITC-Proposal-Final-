@@ -33,7 +33,9 @@ import {
   Presentation,
   ShieldCheck,
   Search,
-  Settings
+  Settings,
+  Clock,
+  MapPin
 } from 'lucide-react';
 
 /* SITC Branded Logos (SVG) */
@@ -106,3 +108,5 @@ export const SettingsIcon = (props: any) => <Settings {...props} strokeWidth={2}
 export const MeetingIcon = (props: any) => <Presentation {...props} strokeWidth={2} size={props.size || 20} />;
 export const ActivityIcon = (props: any) => <Compass {...props} strokeWidth={2} size={props.size || 20} />;
 export const CustomIcon = (props: any) => <Layers {...props} strokeWidth={2} size={props.size || 20} />;
+export const ClockIcon = (props: any) => <Clock {...props} strokeWidth={2} size={props.size || 20} />;
+export const MapPinIcon = (props: any) => <MapPin {...props} strokeWidth={2} size={props.size || 20} />;
