@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
     ProposalData,
@@ -37,16 +38,17 @@ const formatCurrency = (amount: number, currency: string) => {
 const safe = (v?: string | null, fallback = "-") => (v && v.trim() ? v : fallback);
 
 const formatISOToHuman = (iso?: string) => {
+    // accepts: YYYY-MM-DD
     if (!iso) return "TBD";
-    const parts = iso.split("-").map((x) => parseInt(x, 10));
-    if (parts.length !== 3) return iso;
-    const [y, m, d] = parts;
+    const [y, m, d] = iso.split("-").map((x) => parseInt(x, 10));
+    if (!y || !m || !d) return iso;
     const dt = new Date(y, m - 1, d);
     return dt.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
 };
 
 const formatDateRangeHuman = (startISO?: string, endISO?: string) => {
     if (!startISO || !endISO) return "TBD";
+    // e.g. "04 March 2026 - 18 March 2026"
     return `${formatISOToHuman(startISO)} - ${formatISOToHuman(endISO)}`;
 };
 
@@ -95,13 +97,16 @@ const Page: React.FC<{
     bg?: string;
     className?: string;
 }> = ({ children, bg = "#ffffff", className = "" }) => (
-    <div className={`pdf-page w-full flex justify-center ${className}`}>
+    <div
+        className={`w-full flex justify-center page-break ${className}`}
+        style={{ background: bg }}
+    >
+        {/* A4-ish content area with consistent margins like the PDFs */}
         <div
-            className="pdf-page-inner relative overflow-hidden"
+            className="relative"
             style={{
-                width: "794px",
-                height: "1123px",
-                background: bg,
+                width: "794px", // ~A4 at 96dpi
+                minHeight: "1123px",
             }}
         >
             {children}
@@ -154,6 +159,7 @@ const SoftCard: React.FC<{ children: React.ReactNode; className?: string }> = ({
 // 1) OPENING (match Opening.pdf)
 // ==============================
 const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
+    // Best-effort derive date range from hotels, fallback to flights if needed
     let startISO: string | undefined;
     let endISO: string | undefined;
 
@@ -182,6 +188,7 @@ const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
             {/* Content */}
             <div className="absolute inset-0 flex">
                 <div className="flex-1 flex items-center">
+                    {/* match the small centered title block (not huge hero) */}
                     <div className="pl-[90px]">
                         <div
                             className="inline-block border rounded-[2px]"
@@ -420,7 +427,7 @@ const FlightLegCard: React.FC<{
     label: string;
     leg: FlightLeg;
 }> = ({ label, leg }) => (
-    <div className="break-inside-avoid">
+    <div>
         <div className="text-[10px] font-extrabold uppercase tracking-widest" style={{ color: COLORS.muted }}>
             {label}
         </div>
@@ -471,6 +478,7 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
 
     const quotes = flight.quotes || [];
 
+    // totals card like the PDF
     const totals = quotes.reduce(
         (acc, q) => {
             const res = calculatePriceBreakdown(
@@ -493,19 +501,20 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
         <Page bg="#ffffff">
             <SectionHeader title="Flight Itinerary" subtitle={`Grand Total - Option ${index + 1}`} />
 
-            <div className="px-[72px] pt-[18px] pb-[140px]">
+            <div className="px-[72px] pt-[18px]">
                 <SoftCard className="p-0 overflow-hidden">
                     <div className="flex">
-                        <div style={{ width: 5, background: COLORS.gold, flexShrink: 0 }} />
+                        {/* left gold bar */}
+                        <div style={{ width: 5, background: COLORS.gold }} />
                         <div className="flex-1 px-10 py-10">
                             <div className="text-[26px] font-black" style={{ color: COLORS.ink }}>
                                 {routeTitle}
                             </div>
 
-                            <div className="mt-8 grid grid-cols-2 gap-12">
+                            <div className="mt-10 grid grid-cols-2 gap-14">
                                 <div>
                                     {flight.outbound?.map((leg, i) => (
-                                        <div key={i} className={i ? "mt-8" : ""}>
+                                        <div key={i} className={i ? "mt-10" : ""}>
                                             <FlightLegCard label="OUTBOUND" leg={leg} />
                                         </div>
                                     ))}
@@ -513,46 +522,38 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
 
                                 <div>
                                     {flight.return?.map((leg, i) => (
-                                        <div key={i} className={i ? "mt-8" : ""}>
+                                        <div key={i} className={i ? "mt-10" : ""}>
                                             <FlightLegCard label="RETURN" leg={leg} />
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="mt-8" style={{ maxWidth: 430 }}>
+                            {/* Total cost estimate box (like PDF) */}
+                            <div className="mt-12" style={{ maxWidth: 520 }}>
                                 <SoftCard className="px-8 py-6">
-                                    <div
-                                        className="text-[11px] font-extrabold uppercase tracking-widest"
-                                        style={{ color: COLORS.muted }}
-                                    >
+                                    <div className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: COLORS.muted }}>
                                         Total Cost Estimate
                                     </div>
 
                                     <div className="mt-5 space-y-3">
                                         {quotes.map((q, i) => (
-                                            <div key={i} className="flex justify-between items-center gap-4">
+                                            <div key={i} className="flex justify-between items-center">
                                                 <div className="text-[13px] font-semibold" style={{ color: COLORS.muted }}>
                                                     {q.class} <span className="font-normal">({q.quantity} Seats)</span>
                                                 </div>
-                                                <div
-                                                    className="text-[14px] font-extrabold shrink-0"
-                                                    style={{ color: COLORS.blue }}
-                                                >
+                                                <div className="text-[14px] font-extrabold" style={{ color: COLORS.blue }}>
                                                     {formatCurrency(q.price * q.quantity, pricing.currency)}
                                                 </div>
                                             </div>
                                         ))}
 
                                         <div className="pt-3 mt-3 border-t" style={{ borderColor: "#E5E7EB" }}>
-                                            <div className="flex justify-between items-center gap-4">
+                                            <div className="flex justify-between items-center">
                                                 <div className="text-[14px] font-extrabold" style={{ color: COLORS.ink }}>
                                                     Total
                                                 </div>
-                                                <div
-                                                    className="text-[22px] font-black shrink-0"
-                                                    style={{ color: COLORS.blue }}
-                                                >
+                                                <div className="text-[22px] font-black" style={{ color: COLORS.blue }}>
                                                     {formatCurrency(totals.grand, pricing.currency)}
                                                 </div>
                                             </div>
@@ -621,7 +622,7 @@ const InvestmentSummary: React.FC<{
                     </table>
                 </div>
 
-                {/* Totals box bottom-right */}
+                {/* Totals box bottom-right like the PDF */}
                 <div className="mt-10 flex justify-end">
                     <SoftCard className="px-8 py-7" >
                         <div className="space-y-2 text-[12px]" style={{ minWidth: 320 }}>
@@ -653,6 +654,44 @@ const InvestmentSummary: React.FC<{
 };
 
 // ==============================
+// 7) ADDITIONAL SERVICES (match Additional Services.pdf)
+// ==============================
+const AdditionalServicesSection: React.FC<{ title?: string; items: Array<{ name: string; days?: number; qty?: number; total: number }>; pricing: any }> = ({
+    title = "Additional Services",
+    items,
+    pricing,
+}) => {
+    if (!items?.length) return null;
+
+    return (
+        <Page bg="#ffffff">
+            <SectionHeader title={title} />
+
+            <div className="px-[72px] pt-[40px]">
+                {items.map((it, i) => (
+                    <SoftCard key={i} className="px-10 py-10 mb-8">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <div className="text-[18px] font-black" style={{ color: COLORS.ink }}>
+                                    {it.name}
+                                </div>
+                                <div className="mt-2 text-[12px] font-semibold" style={{ color: COLORS.muted }}>
+                                    {it.days ? `${it.days} Day(s)` : ""}{it.days && it.qty ? " • " : ""}{it.qty ? `${it.qty} Unit(s)` : ""}
+                                </div>
+                            </div>
+
+                            <div className="text-[18px] font-black" style={{ color: COLORS.blue }}>
+                                {formatCurrency(it.total, pricing.currency)}
+                            </div>
+                        </div>
+                    </SoftCard>
+                ))}
+            </div>
+        </Page>
+    );
+};
+
+// ==============================
 // 8) TRANSPORTATION (match Transportation.pdf)
 // ==============================
 const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing }) => {
@@ -669,26 +708,30 @@ const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing 
         <Page bg="#ffffff">
             <SectionHeader title="Transportation" />
 
-            <div className="px-[72px] pt-[24px] pb-[160px] flex flex-col items-center">
+            <div className="px-[72px] pt-[40px] flex flex-col items-center">
                 <div className="mt-2">
-                    <img
-                        src={t.image}
-                        alt="Vehicle"
-                        style={{ width: 400, height: 230, objectFit: "contain" }}
-                    />
+                    {t.image ? (
+                        <img
+                            src={t.image}
+                            alt="Vehicle"
+                            style={{ width: 520, height: 320, objectFit: "contain" }}
+                        />
+                    ) : (
+                        <div className="w-[520px] h-[320px] bg-gray-100 flex items-center justify-center text-gray-400">No vehicle image</div>
+                    )}
                 </div>
 
-                <div className="mt-8 text-center">
+                <div className="mt-10 text-center">
                     <div className="text-[22px] font-black" style={{ color: COLORS.ink }}>
                         {safe(t.model)}
                     </div>
                     <div className="mt-2 text-[12px] font-semibold" style={{ color: COLORS.muted }}>
-                        {safe(t.type)} {t.type?.includes("with Driver") ? "(Car with Driver)" : ""} • {safe(t.city)}
+                        {safe(t.type)} • {safe(t.description)}
                     </div>
                 </div>
 
-                <div className="mt-10 w-full flex justify-center">
-                    <SoftCard className="px-10 py-8">
+                <div className="mt-12 w-full flex justify-center">
+                    <SoftCard className="px-10 py-8" >
                         <div className="text-center">
                             <div className="text-[34px] font-black" style={{ color: COLORS.blue }}>
                                 {formatCurrency(res.grandTotal, pricing.currency)}
@@ -705,48 +748,11 @@ const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing 
 };
 
 // ==============================
-// TRANSPORTATION INVESTMENT SUMMARY
-// ==============================
-const TransportationInvestmentSummary: React.FC<{
-    transportItems: any[];
-    pricing: any;
-}> = ({ transportItems, pricing }) => {
-    const rows = transportItems.map((t) => {
-        const res = calculatePriceBreakdown(
-            t.netPricePerDay,
-            pricing.markups.transportation,
-            t.vatRule,
-            pricing.vatPercent,
-            t.quantity,
-            t.days
-        );
-
-        return {
-            name: t.model,
-            price: t.netPricePerDay,
-            nights: t.days,
-            qty: t.quantity,
-            subTotal: res.subTotal,
-            vat: res.vatAmount,
-            grand: res.grandTotal,
-        };
-    });
-
-    return (
-        <InvestmentSummary
-            title="Investment Summary"
-            subtitle="Transportation"
-            pricing={pricing}
-            rows={rows}
-        />
-    );
-};
-
-// ==============================
 // 9) THANK YOU (match Thank you!.pdf)
 // ==============================
 const ThankYouSection: React.FC<{ data: ProposalData }> = ({ data }) => (
     <Page bg={COLORS.blue}>
+        {/* subtle diagonal pattern */}
         <div
             className="absolute inset-0 opacity-[0.14]"
             style={{
@@ -755,31 +761,20 @@ const ThankYouSection: React.FC<{ data: ProposalData }> = ({ data }) => (
             }}
         />
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-[72px] py-[120px] text-white overflow-hidden">
-            <div className="text-[78px] font-black tracking-tight leading-none text-center">
-                Thank You
-            </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+            <div className="text-[86px] font-black tracking-tight">Thank You</div>
 
             <div className="mt-6 text-[14px] text-white/70 max-w-[520px] text-center leading-relaxed">
                 We appreciate the opportunity to propose these services for you. We look forward to
                 creating an unforgettable experience.
             </div>
 
-            <div
-                className="mt-10 rounded-full"
-                style={{ width: 72, height: 4, background: COLORS.gold }}
-            />
+            <div className="mt-10" style={{ width: 72, height: 4, background: COLORS.gold, borderRadius: 999 }} />
 
-            <div className="mt-14 rounded-[18px] border border-white/20 bg-white/5 backdrop-blur-sm px-12 py-10 text-center max-w-[340px]">
-                <div className="text-[22px] font-black">
-                    {safe(data.branding?.contactName || data.branding?.preparedBy || "SITC")}
-                </div>
-                <div className="mt-2 text-[14px] text-white/70">
-                    {safe(data.branding?.contactEmail)}
-                </div>
-                <div className="mt-6 text-[12px] tracking-widest uppercase text-white/40">
-                    www.sitc.com.sa
-                </div>
+            <div className="mt-14 rounded-[18px] border border-white/20 bg-white/5 backdrop-blur-sm px-12 py-10 text-center">
+                <div className="text-[22px] font-black">{safe(data.branding?.contactName || data.branding?.companyName || "SITC")}</div>
+                <div className="mt-2 text-[14px] text-white/70">{safe(data.branding?.contactEmail)}</div>
+                <div className="mt-6 text-[12px] tracking-widest uppercase text-white/40">www.sitc.com.sa</div>
             </div>
         </div>
     </Page>
@@ -789,143 +784,143 @@ const ThankYouSection: React.FC<{ data: ProposalData }> = ({ data }) => (
 // MAIN WRAPPER
 // ==============================
 export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
-    const accommodationSummaryBlocks =
-        data.inclusions?.hotels
-            ? data.hotelOptions?.map((h, i) => {
-                const rows = (h.roomTypes || []).map((r) => {
-                    const res = calculatePriceBreakdown(
-                        r.netPrice,
-                        data.pricing.markups.hotels,
-                        h.vatRule,
-                        data.pricing.vatPercent,
-                        r.quantity,
-                        r.numNights
-                    );
-
-                    return {
-                        name: `${h.name} - ${r.name}`,
-                        price: r.netPrice,
-                        nights: r.numNights,
-                        qty: r.quantity,
-                        subTotal: res.subTotal,
-                        vat: res.vatAmount,
-                        grand: res.grandTotal,
-                    };
-                });
-
-                return (
-                    <InvestmentSummary
-                        key={`acc-summary-${i}`}
-                        title="Investment Summary"
-                        subtitle={`Accommodation Option ${i + 1}`}
-                        pricing={data.pricing}
-                        rows={rows}
-                    />
-                );
-            })
-            : [];
-
-    const flightSummaryBlocks =
-        data.inclusions?.flights
-            ? data.flightOptions?.map((f, i) => {
-                const rows = (f.quotes || []).map((q) => {
-                    const res = calculatePriceBreakdown(
-                        q.price,
-                        data.pricing.markups.flights,
-                        f.vatRule,
-                        data.pricing.vatPercent,
-                        q.quantity,
-                        1
-                    );
-
-                    const route = f.routeDescription || "Flight";
-
-                    return {
-                        name: `${route} - ${q.class}`,
-                        price: q.price,
-                        nights: 1,
-                        qty: q.quantity,
-                        subTotal: res.subTotal,
-                        vat: res.vatAmount,
-                        grand: res.grandTotal,
-                    };
-                });
-
-                return (
-                    <InvestmentSummary
-                        key={`flight-summary-${i}`}
-                        title="Investment Summary"
-                        subtitle={`Flight - Option ${i + 1}`}
-                        pricing={data.pricing}
-                        rows={rows}
-                    />
-                );
-            })
-            : [];
-
-    const hasTransportation = Array.isArray(data.transportation) && data.transportation.length > 0;
-
     return (
         <div className="font-sans text-gray-900 bg-white">
+            {/* print rules */}
             <style>{`
-  @media print {
-    html, body {
-      margin: 0;
-      padding: 0;
-    }
-
-    .pdf-page {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      break-inside: avoid;
-      page-break-inside: avoid;
-      break-after: page;
-      page-break-after: always;
-    }
-
-    .pdf-page:last-child {
-      break-after: auto;
-      page-break-after: auto;
-    }
-
-    .pdf-page-inner {
-      width: 794px !important;
-      height: 1123px !important;
-      overflow: hidden !important;
-      position: relative !important;
-      break-inside: avoid;
-      page-break-inside: avoid;
-      box-sizing: border-box;
-    }
-  }
-`}</style>
+        @media print {
+          .page-break { page-break-after: always; }
+        }
+      `}</style>
 
             <OpeningSection data={data} />
             <TermsSection />
 
+            {/* HOTELS */}
             {data.inclusions?.hotels &&
-                data.hotelOptions?.map((h, i) => (
-                    <React.Fragment key={i}>
-                        <HotelPictureSection hotel={h} />
-                        <PropertyDetailsSection hotel={h} index={i} pricing={data.pricing} />
-                    </React.Fragment>
-                ))}
+                data.hotelOptions?.map((h, i) => {
+                    const rows = (h.roomTypes || []).map((r) => {
+                        const res = calculatePriceBreakdown(
+                            r.netPrice,
+                            data.pricing.markups.hotels,
+                            h.vatRule,
+                            data.pricing.vatPercent,
+                            r.quantity,
+                            r.numNights
+                        );
+                        return {
+                            name: `${h.name} - ${r.name}`,
+                            price: r.netPrice,
+                            nights: r.numNights,
+                            qty: r.quantity,
+                            subTotal: res.subTotal,
+                            vat: res.vatAmount,
+                            grand: res.grandTotal,
+                        };
+                    });
 
+                    return (
+                        <React.Fragment key={i}>
+                            <HotelPictureSection hotel={h} />
+                            <PropertyDetailsSection hotel={h} index={i} pricing={data.pricing} />
+                            <InvestmentSummary
+                                title="Investment Summary"
+                                subtitle={`Accommodation Option ${i + 1}`}
+                                pricing={data.pricing}
+                                rows={rows}
+                            />
+                        </React.Fragment>
+                    );
+                })}
+
+            {/* FLIGHTS */}
             {data.inclusions?.flights &&
-                data.flightOptions?.map((f, i) => (
-                    <FlightSection key={i} flight={f} index={i} pricing={data.pricing} />
-                ))}
+                data.flightOptions?.map((f, i) => {
+                    const rows = (f.quotes || []).map((q) => {
+                        const res = calculatePriceBreakdown(
+                            q.price,
+                            data.pricing.markups.flights,
+                            f.vatRule,
+                            data.pricing.vatPercent,
+                            q.quantity,
+                            1
+                        );
+                        const route =
+                            f?.outbound?.[0]?.from && f?.outbound?.[f.outbound.length - 1]?.to
+                                ? `${f.outbound[0].from} to ${f.outbound[f.outbound.length - 1].to}`
+                                : "Flight";
 
+                        return {
+                            name: `${route} - ${q.class}`,
+                            price: q.price,
+                            nights: 1,
+                            qty: q.quantity,
+                            subTotal: res.subTotal,
+                            vat: res.vatAmount,
+                            grand: res.grandTotal,
+                        };
+                    });
+
+                    return (
+                        <React.Fragment key={i}>
+                            <FlightSection flight={f} index={i} pricing={data.pricing} />
+                            <InvestmentSummary
+                                title="Investment Summary"
+                                subtitle={`Flight - Option ${i + 1}`}
+                                pricing={data.pricing}
+                                rows={rows}
+                            />
+                        </React.Fragment>
+                    );
+                })}
+
+            {/* TRANSPORTATION */}
             {data.transportation?.map((t, i) => (
                 <TransportationSection key={i} t={t} pricing={data.pricing} />
             ))}
 
-            {accommodationSummaryBlocks}
-            {flightSummaryBlocks}
-            {hasTransportation && (
-                <TransportationInvestmentSummary
-                    transportItems={data.transportation}
+            {/* ADDITIONAL SERVICES */}
+            {data.inclusions?.customItems && data.customItems?.length > 0 && (
+                <AdditionalServicesSection
+                    items={data.customItems.map(item => {
+                        const res = calculatePriceBreakdown(
+                            item.unitPrice,
+                            data.pricing.markups.customItems,
+                            item.vatRule,
+                            data.pricing.vatPercent,
+                            item.quantity,
+                            item.days
+                        );
+                        return {
+                            name: item.description,
+                            days: item.days,
+                            qty: item.quantity,
+                            total: res.grandTotal
+                        };
+                    })}
+                    pricing={data.pricing}
+                />
+            )}
+
+            {data.inclusions?.activities && data.activities?.length > 0 && (
+                <AdditionalServicesSection
+                    title="Activities & Tours"
+                    items={data.activities.map(item => {
+                        const res = calculatePriceBreakdown(
+                            item.pricePerPerson,
+                            data.pricing.markups.activities,
+                            item.vatRule,
+                            data.pricing.vatPercent,
+                            item.guests,
+                            item.days
+                        );
+                        return {
+                            name: item.name,
+                            days: item.days,
+                            qty: item.guests,
+                            total: res.grandTotal
+                        };
+                    })}
                     pricing={data.pricing}
                 />
             )}
