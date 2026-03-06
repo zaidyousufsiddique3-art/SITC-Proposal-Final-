@@ -194,6 +194,10 @@ const App: React.FC = () => {
     const [expandedFlights, setExpandedFlights] = useState<Record<string, boolean>>({});
     const [expandedTransport, setExpandedTransport] = useState<Record<string, boolean>>({});
 
+    // Proposal Table Sorting
+    const [proposalSortKey, setProposalSortKey] = useState<'dateCreated' | 'proposalName' | 'clientName' | 'lastEdited'>('dateCreated');
+    const [proposalSortDir, setProposalSortDir] = useState<'asc' | 'desc'>('desc');
+
     // Accordion Expansion State
     const [pricingAccordion, setPricingAccordion] = useState<string | null>(null);
     const [accomAccordions, setAccomAccordions] = useState<Record<string, string[]>>({}); // [hotelId]: ['rooms', 'meetings', etc]
@@ -1954,57 +1958,146 @@ const App: React.FC = () => {
                 </div>
 
                 {
-                    (subMode === 'my_proposals' || subMode === 'all_proposals') && (
-                        <>
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-bold text-[var(--text-primary)]">
-                                    {subMode === 'my_proposals' ? 'My Proposals' : (isSuper ? 'All System Proposals' : 'Team Proposals')}
-                                </h2>
-                                <Button onClick={handleCreateNew} className="gap-2">
-                                    <PlusIcon size={18} /> Create Proposal
-                                </Button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
-                                {displayedProposals.length === 0 && <div className="col-span-3 text-center py-20 empty-state flex items-center justify-center">No proposals found. Create your first proposal to get started.</div>}
-                                {displayedProposals.map((p) => (
-                                    <div key={p.id} className="glass p-6 rounded-2xl hover:border-ai-accent/30 transition-all duration-300 flex flex-col relative group card-hover">
-                                        {sharingId === p.id && (
-                                            <div className="absolute inset-0 bg-ai-bg/95 z-10 flex flex-col items-center justify-center p-4 rounded-2xl animate-fade-up backdrop-blur-md">
-                                                <h4 className="text-[var(--text-primary)] mb-3">Share Proposal</h4>
-                                                <FormInput label="Enter Email" value={shareEmail} onChange={e => setShareEmail(e.target.value)} className="w-full mb-2" />
-                                                <div className="flex gap-2">
-                                                    <button onClick={() => setSharingId(null)} className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">Cancel</button>
-                                                </div>
-                                            </div>
-                                        )}
+                    (subMode === 'my_proposals' || subMode === 'all_proposals') && (() => {
+                        type SortKey = 'dateCreated' | 'proposalName' | 'clientName' | 'lastEdited';
 
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div>
-                                                <h3 className="text-lg font-semibold text-[var(--text-primary)] truncate w-48">{p.proposalName || p.customerName || 'Untitled'}</h3>
-                                                <div className="text-sm text-[var(--text-secondary)] truncate">{p.customerName}</div>
-                                                <div className="flex flex-col mt-2">
-                                                    <span className="text-xs text-[var(--text-muted)]">Created: {new Date(Number(p.id)).toLocaleDateString()}</span>
-                                                    {p.createdBy !== user.email && <span className="text-[10px] text-ai-secondary uppercase tracking-wide mt-1 font-semibold">By: {p.createdBy}</span>}
-                                                    {isSuper && p.companyId && <span className="text-[10px] text-[var(--text-disabled)] uppercase mt-1">Comp: {companies.find(c => c.id === p.companyId)?.name}</span>}
-                                                </div>
-                                            </div>
-                                            <span className="px-2.5 py-1 bg-ai-accent/10 text-ai-secondary rounded-lg text-xs font-semibold border border-ai-accent/20">{p.pricing.currency}</span>
+                        const handleSort = (key: SortKey) => {
+                            if (proposalSortKey === key) {
+                                setProposalSortDir(proposalSortDir === 'asc' ? 'desc' : 'asc');
+                            } else {
+                                setProposalSortKey(key);
+                                setProposalSortDir(key === 'proposalName' || key === 'clientName' ? 'asc' : 'desc');
+                            }
+                        };
+
+                        const getDestination = (p: ProposalData): string => {
+                            if (!p.inclusions?.flights || !p.flightOptions?.length) return '-';
+                            const allLegs = [...(p.flightOptions[0]?.outbound || []), ...(p.flightOptions[0]?.return || [])];
+                            if (!allLegs.length) return '-';
+                            const lastLeg = allLegs[allLegs.length - 1];
+                            return lastLeg?.to || '-';
+                        };
+
+                        const timeAgo = (ts: number): string => {
+                            if (!ts) return '-';
+                            const diff = Date.now() - ts;
+                            const mins = Math.floor(diff / 60000);
+                            if (mins < 1) return 'Just now';
+                            if (mins < 60) return `${mins} minute${mins !== 1 ? 's' : ''} ago`;
+                            const hrs = Math.floor(mins / 60);
+                            if (hrs < 24) return `${hrs} hour${hrs !== 1 ? 's' : ''} ago`;
+                            const days = Math.floor(hrs / 24);
+                            if (days === 1) return 'Yesterday';
+                            if (days < 7) return `${days} days ago`;
+                            return new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                        };
+
+                        const sorted = [...displayedProposals].sort((a, b) => {
+                            let cmp = 0;
+                            switch (proposalSortKey) {
+                                case 'dateCreated': cmp = Number(a.id) - Number(b.id); break;
+                                case 'proposalName': cmp = (a.proposalName || '').localeCompare(b.proposalName || ''); break;
+                                case 'clientName': cmp = (a.customerName || '').localeCompare(b.customerName || ''); break;
+                                case 'lastEdited': cmp = (a.lastModified || 0) - (b.lastModified || 0); break;
+                            }
+                            return proposalSortDir === 'asc' ? cmp : -cmp;
+                        });
+
+                        const SortHeader = ({ label, colKey }: { label: string; colKey: SortKey }) => (
+                            <th
+                                onClick={() => handleSort(colKey)}
+                                className="px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] cursor-pointer select-none hover:text-[var(--text-primary)] transition-colors group"
+                            >
+                                <span className="flex items-center gap-1.5">
+                                    {label}
+                                    <span className={`transition-opacity ${proposalSortKey === colKey ? 'opacity-100' : 'opacity-0 group-hover:opacity-40'}`}>
+                                        {proposalSortKey === colKey ? (proposalSortDir === 'asc' ? '↑' : '↓') : '↕'}
+                                    </span>
+                                </span>
+                            </th>
+                        );
+
+                        return (
+                            <>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-bold text-[var(--text-primary)]">
+                                        {subMode === 'my_proposals' ? 'My Proposals' : (isSuper ? 'All System Proposals' : 'Team Proposals')}
+                                    </h2>
+                                    <Button onClick={handleCreateNew} className="gap-2">
+                                        <PlusIcon size={18} /> Create Proposal
+                                    </Button>
+                                </div>
+
+                                {displayedProposals.length === 0 ? (
+                                    <div className="glass rounded-2xl p-16 text-center flex flex-col items-center justify-center gap-4">
+                                        <div className="w-14 h-14 rounded-full bg-ai-accent/10 flex items-center justify-center text-ai-accent mb-2">
+                                            <ProposalIcon size={28} />
                                         </div>
-
-                                        <div className="flex gap-2 pt-4 border-t border-[var(--panel-border)] mt-auto">
-                                            <Button onClick={() => handleEdit(p)} className="flex-1 h-10 gap-2">
-                                                <EditIcon size={16} /> Edit
-                                            </Button>
-                                            <IconButton icon={CopyIcon} onClick={() => handleDuplicate(p)} size={18} title="Duplicate" />
-                                            {(isSuper || isAdmin || p.createdBy === user.email) && (
-                                                <IconButton icon={TrashIcon} onClick={() => handleDelete(p.id)} variant="ghost" className="text-red-400 hover:text-red-500 hover:bg-red-500/10" size={18} title="Delete" />
-                                            )}
+                                        <h3 className="text-lg font-bold text-[var(--text-primary)]">No proposals yet</h3>
+                                        <p className="text-sm text-[var(--text-muted)] max-w-sm">Create your first proposal to get started</p>
+                                        <Button onClick={handleCreateNew} className="gap-2 mt-2">
+                                            <PlusIcon size={18} /> Create Proposal
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="glass rounded-2xl overflow-hidden">
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full">
+                                                <thead>
+                                                    <tr className="border-b border-[var(--panel-border)]">
+                                                        <SortHeader label="Date Created" colKey="dateCreated" />
+                                                        <SortHeader label="Proposal Name" colKey="proposalName" />
+                                                        <SortHeader label="Client Name" colKey="clientName" />
+                                                        <th className="px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Prepared By</th>
+                                                        <th className="px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Destination</th>
+                                                        <SortHeader label="Last Edited" colKey="lastEdited" />
+                                                        <th className="px-5 py-3.5 text-right text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {sorted.map((p) => (
+                                                        <tr
+                                                            key={p.id}
+                                                            onClick={() => handleEdit(p)}
+                                                            className="border-b border-[var(--divider)] last:border-b-0 hover:bg-[var(--row-hover)] cursor-pointer transition-colors duration-150"
+                                                        >
+                                                            <td className="px-5 py-4 text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                                                                {new Date(Number(p.id)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                            </td>
+                                                            <td className="px-5 py-4">
+                                                                <span className="text-sm font-semibold text-[var(--text-primary)]">{p.proposalName || 'Untitled'}</span>
+                                                            </td>
+                                                            <td className="px-5 py-4 text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                                                                {p.customerName || '-'}
+                                                            </td>
+                                                            <td className="px-5 py-4 text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                                                                {p.branding?.contactName || p.createdBy || '-'}
+                                                            </td>
+                                                            <td className="px-5 py-4 text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                                                                {getDestination(p)}
+                                                            </td>
+                                                            <td className="px-5 py-4 text-sm text-[var(--text-muted)] whitespace-nowrap">
+                                                                {timeAgo(p.lastModified)}
+                                                            </td>
+                                                            <td className="px-5 py-4 text-right whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                                                                <div className="flex items-center justify-end gap-1">
+                                                                    <IconButton icon={EditIcon} onClick={() => handleEdit(p)} size={15} title="Edit" />
+                                                                    <IconButton icon={CopyIcon} onClick={() => handleDuplicate(p)} size={15} title="Duplicate" />
+                                                                    {(isSuper || isAdmin || p.createdBy === user.email) && (
+                                                                        <IconButton icon={TrashIcon} onClick={() => handleDelete(p.id)} variant="ghost" className="text-red-400 hover:text-red-500 hover:bg-red-500/10" size={15} title="Delete" />
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        </>
-                    )
+                                )}
+                            </>
+                        );
+                    })()
                 }
 
                 {subMode === 'companies' && isSuper && renderCompanyManagement()}
