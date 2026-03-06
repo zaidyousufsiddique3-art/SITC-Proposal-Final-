@@ -2229,6 +2229,9 @@ const App: React.FC = () => {
 
     if (viewMode === 'dashboard') return <div className="min-h-screen bg-premium">{renderDashboard()}</div>;
 
+    const activeCompany = companies.find(c => c.id === formData.companyId);
+    const currentCompanyLogo = activeCompany?.logo;
+
     if (viewMode === 'preview') {
         const downloadPdf = () => {
             const element = document.getElementById('proposal-pdf-content');
@@ -2259,7 +2262,7 @@ const App: React.FC = () => {
                     <h1 className="text-xl font-bold text-corporate-blue flex items-center gap-2">{formData.proposalName}</h1>
                     <button onClick={downloadPdf} className="px-6 py-2 bg-corporate-blue text-white rounded font-bold hover:bg-sky-900 transition-colors">Download PDF</button>
                 </div>
-                <div className="mt-8" id="proposal-pdf-content"><ProposalPDF data={formData} /></div>
+                <div className="mt-8" id="proposal-pdf-content"><ProposalPDF data={formData} companyLogo={currentCompanyLogo} /></div>
             </div>
         );
     }
@@ -2293,7 +2296,7 @@ const App: React.FC = () => {
 
             {/* Hidden off-screen render for PDF capture */}
             <div style={{ position: 'fixed', left: '-9999px', top: 0, width: '1400px', opacity: 0, pointerEvents: 'none', zIndex: -1 }}>
-                <div id="proposal-pdf-offscreen"><ProposalPDF data={formData} /></div>
+                <div id="proposal-pdf-offscreen"><ProposalPDF data={formData} companyLogo={currentCompanyLogo} /></div>
             </div>
 
             {/* Success Toast */}

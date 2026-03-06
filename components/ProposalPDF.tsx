@@ -174,7 +174,7 @@ const SoftCard: React.FC<{ children: React.ReactNode; className?: string }> = ({
 // ==============================
 // 1) OPENING (match Opening.pdf)
 // ==============================
-const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
+const OpeningSection: React.FC<{ data: ProposalData; companyLogo?: string }> = ({ data, companyLogo: globalLogo }) => {
     // Best-effort derive date range from hotels, fallback to flights if needed
     let startISO: string | undefined;
     let endISO: string | undefined;
@@ -192,7 +192,7 @@ const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
 
     const dateRange = formatDateRangeHuman(startISO, endISO);
 
-    const companyLogo = data.branding?.companyLogo;
+    const companyLogo = globalLogo || data.branding?.companyLogo;
     const corsLogo = companyLogo ? (companyLogo.includes('?') ? `${companyLogo}&cors` : `${companyLogo}?cors`) : null;
 
     return (
@@ -825,7 +825,7 @@ const ThankYouSection: React.FC<{ data: ProposalData }> = ({ data }) => (
 // ==============================
 // MAIN WRAPPER
 // ==============================
-export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
+export const ProposalPDF: React.FC<{ data: ProposalData; companyLogo?: string }> = ({ data, companyLogo }) => {
     const pricing = data.pricing || {
         currency: 'SAR',
         enableVat: true,
@@ -883,7 +883,7 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
   }
 `}</style>
 
-            <OpeningSection data={data} />
+            <OpeningSection data={data} companyLogo={companyLogo} />
             <TermsSection />
 
             {/* HOTELS */}
