@@ -35,7 +35,10 @@ import {
   Search,
   Settings,
   Clock,
-  MapPin
+  MapPin,
+  Menu,
+  Bell,
+  ChevronLeft
 } from 'lucide-react';
 
 /* SITC Branded Logos (SVG) */
@@ -110,3 +113,6 @@ export const ActivityIcon = (props: any) => <Compass size={props.size || 20} str
 export const CustomIcon = (props: any) => <Layers size={props.size || 20} strokeWidth={props.strokeWidth || 2} {...props} />;
 export const ClockIcon = (props: any) => <Clock size={props.size || 20} strokeWidth={props.strokeWidth || 2} {...props} />;
 export const MapPinIcon = (props: any) => <MapPin size={props.size || 20} strokeWidth={props.strokeWidth || 2} {...props} />;
+export const MenuIcon = (props: any) => <Menu size={props.size || 20} strokeWidth={props.strokeWidth || 2} {...props} />;
+export const BellIcon = (props: any) => <Bell size={props.size || 20} strokeWidth={props.strokeWidth || 2} {...props} />;
+export const ChevronLeftIcon = (props: any) => <ChevronLeft size={props.size || 20} strokeWidth={props.strokeWidth || 2} {...props} />;
