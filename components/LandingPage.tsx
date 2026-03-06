@@ -38,7 +38,7 @@ const LandingPage: React.FC = () => {
                             <img src="/sitc_logo_final.png" alt="Logo" className="w-6 h-6 object-contain brightness-0 invert" />
                         </div>
                         <span className="text-sm font-bold tracking-tight text-white/90">
-                            Talently<span className="text-blue-400">X</span> <span className="text-white/60 font-medium">Proposal System</span>
+                            Travel <span className="text-white/60 font-medium">Proposal System</span>
                         </span>
                     </div>
 
@@ -67,7 +67,7 @@ const LandingPage: React.FC = () => {
 
                     <div className="mb-12 animate-title select-none text-shadow-premium">
                         <TrueFocus
-                            sentence="Talently X Proposal System"
+                            sentence="Travel Proposal System"
                             manualMode={false}
                             blurAmount={8}
                             borderColor="#3B82F6"
