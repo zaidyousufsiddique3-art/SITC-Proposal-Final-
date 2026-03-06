@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
     ProposalData,
@@ -9,8 +8,20 @@ import {
     FlightLeg,
     MarkupConfig,
     TransportationDetails,
+    ProposalImage,
 } from "../types";
 import { normalizeImages } from "../services/imageService";
+
+// Safely add CORS param only to remote URLs
+const getCorsUrl = (url?: string) => {
+    if (!url) return null;
+    if (url.startsWith('data:')) {
+        if (url.length > 50000) console.warn(`[getCorsUrl] Large base64 detected (${(url.length / 1024).toFixed(1)} KB)`);
+        return url; // Don't touch base64
+    }
+    if (!url.startsWith('http')) return url; // Local assets or malformed
+    return url.includes('?') ? `${url}&cors` : `${url}?cors`;
+};
 
 // ==============================
 // THEME (match SITC PDFs)
@@ -193,7 +204,7 @@ const OpeningSection: React.FC<{ data: ProposalData; companyLogo?: string }> = (
     const dateRange = formatDateRangeHuman(startISO, endISO);
 
     const companyLogo = globalLogo || data.branding?.companyLogo;
-    const corsLogo = companyLogo ? (companyLogo.includes('?') ? `${companyLogo}&cors` : `${companyLogo}?cors`) : null;
+    const corsLogo = getCorsUrl(companyLogo);
 
     return (
         <Page bg="#ffffff">
@@ -330,7 +341,6 @@ const HotelPictureSection: React.FC<{ hotel: HotelDetails }> = ({ hotel }) => {
     const img1 = validImages[1]?.url;
     const img2 = validImages[2]?.url;
 
-    const cors = (url: string) => url.includes('?') ? `${url}&cors` : `${url}?cors`;
 
     return (
         <Page bg="#ffffff">
@@ -348,17 +358,17 @@ const HotelPictureSection: React.FC<{ hotel: HotelDetails }> = ({ hotel }) => {
                 {/* big left */}
                 <div className="rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
                     {img0 ? (
-                        <img src={cors(img0)} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel main" />
+                        <img src={getCorsUrl(img0) || ""} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel main" />
                     ) : null}
                 </div>
 
                 {/* right stacked */}
                 <div className="flex flex-col gap-4">
                     <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
-                        {img1 ? <img src={cors(img1)} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 2" /> : null}
+                        {img1 ? <img src={getCorsUrl(img1) || ""} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 2" /> : null}
                     </div>
                     <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
-                        {img2 ? <img src={cors(img2)} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 3" /> : null}
+                        {img2 ? <img src={getCorsUrl(img2) || ""} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 3" /> : null}
                     </div>
                 </div>
             </div>
@@ -755,7 +765,7 @@ const TransportationSection: React.FC<{ t: TransportationDetails; pricing: any }
                 {mainImg ? (
                     <div>
                         <img
-                            src={mainImg.includes('?') ? `${mainImg}&cors` : `${mainImg}?cors`}
+                            src={getCorsUrl(mainImg) || ""}
                             alt="Vehicle"
                             crossOrigin="anonymous"
                             style={{ width: 440, height: 240, objectFit: "contain" }}

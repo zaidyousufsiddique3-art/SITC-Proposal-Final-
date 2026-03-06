@@ -345,6 +345,7 @@ const App: React.FC = () => {
                 ...p.inclusions,
             },
             branding: p.branding || {},
+            companyId: p.companyId || (user?.role !== 'super_admin' ? user?.companyId : undefined),
             pricing: p.pricing || { currency: 'SAR', enableVat: true, vatPercent: 15, markups: { hotels: { type: 'Fixed' as any, value: 0 }, meetings: { type: 'Fixed' as any, value: 0 }, flights: { type: 'Fixed' as any, value: 0 }, transportation: { type: 'Fixed' as any, value: 0 }, activities: { type: 'Fixed' as any, value: 0 }, customItems: { type: 'Fixed' as any, value: 0 } }, showPrices: true },
         };
         setFormData(normalized);
@@ -385,6 +386,7 @@ const App: React.FC = () => {
             flightOptions: proposal.flightOptions || [],
             customItems: proposal.customItems || [],
             sharedWith: proposal.sharedWith || [],
+            companyId: proposal.companyId || (user?.role !== 'super_admin' ? user?.companyId : undefined),
         };
         try {
             await saveProposal(newProposal);
@@ -2229,7 +2231,7 @@ const App: React.FC = () => {
 
     if (viewMode === 'dashboard') return <div className="min-h-screen bg-premium">{renderDashboard()}</div>;
 
-    const activeCompany = companies.find(c => c.id === formData.companyId);
+    const activeCompany = companies.find(c => c.id === (formData.companyId || user?.companyId));
     const currentCompanyLogo = activeCompany?.logo;
 
     if (viewMode === 'preview') {
