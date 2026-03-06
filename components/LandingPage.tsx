@@ -37,7 +37,7 @@ const LandingPage: React.FC = () => {
                             <img src="/sitc_logo_final.png" alt="Logo" className="w-6 h-6 object-contain brightness-0 invert" />
                         </div>
                         <span className="text-sm font-bold tracking-tight text-white/90">
-                            Travel Proposal <span className="text-blue-400">Portal</span>
+                            Talently<span className="text-blue-400">X</span> Proposal System
                         </span>
                     </div>
 
@@ -64,8 +64,8 @@ const LandingPage: React.FC = () => {
                 <section className="max-w-6xl mx-auto text-center relative flex flex-col items-center">
                     <div className="hero-glow-soft" />
 
-                    <h1 className="text-6xl md:text-9xl lg:text-[130px] font-black leading-[0.9] tracking-tighter text-gradient-premium mb-12 animate-title select-none text-shadow-premium">
-                        Travel <br className="md:hidden" /> Proposal <br className="md:hidden" /> Portal
+                    <h1 className="text-6xl md:text-9xl lg:text-[130px] font-black leading-[0.9] tracking-tighter text-white mb-12 animate-title select-none text-shadow-premium">
+                        Talently<span className="text-blue-400">X</span> <br className="md:hidden" /> Proposal <br className="md:hidden" /> System
                     </h1>
 
                     <p className="text-lg md:text-2xl text-white/50 max-w-2xl mx-auto mb-16 leading-relaxed font-normal animate-subtitle">
