@@ -14,17 +14,17 @@ const LandingPage: React.FC = () => {
             {/* 1. Background Animation Layer */}
             <div className="fixed inset-0 z-0 pointer-events-none opacity-50">
                 <Antigravity
-                    count={180}
+                    count={150}
                     magnetRadius={10}
                     ringRadius={12}
-                    waveSpeed={0.2}
-                    waveAmplitude={0.5}
-                    particleSize={1.1}
+                    waveSpeed={0.15}
+                    waveAmplitude={0.4}
+                    particleSize={1.2}
                     lerpSpeed={0.03}
-                    color="#60A5FA" // Light blue
+                    color="#3B82F6"
                     autoAnimate
                     particleShape="capsule"
-                    fieldStrength={5}
+                    fieldStrength={4}
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#05060a]/90 to-[#05060a]" />
             </div>
@@ -61,28 +61,28 @@ const LandingPage: React.FC = () => {
             <main className="relative z-10 h-full flex flex-col justify-center items-center px-6">
 
                 {/* 3. Hero Section - Extreme Minimal, Premium SaaS */}
-                <section className="max-w-5xl mx-auto text-center relative flex flex-col items-center">
+                <section className="max-w-6xl mx-auto text-center relative flex flex-col items-center">
                     <div className="hero-glow-soft" />
 
-                    <h1 className="text-6xl md:text-8xl lg:text-[110px] font-black leading-[1.05] tracking-tight text-gradient-premium mb-8 animate-title">
-                        Travel Proposal Portal
+                    <h1 className="text-6xl md:text-9xl lg:text-[130px] font-black leading-[0.9] tracking-tighter text-gradient-premium mb-12 animate-title select-none text-shadow-premium">
+                        Travel <br className="md:hidden" /> Proposal <br className="md:hidden" /> Portal
                     </h1>
 
-                    <p className="text-lg md:text-xl text-white/40 max-w-2xl mx-auto mb-14 leading-relaxed font-normal animate-subtitle">
+                    <p className="text-lg md:text-2xl text-white/50 max-w-2xl mx-auto mb-16 leading-relaxed font-normal animate-subtitle">
                         Create professional travel proposals in minutes. <br className="hidden md:block" />
                         Built for corporate travel teams to deliver premium experiences.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-8 animate-cta">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-cta">
                         <Link
                             to="/login"
-                            className="group relative px-10 py-4.5 bg-blue-600 hover:bg-blue-500 text-white text-base font-bold rounded-2xl transition-all hover:scale-[1.03] active:scale-[0.98] shadow-[0_0_30px_rgba(37,99,235,0.3)] hover:shadow-[0_0_50px_rgba(37,99,235,0.5)]"
+                            className="group relative px-12 py-5 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white text-lg font-bold rounded-2xl transition-all hover:scale-[1.05] active:scale-[0.98] shadow-btn-glow"
                         >
-                            Get Started <ArrowRightIcon className="inline-block ml-2 group-hover:translate-x-1 transition-transform" size={18} />
+                            Get Started <ArrowRightIcon className="inline-block ml-1 group-hover:translate-x-1.5 transition-transform" size={20} />
                         </Link>
                         <Link
                             to="/login"
-                            className="px-10 py-4.5 bg-white/5 hover:bg-white/10 text-white text-base font-bold border border-white/10 rounded-2xl transition-all hover:-translate-y-0.5"
+                            className="px-12 py-5 bg-transparent hover:bg-white/5 text-white/80 hover:text-white text-lg font-bold border border-white/10 rounded-2xl transition-all hover:-translate-y-1"
                         >
                             Sign In
                         </Link>
