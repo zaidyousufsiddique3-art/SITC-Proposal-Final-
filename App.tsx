@@ -2160,10 +2160,10 @@ const App: React.FC = () => {
                                             })()
                                         };
 
-                                        const Card = ({ icon: Icon, label, value, color }: { icon: any, label: string, value: string | number, color: string }) => (
+                                        const Card = ({ icon: Icon, label, value, colorClass, bgClass }: { icon: any, label: string, value: string | number, colorClass: string, bgClass: string }) => (
                                             <div className="bg-[var(--panel-bg)] p-5 rounded-2xl border border-[var(--panel-border)] shadow-sm hover:translate-y-[-2px] transition-all duration-200 flex items-center gap-4">
-                                                <div className={`p-3 rounded-xl bg-opacity-10 ${color} bg-current`}>
-                                                    <Icon size={24} className={color} />
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${bgClass}`}>
+                                                    <Icon size={22} className={colorClass} strokeWidth={2.5} />
                                                 </div>
                                                 <div>
                                                     <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-0.5">{label}</div>
@@ -2174,10 +2174,10 @@ const App: React.FC = () => {
 
                                         return (
                                             <>
-                                                <Card icon={ProposalIcon} label="Total Proposals" value={stats.total} color="text-blue-500" />
-                                                <Card icon={CalendarIcon} label="This Month" value={stats.thisMonth} color="text-indigo-500" />
-                                                <Card icon={ClockIcon} label="Recently Edited" value={stats.recentlyEdited} color="text-amber-500" />
-                                                <Card icon={MapPinIcon} label="Top Destination" value={stats.topDest} color="text-emerald-500" />
+                                                <Card icon={ProposalIcon} label="Total Proposals" value={stats.total} colorClass="text-blue-600 dark:text-blue-400" bgClass="bg-blue-500/10" />
+                                                <Card icon={CalendarIcon} label="This Month" value={stats.thisMonth} colorClass="text-indigo-600 dark:text-indigo-400" bgClass="bg-indigo-500/10" />
+                                                <Card icon={ClockIcon} label="Recently Edited" value={stats.recentlyEdited} colorClass="text-amber-600 dark:text-amber-400" bgClass="bg-amber-500/10" />
+                                                <Card icon={MapPinIcon} label="Top Destination" value={stats.topDest} colorClass="text-emerald-600 dark:text-emerald-400" bgClass="bg-emerald-500/10" />
                                             </>
                                         );
                                     })()}
