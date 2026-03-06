@@ -97,45 +97,59 @@ const Page: React.FC<{
     bg?: string;
     className?: string;
 }> = ({ children, bg = "#ffffff", className = "" }) => (
-    <div
-        className={`w-full flex justify-center page-break ${className}`}
-        style={{ background: bg }}
+    <section
+        className={`pdf-page relative mx-auto ${className}`}
+        style={{
+            width: "297mm",
+            height: "210mm",
+            background: bg,
+            overflow: "hidden",
+            boxSizing: "border-box",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+        }}
     >
-        {/* A4-ish content area with consistent margins like the PDFs */}
-        <div
-            className="relative"
-            style={{
-                width: "794px", // ~A4 at 96dpi
-                minHeight: "1123px",
-            }}
-        >
-            {children}
-        </div>
-    </div>
+        {children}
+    </section>
 );
 
 const SectionHeader: React.FC<{ title: string; subtitle?: string }> = ({
     title,
     subtitle,
 }) => (
-    <div className="px-[72px] pt-[72px]">
+    <div style={{ padding: "30mm 25mm 10mm 25mm" }}>
         <div
-            className="text-[44px] font-black tracking-tight"
-            style={{ color: COLORS.blue }}
+            style={{
+                fontSize: "36px",
+                fontWeight: 800,
+                color: COLORS.blue,
+                marginBottom: "8px",
+            }}
         >
             {title}
         </div>
 
-        <div className="mt-5" style={{ height: 2, background: COLORS.gold, width: "100%" }} />
+        <div
+            style={{
+                width: "160px",
+                height: "3px",
+                background: COLORS.gold,
+                marginBottom: "12px",
+            }}
+        />
 
-        {subtitle ? (
+        {subtitle && (
             <div
-                className="mt-10 text-[28px] font-extrabold"
-                style={{ color: COLORS.gold }}
+                style={{
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    color: COLORS.gold,
+                }}
             >
                 {subtitle}
             </div>
-        ) : null}
+        )}
     </div>
 );
 
@@ -314,23 +328,29 @@ const HotelPictureSection: React.FC<{ hotel: HotelDetails }> = ({ hotel }) => {
         <Page bg="#ffffff">
             <SectionHeader title={safe(hotel.name)} />
 
-            <div className="px-[72px] pt-[28px]">
-                <div className="grid grid-cols-12 gap-4" style={{ height: 690 }}>
-                    {/* big left */}
-                    <div className="col-span-7 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
-                        {img0 ? (
-                            <img src={img0} className="w-full h-full object-cover" alt="Hotel main" />
-                        ) : null}
-                    </div>
+            <div
+                style={{
+                    padding: "0 25mm",
+                    height: "140mm",
+                    display: "grid",
+                    gridTemplateColumns: "2fr 1fr",
+                    gap: "10px",
+                }}
+            >
+                {/* big left */}
+                <div className="rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
+                    {img0 ? (
+                        <img src={img0} className="w-full h-full object-cover" alt="Hotel main" />
+                    ) : null}
+                </div>
 
-                    {/* right stacked */}
-                    <div className="col-span-5 flex flex-col gap-4">
-                        <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
-                            {img1 ? <img src={img1} className="w-full h-full object-cover" alt="Hotel 2" /> : null}
-                        </div>
-                        <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
-                            {img2 ? <img src={img2} className="w-full h-full object-cover" alt="Hotel 3" /> : null}
-                        </div>
+                {/* right stacked */}
+                <div className="flex flex-col gap-4">
+                    <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
+                        {img1 ? <img src={img1} className="w-full h-full object-cover" alt="Hotel 2" /> : null}
+                    </div>
+                    <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
+                        {img2 ? <img src={img2} className="w-full h-full object-cover" alt="Hotel 3" /> : null}
                     </div>
                 </div>
             </div>
@@ -383,7 +403,12 @@ const PropertyDetailsSection: React.FC<{
         <Page bg="#ffffff">
             <SectionHeader title="Property Details" subtitle={`Grand Total - Option ${index + 1}`} />
 
-            <div className="px-[72px] pt-[18px]">
+            <div
+                style={{
+                    padding: "0 25mm",
+                    marginTop: "10mm",
+                }}
+            >
                 <div className="border rounded-[8px] overflow-hidden" style={{ borderColor: "#E5E7EB" }}>
                     <table className="w-full text-[12px]">
                         <thead style={{ background: COLORS.blue, color: "#fff" }}>
@@ -623,7 +648,14 @@ const InvestmentSummary: React.FC<{
                 </div>
 
                 {/* Totals box bottom-right like the PDF */}
-                <div className="mt-10 flex justify-end">
+                <div
+                    style={{
+                        position: "absolute",
+                        right: "25mm",
+                        bottom: "25mm",
+                        width: "90mm",
+                    }}
+                >
                     <SoftCard className="px-8 py-7" >
                         <div className="space-y-2 text-[12px]" style={{ minWidth: 320 }}>
                             <div className="flex justify-between" style={{ color: COLORS.muted }}>
@@ -788,96 +820,159 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
         <div className="font-sans text-gray-900 bg-white">
             {/* print rules */}
             <style>{`
-        @media print {
-          .page-break { page-break-after: always; }
-        }
-      `}</style>
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #ffffff;
+  }
+
+  .pdf-page {
+    width: 297mm;
+    height: 210mm;
+    overflow: hidden;
+    position: relative;
+
+    page-break-after: always;
+    break-after: page;
+
+    page-break-inside: avoid;
+    break-inside: avoid-page;
+  }
+
+  .pdf-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+`}</style>
 
             <OpeningSection data={data} />
             <TermsSection />
 
             {/* HOTELS */}
             {data.inclusions?.hotels &&
-                data.hotelOptions?.map((h, i) => {
-                    const rows = (h.roomTypes || []).map((r) => {
-                        const res = calculatePriceBreakdown(
-                            r.netPrice,
-                            data.pricing.markups.hotels,
-                            h.vatRule,
-                            data.pricing.vatPercent,
-                            r.quantity,
-                            r.numNights
-                        );
-                        return {
-                            name: `${h.name} - ${r.name}`,
-                            price: r.netPrice,
-                            nights: r.numNights,
-                            qty: r.quantity,
-                            subTotal: res.subTotal,
-                            vat: res.vatAmount,
-                            grand: res.grandTotal,
-                        };
-                    });
-
-                    return (
-                        <React.Fragment key={i}>
-                            <HotelPictureSection hotel={h} />
-                            <PropertyDetailsSection hotel={h} index={i} pricing={data.pricing} />
-                            <InvestmentSummary
-                                title="Investment Summary"
-                                subtitle={`Accommodation Option ${i + 1}`}
-                                pricing={data.pricing}
-                                rows={rows}
-                            />
-                        </React.Fragment>
-                    );
-                })}
+                data.hotelOptions?.map((h, i) => (
+                    <React.Fragment key={`hotel-pages-${i}`}>
+                        <HotelPictureSection hotel={h} />
+                        <PropertyDetailsSection hotel={h} index={i} pricing={data.pricing} />
+                    </React.Fragment>
+                ))}
 
             {/* FLIGHTS */}
             {data.inclusions?.flights &&
-                data.flightOptions?.map((f, i) => {
-                    const rows = (f.quotes || []).map((q) => {
-                        const res = calculatePriceBreakdown(
-                            q.price,
-                            data.pricing.markups.flights,
-                            f.vatRule,
-                            data.pricing.vatPercent,
-                            q.quantity,
-                            1
-                        );
-                        const route =
-                            f?.outbound?.[0]?.from && f?.outbound?.[f.outbound.length - 1]?.to
-                                ? `${f.outbound[0].from} to ${f.outbound[f.outbound.length - 1].to}`
-                                : "Flight";
-
-                        return {
-                            name: `${route} - ${q.class}`,
-                            price: q.price,
-                            nights: 1,
-                            qty: q.quantity,
-                            subTotal: res.subTotal,
-                            vat: res.vatAmount,
-                            grand: res.grandTotal,
-                        };
-                    });
-
-                    return (
-                        <React.Fragment key={i}>
-                            <FlightSection flight={f} index={i} pricing={data.pricing} />
-                            <InvestmentSummary
-                                title="Investment Summary"
-                                subtitle={`Flight - Option ${i + 1}`}
-                                pricing={data.pricing}
-                                rows={rows}
-                            />
-                        </React.Fragment>
-                    );
-                })}
+                data.flightOptions?.map((f, i) => (
+                    <FlightSection key={`flight-${i}`} flight={f} index={i} pricing={data.pricing} />
+                ))}
 
             {/* TRANSPORTATION */}
             {data.transportation?.map((t, i) => (
-                <TransportationSection key={i} t={t} pricing={data.pricing} />
+                <TransportationSection key={`trans-${i}`} t={t} pricing={data.pricing} />
             ))}
+
+            {/* INVESTMENT SUMMARIES (REORDERED) */}
+
+            {/* 1. Accommodation Summaries */}
+            {data.inclusions?.hotels && data.hotelOptions?.map((h, i) => {
+                const rows = (h.roomTypes || []).map((r) => {
+                    const res = calculatePriceBreakdown(
+                        r.netPrice,
+                        data.pricing.markups.hotels,
+                        h.vatRule,
+                        data.pricing.vatPercent,
+                        r.quantity,
+                        r.numNights
+                    );
+                    return {
+                        name: `${h.name} - ${r.name}`,
+                        price: r.netPrice,
+                        nights: r.numNights,
+                        qty: r.quantity,
+                        subTotal: res.subTotal,
+                        vat: res.vatAmount,
+                        grand: res.grandTotal,
+                    };
+                });
+                return (
+                    <InvestmentSummary
+                        key={`inv-hotel-${i}`}
+                        title="Investment Summary"
+                        subtitle={`Accommodation Option ${i + 1}`}
+                        pricing={data.pricing}
+                        rows={rows}
+                    />
+                );
+            })}
+
+            {/* 2. Flight Summaries */}
+            {data.inclusions?.flights && data.flightOptions?.map((f, i) => {
+                const rows = (f.quotes || []).map((q) => {
+                    const res = calculatePriceBreakdown(
+                        q.price,
+                        data.pricing.markups.flights,
+                        f.vatRule,
+                        data.pricing.vatPercent,
+                        q.quantity,
+                        1
+                    );
+                    const route = f?.outbound?.[0]?.from && f?.outbound?.[f.outbound.length - 1]?.to
+                        ? `${f.outbound[0].from} to ${f.outbound[f.outbound.length - 1].to}`
+                        : "Flight";
+
+                    return {
+                        name: `${route} - ${q.class}`,
+                        price: q.price,
+                        nights: 1,
+                        qty: q.quantity,
+                        subTotal: res.subTotal,
+                        vat: res.vatAmount,
+                        grand: res.grandTotal,
+                    };
+                });
+                return (
+                    <InvestmentSummary
+                        key={`inv-flight-${i}`}
+                        title="Investment Summary"
+                        subtitle={`Flight - Option ${i + 1}`}
+                        pricing={data.pricing}
+                        rows={rows}
+                    />
+                );
+            })}
+
+            {/* 3. Transportation Summaries */}
+            {data.inclusions?.transportation && data.transportation?.length > 0 && data.transportation.map((t, i) => {
+                const res = calculatePriceBreakdown(
+                    t.netPricePerDay,
+                    data.pricing.markups.transportation,
+                    t.vatRule,
+                    data.pricing.vatPercent,
+                    t.quantity,
+                    t.days
+                );
+                return (
+                    <InvestmentSummary
+                        key={`inv-trans-${i}`}
+                        title="Investment Summary"
+                        subtitle={`Transportation - ${t.model}`}
+                        pricing={data.pricing}
+                        rows={[{
+                            name: `${t.model} (${t.type})`,
+                            price: t.netPricePerDay,
+                            nights: t.days,
+                            qty: t.quantity,
+                            subTotal: res.subTotal,
+                            vat: res.vatAmount,
+                            grand: res.grandTotal
+                        }]}
+                    />
+                );
+            })}
 
             {/* ADDITIONAL SERVICES */}
             {data.inclusions?.customItems && data.customItems?.length > 0 && (
