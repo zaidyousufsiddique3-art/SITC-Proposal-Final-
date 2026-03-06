@@ -6,7 +6,7 @@ import { AuthScreen } from './components/AuthComponents';
 import { ProposalGenerationLoader } from './components/ProposalGenerationLoader';
 import { FormInput, FormSelect, FormCheckbox, FileUploader, MultiFileUploader, SectionHeader, Button, DateRangePicker, IconButton, CollapsiblePanel } from './components/InputComponents';
 import { ProposalData, HotelDetails, FlightDetails, FlightClass, TransportationDetails, VehicleType, CustomItem, ActivityDetails, Inclusions, CategoryMarkups, MarkupType, FlightLeg, User, UserRole, ProposalHistory, MarkupConfig, RoomType, HotelImage, ImageTag, MeetingDetails, DiningDetails, FlightQuote, Company, ProposalSectionsConfig } from './types';
-import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo, SunIcon, MoonIcon, CheckIcon, PlusIcon, ChevronDownIcon, CalendarIcon, LogOutIcon, ProposalIcon, BuildingIcon, SettingsIcon, SearchIcon, ShieldCheckIcon, PresentationIcon, ArrowLeftIcon, ArrowRightIcon, WalletIcon, ClockIcon, MapPinIcon, MenuIcon, BellIcon, ChevronLeftIcon } from './components/Icons';
+import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo, SunIcon, MoonIcon, CheckIcon, PlusIcon, ChevronDownIcon, CalendarIcon, LogOutIcon, ProposalIcon, BuildingIcon, SettingsIcon, SearchIcon, ShieldCheckIcon, PresentationIcon, ArrowLeftIcon, ArrowRightIcon, WalletIcon, ClockIcon, MapPinIcon } from './components/Icons';
 import { getGlobalSettings, saveGlobalSettings, getUsers, createSubUserWithAuth, createCompanyAdminWithAuth, deleteUserProfile, validatePassword, changePassword, updateUserProfile, getCompanies, saveCompany, updateCompany, deleteCompany, adminResetUserPassword, validatePhone, logoutUser, resolveProposalSections } from './services/authService';
 import { getProposals, saveProposal, deleteProposal, stripDisabledSections } from './services/proposalService';
 import { uploadProposalImage, normalizeImages, normalizeImageUrl, uploadBase64ToProposalImage } from './services/imageService';
@@ -156,8 +156,6 @@ const App: React.FC = () => {
     const [step, setStep] = useState(0);
     const [savedProposals, setSavedProposals] = useState<ProposalData[]>([]);
     const [formData, setFormData] = useState<ProposalData>(defaultProposalData);
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [theme, setTheme] = useState<'dark' | 'light'>(() => {
         const saved = localStorage.getItem('sitc_theme');
         return (saved as 'dark' | 'light') || 'dark';
@@ -1999,389 +1997,283 @@ const App: React.FC = () => {
             }
         }
 
-        const navItems = [
-            { id: 'my_proposals', label: 'My Proposals', icon: ProposalIcon },
-            ...((isSuper || isAdmin) ? [{ id: 'all_proposals', label: isSuper ? 'All Proposals' : 'Company Proposals', icon: ProposalIcon }] : []),
-            ...(isSuper ? [{ id: 'companies', label: 'Companies', icon: BuildingIcon }] : []),
-            ...((isSuper || isAdmin) ? [{ id: 'company_users', label: 'Users', icon: UsersIcon }] : []),
-            { id: 'account_settings', label: 'Settings', icon: SettingsIcon },
-        ];
-
         return (
-            <div className={`flex bg-[#F1F5F9] min-h-screen ${theme === 'dark' ? 'dark-override-off' : ''}`}>
+            <div className="w-full max-w-7xl mx-auto p-6 md:p-8">
                 {renderEditUserModal()}
-
-                {/* Mobile Overlay */}
-                {isMobileSidebarOpen && (
-                    <div
-                        className="fixed inset-0 bg-slate-900/60 z-40 md:hidden backdrop-blur-sm transition-opacity"
-                        onClick={() => setIsMobileSidebarOpen(false)}
-                    />
-                )}
-
-                {/* Sidebar */}
-                <aside className={`
-                    fixed md:sticky top-0 left-0 z-50 h-[100dvh] bg-[#0F172A] border-r border-white/[0.06] flex flex-col transition-all duration-300 ease-in-out
-                    ${isSidebarCollapsed ? 'w-[64px]' : 'w-[240px]'}
-                    ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-                `}>
-                    {/* Logo Area */}
-                    <div className="h-[72px] flex items-center shrink-0 px-4 border-b border-white/[0.06] relative group">
-                        {isSidebarCollapsed ? (
-                            <SITCLogo className="w-8 h-8 opacity-90 mx-auto" />
-                        ) : (
-                            <div className="flex flex-col overflow-hidden w-full">
-                                <div className="flex items-center gap-2">
-                                    <SITCLogo className="w-6 h-6 opacity-90 shrink-0" />
-                                    <span className="text-white font-semibold whitespace-nowrap tracking-wide text-[14px]">Travel Proposal Portal</span>
-                                </div>
-                                <span className="text-slate-500 text-[10px] uppercase tracking-widest pl-8 mt-0.5">v2.0</span>
-                            </div>
-                        )}
-
-                        <button
-                            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                            className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-slate-800 rounded-full border border-slate-700 text-slate-400 flex-col items-center justify-center hover:text-white hover:bg-slate-700 transition-colors hidden md:flex opacity-0 group-hover:opacity-100"
-                        >
-                            <ChevronLeftIcon size={14} className={`transition-transform duration-300 ${isSidebarCollapsed ? 'rotate-180' : ''}`} />
-                        </button>
-                    </div>
-
-                    {/* Main Navigation */}
-                    <nav className="flex-1 py-4 px-3 flex flex-col gap-1 overflow-y-auto no-scrollbar">
-                        {navItems.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => {
-                                    setSubMode(item.id as any);
-                                    setIsMobileSidebarOpen(false);
-                                }}
-                                className={`
-                                    flex items-center h-[44px] rounded-lg relative transition-all duration-200 group w-full
-                                    ${subMode === item.id
-                                        ? 'bg-[#1E40AF] text-white'
-                                        : 'text-[#94A3B8] hover:bg-white/[0.06] hover:text-white'
-                                    }
-                                    ${isSidebarCollapsed ? 'justify-center px-0' : 'px-4'}
-                                `}
-                                title={isSidebarCollapsed ? item.label : undefined}
-                            >
-                                {/* Active Indicator Bar */}
-                                {subMode === item.id && !isSidebarCollapsed && (
-                                    <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[#3B82F6] rounded-r-md"></div>
-                                )}
-
-                                <item.icon size={20} className={`shrink-0 ${subMode === item.id ? 'text-white' : 'text-[#94A3B8] group-hover:text-slate-300'} ${!isSidebarCollapsed && 'mr-[12px]'}`} />
-
-                                {!isSidebarCollapsed && (
-                                    <span className="text-[14px] font-medium truncate">{item.label}</span>
-                                )}
-                            </button>
-                        ))}
-                    </nav>
-
-                    {/* Bottom User Section */}
-                    <div className="p-4 border-t border-white/[0.06] shrink-0 pb-6">
-                        <div className={`flex items-center gap-3 ${isSidebarCollapsed ? 'justify-center' : ''}`}>
-                            <div className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center shrink-0 border border-slate-700 font-bold text-xs uppercase">
-                                {user.firstName.charAt(0)}{user.lastName.charAt(0)}
-                            </div>
-
-                            {!isSidebarCollapsed && (
-                                <div className="flex-1 min-w-0 flex flex-col items-start leading-[1.2]">
-                                    <span className="text-[13px] font-bold text-white truncate w-full">{user.firstName} {user.lastName}</span>
-                                    <span className="text-[11px] text-[#94A3B8] truncate w-full">{user.email}</span>
-                                </div>
-                            )}
-
-                            {!isSidebarCollapsed && (
-                                <div className="flex flex-col gap-2 scale-90 origin-right shrink-0">
-                                    <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-[#94A3B8] hover:text-white transition-colors flex justify-end" title="Toggle Theme">
-                                        {theme === 'dark' ? <SunIcon size={15} /> : <MoonIcon size={15} />}
-                                    </button>
-                                    <button onClick={handleLogout} className="text-[#94A3B8] hover:text-[#EF4444] transition-colors group relative flex justify-end" title="Log Out">
-                                        <LogOutIcon size={15} className="group-hover:-translate-x-0.5 transition-transform" />
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                        {isSidebarCollapsed && (
-                            <div className="flex flex-col items-center gap-4 mt-6">
-                                <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-[#94A3B8] hover:text-white transition-colors" title="Toggle Theme">
-                                    {theme === 'dark' ? <SunIcon size={16} /> : <MoonIcon size={16} />}
-                                </button>
-                                <button onClick={handleLogout} className="text-[#94A3B8] hover:text-[#EF4444] transition-colors" title="Log Out">
-                                    <LogOutIcon size={16} />
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </aside>
-
-                {/* Main Content Area */}
-                <main className="flex-1 min-w-0 flex flex-col min-h-[100dvh]">
-                    {/* Slim Top Bar */}
-                    <header className="h-[48px] bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 shrink-0 z-30 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={() => setIsMobileSidebarOpen(true)}
-                                className="md:hidden text-slate-500 hover:text-slate-800 transition-colors"
-                            >
-                                <MenuIcon size={20} />
-                            </button>
-                            <div className="flex items-center text-[13px] text-slate-500 font-medium tracking-wide">
-                                <span>Portal</span>
-                                <span className="mx-2 text-slate-300">/</span>
-                                <span className="font-semibold text-slate-800">{navItems.find(i => i.id === subMode)?.label || 'Dashboard'}</span>
-                            </div>
-                        </div>
-
+                {/* Premium Navbar */}
+                <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 pb-6 border-b border-[var(--panel-border)]">
+                    {/* Header Branding */}
+                    {isSuper ? (
                         <div className="flex items-center gap-4">
-                            <button className="text-slate-400 hover:text-slate-700 relative transition-colors">
-                                <BellIcon size={18} />
-                                <span className="absolute top-0 right-0 w-1.5 h-1.5 bg-[#EF4444] rounded-full border-[1.5px] border-white"></span>
-                            </button>
-                            <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[11px] font-bold shadow-sm border border-slate-200">
-                                {user.firstName.charAt(0)}{user.lastName.charAt(0)}
-                            </div>
+                            <img src="/sitc_logo_final.png" className="h-[72px] object-contain opacity-90" alt="SITC" />
+                            <div className="h-6 w-px bg-white/10"></div>
+                            <h1 className="text-xl font-display font-semibold text-[var(--text-primary)]">Travel Proposal Portal</h1>
                         </div>
-                    </header>
-
-                    {/* Content Body */}
-                    <div className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto w-full max-w-[1400px] mx-auto text-slate-800">
-                        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <h1 className="text-[20px] font-bold text-[#0F172A] mb-0 tracking-tight flex items-center gap-3">
-                                {subMode === 'my_proposals' ? 'My Proposals' : navItems.find(i => i.id === subMode)?.label}
-                            </h1>
-                            {(subMode === 'my_proposals' || subMode === 'all_proposals') && (
-                                <button onClick={handleCreateNew} className="bg-[#0F172A] hover:bg-[#1E293B] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-all shadow-sm hover:shadow-md">
-                                    <PlusIcon size={16} /> Create Proposal
-                                </button>
+                    ) : (
+                        <div className="flex items-center gap-4">
+                            {companyLogo ? (
+                                <img src={companyLogo} className="h-12 w-auto object-contain bg-white/[0.06] rounded-xl p-1.5 backdrop-blur-sm border border-[var(--panel-border)]" alt="Company Logo" />
+                            ) : (
+                                <SITCLogo className="w-20 h-auto opacity-40" />
                             )}
+                            <div className="h-6 w-px bg-white/10"></div>
+                            <h1 className="text-xl font-display font-semibold text-white">Portal</h1>
                         </div>
+                    )}
 
-                        {
-                            (subMode === 'my_proposals' || subMode === 'all_proposals') && (() => {
-                                type SortKey = 'dateCreated' | 'proposalName' | 'clientName' | 'lastEdited';
-
-                                const handleSort = (key: SortKey) => {
-                                    if (proposalSortKey === key) {
-                                        setProposalSortDir(proposalSortDir === 'asc' ? 'desc' : 'asc');
-                                    } else {
-                                        setProposalSortKey(key);
-                                        setProposalSortDir(key === 'proposalName' || key === 'clientName' ? 'asc' : 'desc');
-                                    }
-                                };
-
-                                const getDestination = (p: ProposalData): string => {
-                                    if (!p.inclusions?.flights || !p.flightOptions?.length) return '-';
-                                    const allLegs = [...(p.flightOptions[0]?.outbound || []), ...(p.flightOptions[0]?.return || [])];
-                                    if (!allLegs.length) return '-';
-                                    const lastLeg = allLegs[allLegs.length - 1];
-                                    return lastLeg?.to || '-';
-                                };
-
-                                const timeAgo = (ts: number): string => {
-                                    if (!ts) return '-';
-                                    const diff = Date.now() - ts;
-                                    const mins = Math.floor(diff / 60000);
-                                    if (mins < 1) return 'Just now';
-                                    if (mins < 60) return `${mins} minute${mins !== 1 ? 's' : ''} ago`;
-                                    const hrs = Math.floor(mins / 60);
-                                    if (hrs < 24) return `${hrs} hour${hrs !== 1 ? 's' : ''} ago`;
-                                    const days = Math.floor(hrs / 24);
-                                    if (days === 1) return 'Yesterday';
-                                    if (days < 7) return `${days} days ago`;
-                                    return new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                                };
-
-                                const sorted = [...displayedProposals].sort((a, b) => {
-                                    let cmp = 0;
-                                    switch (proposalSortKey) {
-                                        case 'dateCreated': cmp = Number(a.id) - Number(b.id); break;
-                                        case 'proposalName': cmp = (a.proposalName || '').localeCompare(b.proposalName || ''); break;
-                                        case 'clientName': cmp = (a.customerName || '').localeCompare(b.customerName || ''); break;
-                                        case 'lastEdited': cmp = (a.lastModified || 0) - (b.lastModified || 0); break;
-                                    }
-                                    return proposalSortDir === 'asc' ? cmp : -cmp;
-                                });
-
-                                const SortHeader = ({ label, colKey }: { label: string; colKey: SortKey }) => (
-                                    <th
-                                        onClick={() => handleSort(colKey)}
-                                        className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-wide text-[#64748B] cursor-pointer select-none hover:text-slate-900 transition-colors group bg-[#F8FAFC]"
-                                    >
-                                        <span className="flex items-center gap-1.5">
-                                            {label}
-                                            <span className={`transition-opacity ${proposalSortKey === colKey ? 'opacity-100 text-[#3B82F6]' : 'opacity-0 group-hover:opacity-40'}`}>
-                                                {proposalSortKey === colKey ? (proposalSortDir === 'asc' ? '↑' : '↓') : '↕'}
-                                            </span>
-                                        </span>
-                                    </th>
-                                );
-
-                                return (
-                                    <>
-                                        {/* Mini Dashboard Cards */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                                            {(() => {
-                                                const now = new Date();
-                                                const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-                                                const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-
-                                                const stats = {
-                                                    total: displayedProposals.length,
-                                                    thisMonth: displayedProposals.filter(p => Number(p.id) >= firstDayOfMonth).length,
-                                                    recentlyEdited: displayedProposals.filter(p => (p.lastModified || 0) >= oneDayAgo).length,
-                                                    topDest: (() => {
-                                                        const counts: Record<string, number> = {};
-                                                        displayedProposals.forEach(p => {
-                                                            const dest = getDestination(p);
-                                                            if (dest && dest !== '-') counts[dest] = (counts[dest] || 0) + 1;
-                                                        });
-                                                        return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
-                                                    })()
-                                                };
-
-                                                const Card = ({ icon: Icon, label, value, colorClass, bgClass }: { icon: any, label: string, value: string | number, colorClass: string, bgClass: string }) => (
-                                                    <div className="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:shadow-md transition-shadow duration-300 flex items-center gap-4">
-                                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${bgClass}`}>
-                                                            <Icon size={22} className={colorClass} strokeWidth={2.5} />
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-0.5">{label}</div>
-                                                            <div className="text-[22px] font-black text-[#0F172A] leading-none">{value}</div>
-                                                        </div>
-                                                    </div>
-                                                );
-
-                                                return (
-                                                    <>
-                                                        <Card icon={ProposalIcon} label="Total Proposals" value={stats.total} colorClass="text-[#3B82F6]" bgClass="bg-[#EFF6FF]" />
-                                                        <Card icon={CalendarIcon} label="This Month" value={stats.thisMonth} colorClass="text-[#8B5CF6]" bgClass="bg-[#F5F3FF]" />
-                                                        <Card icon={ClockIcon} label="Recently Edited" value={stats.recentlyEdited} colorClass="text-[#F59E0B]" bgClass="bg-[#FFFBEB]" />
-                                                        <Card icon={MapPinIcon} label="Top Destination" value={stats.topDest} colorClass="text-[#10B981]" bgClass="bg-[#ECFDF5]" />
-                                                    </>
-                                                );
-                                            })()}
-                                        </div>
-
-                                        {displayedProposals.length === 0 ? (
-                                            <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm p-16 text-center flex flex-col items-center justify-center gap-4">
-                                                <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 mb-2 border border-slate-100">
-                                                    <ProposalIcon size={32} />
-                                                </div>
-                                                <h3 className="text-[18px] font-bold text-[#0F172A]">No proposals yet</h3>
-                                                <p className="text-[14px] text-slate-500 max-w-sm">Create your first proposal to get started managing trips</p>
-                                                <button onClick={handleCreateNew} className="bg-[#0F172A] text-white px-5 py-2.5 rounded-lg font-medium text-sm gap-2 mt-4 inline-flex items-center hover:bg-slate-800 transition-colors">
-                                                    <PlusIcon size={16} /> Create Proposal
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div className="bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
-                                                <div className="overflow-x-auto">
-                                                    <table className="w-full">
-                                                        <thead>
-                                                            <tr className="border-b border-[#E2E8F0]">
-                                                                <SortHeader label="Date Created" colKey="dateCreated" />
-                                                                <SortHeader label="Proposal Name" colKey="proposalName" />
-                                                                <SortHeader label="Client Name" colKey="clientName" />
-                                                                <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-wide text-[#64748B] bg-[#F8FAFC]">Prepared By</th>
-                                                                <th className="px-5 py-4 text-left text-[11px] font-bold uppercase tracking-wide text-[#64748B] bg-[#F8FAFC]">Destination</th>
-                                                                <SortHeader label="Last Edited" colKey="lastEdited" />
-                                                                <th className="px-5 py-4 text-right text-[11px] font-bold uppercase tracking-wide text-[#64748B] bg-[#F8FAFC]">Actions</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody className="divide-y divide-[#E2E8F0]">
-                                                            {sorted.map((p) => {
-                                                                // Status dot coloration logic (green if recently edited, else slate)
-                                                                const isRecent = Date.now() - (p.lastModified || 0) < 24 * 60 * 60 * 1000;
-
-                                                                return (
-                                                                    <tr
-                                                                        key={p.id}
-                                                                        onClick={() => handleEdit(p)}
-                                                                        className="group hover:bg-[#F8FAFC] cursor-pointer transition-colors duration-150 h-[56px]"
-                                                                    >
-                                                                        <td className="px-5 py-4 text-[13px] text-slate-500 font-medium whitespace-nowrap">
-                                                                            {new Date(Number(p.id)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                                        </td>
-                                                                        <td className="px-5 py-4">
-                                                                            <div className="flex items-center gap-2.5">
-                                                                                <div className={`w-1.5 h-1.5 rounded-full ${isRecent ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
-                                                                                <span className="text-[14px] font-semibold text-[#0F172A] truncate max-w-[200px]">{p.proposalName || 'Untitled'}</span>
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className="px-5 py-4 text-[13px] text-slate-600 font-medium whitespace-nowrap">
-                                                                            {p.customerName || '-'}
-                                                                        </td>
-                                                                        <td className="px-5 py-4 text-[13px] text-slate-500 whitespace-nowrap">
-                                                                            {p.branding?.contactName || p.createdBy || '-'}
-                                                                        </td>
-                                                                        <td className="px-5 py-4 text-[13px] font-semibold text-slate-700 whitespace-nowrap">
-                                                                            <div className="flex items-center gap-1.5">
-                                                                                <MapPinIcon size={14} className="text-slate-400" />
-                                                                                {getDestination(p)}
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className="px-5 py-4 text-[13px] text-slate-500 whitespace-nowrap">
-                                                                            {timeAgo(p.lastModified)}
-                                                                        </td>
-                                                                        <td className="px-5 py-4 text-right whitespace-nowrap" onClick={e => e.stopPropagation()}>
-                                                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                                <IconButton icon={EditIcon} onClick={() => handleEdit(p)} size={15} title="Edit" />
-                                                                                <IconButton icon={CopyIcon} onClick={() => handleDuplicate(p)} size={15} title="Duplicate" />
-                                                                                {(isSuper || isAdmin || p.createdBy === user.email) && (
-                                                                                    <IconButton icon={TrashIcon} onClick={() => handleDelete(p.id)} variant="ghost" className="text-red-500 hover:bg-red-50" size={15} title="Delete" />
-                                                                                )}
-                                                                            </div>
-                                                                        </td>
-                                                                    </tr>
-                                                                );
-                                                            })}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </>
-                                );
-                            })()
-                        }
-
-                        {subMode === 'companies' && isSuper && renderCompanyManagement()}
-                        {subMode === 'company_users' && (isSuper || isAdmin) && renderUserManagement()}
-
-                        {
-                            subMode === 'account_settings' && (
-                                <div className="bg-white border border-[#E2E8F0] shadow-sm p-8 rounded-xl max-w-md mx-auto mt-8">
-                                    <h2 className="text-lg font-bold text-[#0F172A] mb-6 flex items-center gap-2">
-                                        <LockIcon size={20} className="text-slate-400" /> Change Password
-                                    </h2>
-                                    {passMsg.text && (
-                                        <div className={`mb-5 p-3.5 rounded-lg text-[13px] font-medium border ${passMsg.type === 'success' ? 'bg-[#ECFDF5] border-[#D1FAE5] text-[#059669]' : 'bg-[#FEF2F2] border-[#FEE2E2] text-[#DC2626]'}`}>
-                                            {passMsg.text}
-                                        </div>
-                                    )}
-                                    <div className="space-y-4">
-                                        <FormInput label="Current Password" type="password" value={passData.current} onChange={e => setPassData({ ...passData, current: e.target.value })} />
-                                        <FormInput label="New Password" type="password" value={passData.new} onChange={e => setPassData({ ...passData, new: e.target.value })} />
-                                        <button
-                                            onClick={() => { try { changePassword(user.email, passData.current, passData.new); setPassMsg({ type: 'success', text: 'Updated' }); } catch (e: any) { setPassMsg({ type: 'error', text: e.message }); } }}
-                                            className="w-full bg-[#0F172A] hover:bg-[#1E293B] text-white px-4 py-2.5 rounded-lg font-bold text-sm transition-colors mt-2"
-                                        >
-                                            Update Password
-                                        </button>
-                                    </div>
-                                </div>
-                            )
-                        }
+                    <div className="flex items-center gap-4">
+                        <div className="flex flex-col items-end">
+                            <span className="text-sm font-semibold text-[var(--text-primary)]">{user.firstName} {user.lastName}</span>
+                            <span className="text-xs text-[var(--text-muted)]">{user.email}</span>
+                            <button onClick={handleLogout} className="text-xs text-red-400/70 hover:text-red-300 mt-1 transition-colors flex items-center gap-1.5 group">
+                                <LogOutIcon size={12} className="group-hover:translate-x-0.5 transition-transform" /> Log Out
+                            </button>
+                        </div>
+                        <IconButton
+                            icon={theme === 'dark' ? SunIcon : MoonIcon}
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            title="Toggle Theme"
+                        />
+                        <div className="h-10 w-10 bg-ai-accent/10 rounded-xl flex items-center justify-center text-ai-accent border border-ai-accent/20 shadow-sm">
+                            <UserIcon size={20} />
+                        </div>
                     </div>
-                </main>
-            </div>
+                </div>
+
+                <div className="flex gap-1 mb-8 overflow-x-auto bg-[var(--bg-secondary)] p-1.5 rounded-xl border border-[var(--divider)] shadow-sm">
+                    <button onClick={() => setSubMode('my_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${subMode === 'my_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
+                        <ProposalIcon size={16} /> My Proposals
+                    </button>
+
+                    {(isSuper || isAdmin) && (
+                        <button onClick={() => setSubMode('all_proposals')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${subMode === 'all_proposals' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
+                            <ProposalIcon size={16} /> {isSuper ? 'All Proposals' : 'Company Proposals'}
+                        </button>
+                    )}
+
+                    {isSuper && (
+                        <button onClick={() => setSubMode('companies')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${subMode === 'companies' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
+                            <BuildingIcon size={16} /> Companies
+                        </button>
+                    )}
+
+                    {(isSuper || isAdmin) && (
+                        <button onClick={() => setSubMode('company_users')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${subMode === 'company_users' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
+                            <UsersIcon size={16} /> Users
+                        </button>
+                    )}
+
+                    <button onClick={() => setSubMode('account_settings')} className={`pb-2 pt-2 px-5 font-semibold whitespace-nowrap rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${subMode === 'account_settings' ? 'gradient-accent text-white shadow-lg shadow-ai-accent/15' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--row-hover)]'}`}>
+                        <SettingsIcon size={16} /> Settings
+                    </button>
+                </div>
+
+                {
+                    (subMode === 'my_proposals' || subMode === 'all_proposals') && (() => {
+                        type SortKey = 'dateCreated' | 'proposalName' | 'clientName' | 'lastEdited';
+
+                        const handleSort = (key: SortKey) => {
+                            if (proposalSortKey === key) {
+                                setProposalSortDir(proposalSortDir === 'asc' ? 'desc' : 'asc');
+                            } else {
+                                setProposalSortKey(key);
+                                setProposalSortDir(key === 'proposalName' || key === 'clientName' ? 'asc' : 'desc');
+                            }
+                        };
+
+                        const getDestination = (p: ProposalData): string => {
+                            if (!p.inclusions?.flights || !p.flightOptions?.length) return '-';
+                            const allLegs = [...(p.flightOptions[0]?.outbound || []), ...(p.flightOptions[0]?.return || [])];
+                            if (!allLegs.length) return '-';
+                            const lastLeg = allLegs[allLegs.length - 1];
+                            return lastLeg?.to || '-';
+                        };
+
+                        const timeAgo = (ts: number): string => {
+                            if (!ts) return '-';
+                            const diff = Date.now() - ts;
+                            const mins = Math.floor(diff / 60000);
+                            if (mins < 1) return 'Just now';
+                            if (mins < 60) return `${mins} minute${mins !== 1 ? 's' : ''} ago`;
+                            const hrs = Math.floor(mins / 60);
+                            if (hrs < 24) return `${hrs} hour${hrs !== 1 ? 's' : ''} ago`;
+                            const days = Math.floor(hrs / 24);
+                            if (days === 1) return 'Yesterday';
+                            if (days < 7) return `${days} days ago`;
+                            return new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                        };
+
+                        const sorted = [...displayedProposals].sort((a, b) => {
+                            let cmp = 0;
+                            switch (proposalSortKey) {
+                                case 'dateCreated': cmp = Number(a.id) - Number(b.id); break;
+                                case 'proposalName': cmp = (a.proposalName || '').localeCompare(b.proposalName || ''); break;
+                                case 'clientName': cmp = (a.customerName || '').localeCompare(b.customerName || ''); break;
+                                case 'lastEdited': cmp = (a.lastModified || 0) - (b.lastModified || 0); break;
+                            }
+                            return proposalSortDir === 'asc' ? cmp : -cmp;
+                        });
+
+                        const SortHeader = ({ label, colKey }: { label: string; colKey: SortKey }) => (
+                            <th
+                                onClick={() => handleSort(colKey)}
+                                className="px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] cursor-pointer select-none hover:text-[var(--text-primary)] transition-colors group"
+                            >
+                                <span className="flex items-center gap-1.5">
+                                    {label}
+                                    <span className={`transition-opacity ${proposalSortKey === colKey ? 'opacity-100' : 'opacity-0 group-hover:opacity-40'}`}>
+                                        {proposalSortKey === colKey ? (proposalSortDir === 'asc' ? '↑' : '↓') : '↕'}
+                                    </span>
+                                </span>
+                            </th>
+                        );
+
+                        return (
+                            <>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-bold text-[var(--text-primary)]">
+                                        {subMode === 'my_proposals' ? 'My Proposals' : (isSuper ? 'All System Proposals' : 'Team Proposals')}
+                                    </h2>
+                                    <Button onClick={handleCreateNew} className="gap-2">
+                                        <PlusIcon size={18} /> Create Proposal
+                                    </Button>
+                                </div>
+
+                                {/* Mini Dashboard Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                                    {(() => {
+                                        const now = new Date();
+                                        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+                                        const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+
+                                        const stats = {
+                                            total: displayedProposals.length,
+                                            thisMonth: displayedProposals.filter(p => Number(p.id) >= firstDayOfMonth).length,
+                                            recentlyEdited: displayedProposals.filter(p => (p.lastModified || 0) >= oneDayAgo).length,
+                                            topDest: (() => {
+                                                const counts: Record<string, number> = {};
+                                                displayedProposals.forEach(p => {
+                                                    const dest = getDestination(p);
+                                                    if (dest && dest !== '-') counts[dest] = (counts[dest] || 0) + 1;
+                                                });
+                                                return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
+                                            })()
+                                        };
+
+                                        const Card = ({ icon: Icon, label, value, colorClass, bgClass }: { icon: any, label: string, value: string | number, colorClass: string, bgClass: string }) => (
+                                            <div className="bg-[var(--panel-bg)] p-5 rounded-2xl border border-[var(--panel-border)] shadow-sm hover:translate-y-[-2px] transition-all duration-200 flex items-center gap-4">
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${bgClass}`}>
+                                                    <Icon size={22} className={colorClass} strokeWidth={2.5} />
+                                                </div>
+                                                <div>
+                                                    <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-0.5">{label}</div>
+                                                    <div className="text-xl font-black text-[var(--text-primary)] leading-none">{value}</div>
+                                                </div>
+                                            </div>
+                                        );
+
+                                        return (
+                                            <>
+                                                <Card icon={ProposalIcon} label="Total Proposals" value={stats.total} colorClass="text-blue-600 dark:text-blue-400" bgClass="bg-blue-500/10" />
+                                                <Card icon={CalendarIcon} label="This Month" value={stats.thisMonth} colorClass="text-indigo-600 dark:text-indigo-400" bgClass="bg-indigo-500/10" />
+                                                <Card icon={ClockIcon} label="Recently Edited" value={stats.recentlyEdited} colorClass="text-amber-600 dark:text-amber-400" bgClass="bg-amber-500/10" />
+                                                <Card icon={MapPinIcon} label="Top Destination" value={stats.topDest} colorClass="text-emerald-600 dark:text-emerald-400" bgClass="bg-emerald-500/10" />
+                                            </>
+                                        );
+                                    })()}
+                                </div>
+
+                                {displayedProposals.length === 0 ? (
+                                    <div className="glass rounded-2xl p-16 text-center flex flex-col items-center justify-center gap-4">
+                                        <div className="w-14 h-14 rounded-full bg-ai-accent/10 flex items-center justify-center text-ai-accent mb-2">
+                                            <ProposalIcon size={28} />
+                                        </div>
+                                        <h3 className="text-lg font-bold text-[var(--text-primary)]">No proposals yet</h3>
+                                        <p className="text-sm text-[var(--text-muted)] max-w-sm">Create your first proposal to get started</p>
+                                        <Button onClick={handleCreateNew} className="gap-2 mt-2">
+                                            <PlusIcon size={18} /> Create Proposal
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="glass rounded-2xl overflow-hidden">
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full">
+                                                <thead>
+                                                    <tr className="border-b border-[var(--panel-border)]">
+                                                        <SortHeader label="Date Created" colKey="dateCreated" />
+                                                        <SortHeader label="Proposal Name" colKey="proposalName" />
+                                                        <SortHeader label="Client Name" colKey="clientName" />
+                                                        <th className="px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Prepared By</th>
+                                                        <th className="px-5 py-3.5 text-left text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Destination</th>
+                                                        <SortHeader label="Last Edited" colKey="lastEdited" />
+                                                        <th className="px-5 py-3.5 text-right text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {sorted.map((p) => (
+                                                        <tr
+                                                            key={p.id}
+                                                            onClick={() => handleEdit(p)}
+                                                            className="border-b border-[var(--divider)] last:border-b-0 hover:bg-[var(--row-hover)] cursor-pointer transition-colors duration-150"
+                                                        >
+                                                            <td className="px-5 py-4 text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                                                                {new Date(Number(p.id)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                            </td>
+                                                            <td className="px-5 py-4">
+                                                                <span className="text-sm font-semibold text-[var(--text-primary)]">{p.proposalName || 'Untitled'}</span>
+                                                            </td>
+                                                            <td className="px-5 py-4 text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                                                                {p.customerName || '-'}
+                                                            </td>
+                                                            <td className="px-5 py-4 text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                                                                {p.branding?.contactName || p.createdBy || '-'}
+                                                            </td>
+                                                            <td className="px-5 py-4 text-sm text-[var(--text-secondary)] whitespace-nowrap">
+                                                                {getDestination(p)}
+                                                            </td>
+                                                            <td className="px-5 py-4 text-sm text-[var(--text-muted)] whitespace-nowrap">
+                                                                {timeAgo(p.lastModified)}
+                                                            </td>
+                                                            <td className="px-5 py-4 text-right whitespace-nowrap" onClick={e => e.stopPropagation()}>
+                                                                <div className="flex items-center justify-end gap-1">
+                                                                    <IconButton icon={EditIcon} onClick={() => handleEdit(p)} size={15} title="Edit" />
+                                                                    <IconButton icon={CopyIcon} onClick={() => handleDuplicate(p)} size={15} title="Duplicate" />
+                                                                    {(isSuper || isAdmin || p.createdBy === user.email) && (
+                                                                        <IconButton icon={TrashIcon} onClick={() => handleDelete(p.id)} variant="ghost" className="text-red-400 hover:text-red-500 hover:bg-red-500/10" size={15} title="Delete" />
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        );
+                    })()
+                }
+
+                {subMode === 'companies' && isSuper && renderCompanyManagement()}
+                {subMode === 'company_users' && (isSuper || isAdmin) && renderUserManagement()}
+
+                {
+                    subMode === 'account_settings' && (
+                        <div className="glass p-8 rounded-2xl max-w-md mx-auto">
+                            <SectionHeader title="Change Password" icon={<LockIcon />} />
+                            {passMsg.text && <div className={`mb-5 p-3.5 rounded-xl text-sm border ${passMsg.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-300' : 'bg-red-500/10 border-red-500/20 text-red-300'}`}>{passMsg.text}</div>}
+                            <FormInput label="Current Password" type="password" value={passData.current} onChange={e => setPassData({ ...passData, current: e.target.value })} />
+                            <FormInput label="New Password" type="password" value={passData.new} onChange={e => setPassData({ ...passData, new: e.target.value })} />
+                            <Button onClick={() => { try { changePassword(user.email, passData.current, passData.new); setPassMsg({ type: 'success', text: 'Updated' }); } catch (e: any) { setPassMsg({ type: 'error', text: e.message }); } }}>Update Password</Button>
+                        </div>
+                    )
+                }
+            </div >
         );
     };
-    if (viewMode === 'dashboard') return renderDashboard();
+
+    if (viewMode === 'dashboard') return <div className="min-h-screen bg-premium">{renderDashboard()}</div>;
 
     const activeCompany = companies.find(c => c.id === (formData.companyId || user?.companyId));
     const currentCompanyLogo = activeCompany?.logo;
