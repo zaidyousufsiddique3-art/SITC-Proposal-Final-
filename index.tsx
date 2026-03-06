@@ -1,17 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import HeroAntigravity from './components/HeroAntigravity';
+import LandingPage from './components/LandingPage';
 import App from './App';
 
 const Root: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HeroAntigravity />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<App />} />
         {/* Catch-all: redirect to landing */}
-        <Route path="*" element={<HeroAntigravity />} />
+        <Route path="*" element={<LandingPage />} />
       </Routes>
     </BrowserRouter>
   );
