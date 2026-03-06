@@ -433,7 +433,8 @@ const App: React.FC = () => {
         try {
             const savedData = await saveProposal(updatedProposal, sectionsConfig);
             // Ensure local state uses the saved data (which now has URLs instead of base64)
-            setFormData(savedData);
+            // But don't overwrite the whole state with the stripped-down object (to avoid clearing UI state)
+            setFormData({ ...formData, ...savedData });
             await refreshData();
 
             if (isDraft) {
@@ -1837,23 +1838,23 @@ const App: React.FC = () => {
                 <div className="pt-2 space-y-3">
                     <div className="flex justify-between items-center px-1">
                         <span className="text-xs text-[var(--text-muted)]">Total Hotels</span>
-                        <span className="text-xs font-black text-[var(--text-primary)]">{formData.hotelOptions.length}</span>
+                        <span className="text-xs font-black text-[var(--text-primary)]">{(formData.hotelOptions || []).length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
                         <span className="text-xs text-[var(--text-muted)]">Total Flights</span>
-                        <span className="text-xs font-black text-[var(--text-primary)]">{formData.flightOptions.length}</span>
+                        <span className="text-xs font-black text-[var(--text-primary)]">{(formData.flightOptions || []).length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
                         <span className="text-xs text-[var(--text-muted)]">Vehicles</span>
-                        <span className="text-xs font-black text-[var(--text-primary)]">{formData.transportation.length}</span>
+                        <span className="text-xs font-black text-[var(--text-primary)]">{(formData.transportation || []).length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
                         <span className="text-xs text-[var(--text-muted)]">Activities</span>
-                        <span className="text-xs font-black text-[var(--text-primary)]">{formData.activities.length}</span>
+                        <span className="text-xs font-black text-[var(--text-primary)]">{(formData.activities || []).length}</span>
                     </div>
                     <div className="flex justify-between items-center px-1">
                         <span className="text-xs text-[var(--text-muted)]">Custom Items</span>
-                        <span className="text-xs font-black text-[var(--text-primary)]">{formData.customItems.length}</span>
+                        <span className="text-xs font-black text-[var(--text-primary)]">{(formData.customItems || []).length}</span>
                     </div>
                 </div>
 

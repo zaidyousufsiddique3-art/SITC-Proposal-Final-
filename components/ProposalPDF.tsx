@@ -813,6 +813,21 @@ const ThankYouSection: React.FC<{ data: ProposalData }> = ({ data }) => (
 // MAIN WRAPPER
 // ==============================
 export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
+    const pricing = data.pricing || {
+        currency: 'SAR',
+        enableVat: true,
+        vatPercent: 15,
+        markups: {
+            hotels: { type: MarkupType.Fixed, value: 0 },
+            meetings: { type: MarkupType.Fixed, value: 0 },
+            flights: { type: MarkupType.Fixed, value: 0 },
+            transportation: { type: MarkupType.Fixed, value: 0 },
+            activities: { type: MarkupType.Fixed, value: 0 },
+            customItems: { type: MarkupType.Fixed, value: 0 }
+        },
+        showPrices: true
+    };
+
     return (
         <div
             id="proposal-pdf-root"
@@ -862,34 +877,34 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
 
             {/* HOTELS */}
             {data.inclusions?.hotels &&
-                data.hotelOptions?.map((h, i) => (
+                (data.hotelOptions || []).map((h, i) => (
                     <React.Fragment key={`hotel-pages-${i}`}>
                         <HotelPictureSection hotel={h} />
-                        <PropertyDetailsSection hotel={h} index={i} pricing={data.pricing} />
+                        <PropertyDetailsSection hotel={h} index={i} pricing={pricing} />
                     </React.Fragment>
                 ))}
 
             {/* FLIGHTS */}
             {data.inclusions?.flights &&
-                data.flightOptions?.map((f, i) => (
-                    <FlightSection key={`flight-${i}`} flight={f} index={i} pricing={data.pricing} />
+                (data.flightOptions || []).map((f, i) => (
+                    <FlightSection key={`flight-${i}`} flight={f} index={i} pricing={pricing} />
                 ))}
 
             {/* TRANSPORTATION */}
-            {data.transportation?.map((t, i) => (
-                <TransportationSection key={`trans-${i}`} t={t} pricing={data.pricing} />
+            {(data.transportation || []).map((t, i) => (
+                <TransportationSection key={`trans-${i}`} t={t} pricing={pricing} />
             ))}
 
             {/* INVESTMENT SUMMARIES (REORDERED) */}
 
             {/* 1. Accommodation Summaries */}
-            {data.inclusions?.hotels && data.hotelOptions?.map((h, i) => {
+            {data.inclusions?.hotels && (data.hotelOptions || []).map((h, i) => {
                 const rows = (h.roomTypes || []).map((r) => {
                     const res = calculatePriceBreakdown(
                         r.netPrice,
-                        data.pricing.markups.hotels,
+                        pricing.markups.hotels,
                         h.vatRule,
-                        data.pricing.vatPercent,
+                        pricing.vatPercent,
                         r.quantity,
                         r.numNights
                     );
@@ -908,20 +923,20 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
                         key={`inv-hotel-${i}`}
                         title="Investment Summary"
                         subtitle={`Accommodation Option ${i + 1}`}
-                        pricing={data.pricing}
+                        pricing={pricing}
                         rows={rows}
                     />
                 );
             })}
 
             {/* 2. Flight Summaries */}
-            {data.inclusions?.flights && data.flightOptions?.map((f, i) => {
+            {data.inclusions?.flights && (data.flightOptions || []).map((f, i) => {
                 const rows = (f.quotes || []).map((q) => {
                     const res = calculatePriceBreakdown(
                         q.price,
-                        data.pricing.markups.flights,
+                        pricing.markups.flights,
                         f.vatRule,
-                        data.pricing.vatPercent,
+                        pricing.vatPercent,
                         q.quantity,
                         1
                     );
@@ -944,19 +959,19 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
                         key={`inv-flight-${i}`}
                         title="Investment Summary"
                         subtitle={`Flight - Option ${i + 1}`}
-                        pricing={data.pricing}
+                        pricing={pricing}
                         rows={rows}
                     />
                 );
             })}
 
             {/* 3. Transportation Summaries */}
-            {data.inclusions?.transportation && data.transportation?.length > 0 && data.transportation.map((t, i) => {
+            {data.inclusions?.transportation && (data.transportation || []).length > 0 && (data.transportation || []).map((t, i) => {
                 const res = calculatePriceBreakdown(
                     t.netPricePerDay,
-                    data.pricing.markups.transportation,
+                    pricing.markups.transportation,
                     t.vatRule,
-                    data.pricing.vatPercent,
+                    pricing.vatPercent,
                     t.quantity,
                     t.days
                 );
@@ -965,7 +980,7 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
                         key={`inv-trans-${i}`}
                         title="Investment Summary"
                         subtitle={`Transportation - ${t.model}`}
-                        pricing={data.pricing}
+                        pricing={pricing}
                         rows={[{
                             name: `${t.model} (${t.type})`,
                             price: t.netPricePerDay,
@@ -980,14 +995,14 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
             })}
 
             {/* ADDITIONAL SERVICES */}
-            {data.inclusions?.customItems && data.customItems?.length > 0 && (
+            {data.inclusions?.customItems && (data.customItems || []).length > 0 && (
                 <AdditionalServicesSection
-                    items={data.customItems.map(item => {
+                    items={(data.customItems || []).map(item => {
                         const res = calculatePriceBreakdown(
                             item.unitPrice,
-                            data.pricing.markups.customItems,
+                            pricing.markups.customItems,
                             item.vatRule,
-                            data.pricing.vatPercent,
+                            pricing.vatPercent,
                             item.quantity,
                             item.days
                         );
@@ -998,19 +1013,19 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
                             total: res.grandTotal
                         };
                     })}
-                    pricing={data.pricing}
+                    pricing={pricing}
                 />
             )}
 
-            {data.inclusions?.activities && data.activities?.length > 0 && (
+            {data.inclusions?.activities && (data.activities || []).length > 0 && (
                 <AdditionalServicesSection
                     title="Activities & Tours"
-                    items={data.activities.map(item => {
+                    items={(data.activities || []).map(item => {
                         const res = calculatePriceBreakdown(
                             item.pricePerPerson,
-                            data.pricing.markups.activities,
+                            pricing.markups.activities,
                             item.vatRule,
-                            data.pricing.vatPercent,
+                            pricing.vatPercent,
                             item.guests,
                             item.days
                         );
@@ -1021,7 +1036,7 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
                             total: res.grandTotal
                         };
                     })}
-                    pricing={data.pricing}
+                    pricing={pricing}
                 />
             )}
 
