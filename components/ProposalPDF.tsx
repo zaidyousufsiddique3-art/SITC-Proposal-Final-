@@ -814,7 +814,11 @@ const ThankYouSection: React.FC<{ data: ProposalData }> = ({ data }) => (
 // ==============================
 export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
     return (
-        <div className="font-sans text-gray-900 bg-white">
+        <div
+            id="proposal-pdf-root"
+            className="font-sans text-gray-900 bg-white"
+            style={{ margin: 0, padding: 0, width: '297mm' }}
+        >
             {/* print rules */}
             <style>{`
   @page {
@@ -836,17 +840,20 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
     overflow: hidden !important;
     position: relative;
     box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
 
-    page-break-after: always;
-    break-after: page;
+    page-break-after: always !important;
+    break-after: page !important;
 
-    page-break-inside: avoid;
-    break-inside: avoid-page;
+    /* Prevent any internal breaks */
+    page-break-inside: avoid !important;
+    break-inside: avoid-page !important;
   }
 
   .pdf-page:last-child {
-    page-break-after: auto;
-    break-after: auto;
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
 `}</style>
 

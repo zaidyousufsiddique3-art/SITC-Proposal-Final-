@@ -225,6 +225,7 @@ export const saveProposal = async (proposal: ProposalData, config?: ProposalSect
     // Step 8: Write to Firestore
     await setDoc(doc(db, "proposals", proposal.id), safe);
     console.log(`✅ Proposal saved: ${proposal.id} (${kb} KB)`);
+    return safe as ProposalData;
 };
 
 export const deleteProposal = async (id: string) => {

@@ -311,30 +311,44 @@ const App: React.FC = () => {
         setViewMode('form');
     };
 
-    const handleEdit = (proposal: ProposalData) => {
+    const handleEdit = (p: ProposalData) => {
         // Sanitize: ensure all array/object fields have safe defaults
-        // Firestore may omit empty arrays or fields not present at creation time
-        setFormData({
-            ...proposal,
-            hotelOptions: proposal.hotelOptions ?? [],
-            flightOptions: proposal.flightOptions ?? [],
-            transportation: proposal.transportation ?? [],
-            customItems: proposal.customItems ?? [],
-            activities: proposal.activities ?? [],
-            sharedWith: proposal.sharedWith ?? [],
-            history: proposal.history ?? [],
-            versions: proposal.versions ?? [],
+        const proposal = {
+            ...p,
+            hotelOptions: (p.hotelOptions || []).map(h => ({
+                ...h,
+                images: h.images || [],
+                roomTypes: h.roomTypes || [],
+                meetingRooms: h.meetingRooms || [],
+                dining: h.dining || []
+            })),
+            flightOptions: p.flightOptions || [],
+            transportation: (p.transportation || []).map(t => ({
+                ...t,
+                // ensure t.image is at least empty string if it's missing (though it's string type in interface)
+                image: t.image || ''
+            })),
+            customItems: p.customItems || [],
+            activities: (p.activities || []).map(a => ({
+                ...a,
+                image: a.image || ''
+            })),
+            sharedWith: p.sharedWith || [],
+            history: p.history || [],
+            versions: p.versions || [],
             inclusions: {
                 hotels: true,
                 flights: true,
                 transportation: true,
                 customItems: true,
                 activities: true,
-                ...proposal.inclusions,
+                ...p.inclusions,
             },
-            branding: proposal.branding ?? {},
-            pricing: proposal.pricing ?? { currency: 'SAR', enableVat: true, vatPercent: 15, markups: { hotels: { type: 'Fixed' as any, value: 0 }, meetings: { type: 'Fixed' as any, value: 0 }, flights: { type: 'Fixed' as any, value: 0 }, transportation: { type: 'Fixed' as any, value: 0 }, activities: { type: 'Fixed' as any, value: 0 }, customItems: { type: 'Fixed' as any, value: 0 } }, showPrices: true },
-        });
+            branding: p.branding || {},
+            pricing: p.pricing || { currency: 'SAR', enableVat: true, vatPercent: 15, markups: { hotels: { type: 'Fixed' as any, value: 0 }, meetings: { type: 'Fixed' as any, value: 0 }, flights: { type: 'Fixed' as any, value: 0 }, transportation: { type: 'Fixed' as any, value: 0 }, activities: { type: 'Fixed' as any, value: 0 }, customItems: { type: 'Fixed' as any, value: 0 } }, showPrices: true },
+        };
+
+        setFormData(proposal);
         setStep(0);
         setViewMode('form');
     };
@@ -417,14 +431,14 @@ const App: React.FC = () => {
         };
 
         try {
-            await saveProposal(updatedProposal, sectionsConfig);
-            setFormData(updatedProposal);
+            const savedData = await saveProposal(updatedProposal, sectionsConfig);
+            // Ensure local state uses the saved data (which now has URLs instead of base64)
+            setFormData(savedData);
             await refreshData();
 
             if (isDraft) {
                 alert("Draft saved successfully.");
             } else {
-                // Show completion, then navigate after fade
                 setGenerationComplete(true);
             }
         } catch (e: any) {
