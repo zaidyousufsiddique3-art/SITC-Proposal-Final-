@@ -204,13 +204,10 @@ const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
                 <div className="flex-1 flex items-center">
                     {/* match the small centered title block (not huge hero) */}
                     <div className="pl-[90px]">
-                        <div
-                            className="inline-block border rounded-[2px]"
-                            style={{ borderColor: "#D7DEE8" }}
-                        >
-                            <div className="px-8 py-6">
+                        <div>
+                            <div className="px-0 py-0">
                                 <div
-                                    className="text-[26px] font-extrabold leading-snug"
+                                    className="text-[20px] font-extrabold leading-snug"
                                     style={{ color: COLORS.blue }}
                                 >
                                     {safe(data.customerName)} | {dateRange}
@@ -406,7 +403,7 @@ const PropertyDetailsSection: React.FC<{
             <div
                 style={{
                     padding: "0 25mm",
-                    marginTop: "10mm",
+                    marginTop: "5mm",
                 }}
             >
                 <div className="border rounded-[8px] overflow-hidden" style={{ borderColor: "#E5E7EB" }}>
@@ -526,12 +523,12 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
         <Page bg="#ffffff">
             <SectionHeader title="Flight Itinerary" subtitle={`Grand Total - Option ${index + 1}`} />
 
-            <div className="px-[72px] pt-[18px]">
+            <div className="px-[72px] pt-[8px]">
                 <SoftCard className="p-0 overflow-hidden">
                     <div className="flex">
                         {/* left gold bar */}
                         <div style={{ width: 5, background: COLORS.gold }} />
-                        <div className="flex-1 px-10 py-10">
+                        <div className="flex-1 px-10 py-6">
                             <div className="text-[26px] font-black" style={{ color: COLORS.ink }}>
                                 {routeTitle}
                             </div>
@@ -555,30 +552,30 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
                             </div>
 
                             {/* Total cost estimate box (like PDF) */}
-                            <div className="mt-12" style={{ maxWidth: 520 }}>
-                                <SoftCard className="px-8 py-6">
-                                    <div className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: COLORS.muted }}>
+                            <div className="mt-8" style={{ maxWidth: 400 }}>
+                                <SoftCard className="px-6 py-4">
+                                    <div className="text-[10px] font-extrabold uppercase tracking-widest" style={{ color: COLORS.muted }}>
                                         Total Cost Estimate
                                     </div>
 
-                                    <div className="mt-5 space-y-3">
+                                    <div className="mt-4 space-y-2">
                                         {quotes.map((q, i) => (
                                             <div key={i} className="flex justify-between items-center">
-                                                <div className="text-[13px] font-semibold" style={{ color: COLORS.muted }}>
+                                                <div className="text-[11px] font-semibold" style={{ color: COLORS.muted }}>
                                                     {q.class} <span className="font-normal">({q.quantity} Seats)</span>
                                                 </div>
-                                                <div className="text-[14px] font-extrabold" style={{ color: COLORS.blue }}>
+                                                <div className="text-[12px] font-extrabold" style={{ color: COLORS.blue }}>
                                                     {formatCurrency(q.price * q.quantity, pricing.currency)}
                                                 </div>
                                             </div>
                                         ))}
 
-                                        <div className="pt-3 mt-3 border-t" style={{ borderColor: "#E5E7EB" }}>
+                                        <div className="pt-2 mt-2 border-t" style={{ borderColor: "#E5E7EB" }}>
                                             <div className="flex justify-between items-center">
-                                                <div className="text-[14px] font-extrabold" style={{ color: COLORS.ink }}>
+                                                <div className="text-[12px] font-extrabold" style={{ color: COLORS.ink }}>
                                                     Total
                                                 </div>
-                                                <div className="text-[22px] font-black" style={{ color: COLORS.blue }}>
+                                                <div className="text-[18px] font-black" style={{ color: COLORS.blue }}>
                                                     {formatCurrency(totals.grand, pricing.currency)}
                                                 </div>
                                             </div>
@@ -617,7 +614,7 @@ const InvestmentSummary: React.FC<{
         <Page bg="#ffffff">
             <SectionHeader title={title} subtitle={subtitle} />
 
-            <div className="px-[72px] pt-[18px]">
+            <div className="px-[72px] pt-[8px]">
                 <div className="border rounded-[8px] overflow-hidden" style={{ borderColor: "#E5E7EB" }}>
                     <table className="w-full text-[12px]">
                         <thead style={{ background: COLORS.blue, color: "#fff" }}>
@@ -656,8 +653,8 @@ const InvestmentSummary: React.FC<{
                         width: "90mm",
                     }}
                 >
-                    <SoftCard className="px-8 py-7" >
-                        <div className="space-y-2 text-[12px]" style={{ minWidth: 320 }}>
+                    <SoftCard className="px-6 py-5" >
+                        <div className="space-y-1.5 text-[10px]" style={{ minWidth: 240 }}>
                             <div className="flex justify-between" style={{ color: COLORS.muted }}>
                                 <span className="font-semibold">Sub Total</span>
                                 <span className="font-semibold">{formatCurrency(totals.sub, pricing.currency)}</span>
@@ -667,12 +664,12 @@ const InvestmentSummary: React.FC<{
                                 <span className="font-semibold">{formatCurrency(totals.vat, pricing.currency)}</span>
                             </div>
 
-                            <div className="mt-4 pt-4 border-t" style={{ borderColor: "#E5E7EB" }}>
+                            <div className="mt-3 pt-3 border-t" style={{ borderColor: "#E5E7EB" }}>
                                 <div className="flex items-end justify-between">
-                                    <div className="text-[18px] font-black" style={{ color: COLORS.blue }}>
+                                    <div className="text-[14px] font-black" style={{ color: COLORS.blue }}>
                                         Grand Total
                                     </div>
-                                    <div className="text-[26px] font-black" style={{ color: COLORS.blue }}>
+                                    <div className="text-[20px] font-black" style={{ color: COLORS.blue }}>
                                         {formatCurrency(totals.grand, pricing.currency)}
                                     </div>
                                 </div>
@@ -740,35 +737,35 @@ const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing 
         <Page bg="#ffffff">
             <SectionHeader title="Transportation" />
 
-            <div className="px-[72px] pt-[40px] flex flex-col items-center">
-                <div className="mt-2">
+            <div className="px-[72px] pt-[10px] flex flex-col items-center">
+                <div>
                     {t.image ? (
                         <img
                             src={t.image}
                             alt="Vehicle"
-                            style={{ width: 520, height: 320, objectFit: "contain" }}
+                            style={{ width: 440, height: 240, objectFit: "contain" }}
                         />
                     ) : (
-                        <div className="w-[520px] h-[320px] bg-gray-100 flex items-center justify-center text-gray-400">No vehicle image</div>
+                        <div className="w-[440px] h-[240px] bg-gray-100 flex items-center justify-center text-gray-400">No vehicle image</div>
                     )}
                 </div>
 
-                <div className="mt-10 text-center">
-                    <div className="text-[22px] font-black" style={{ color: COLORS.ink }}>
+                <div className="mt-6 text-center">
+                    <div className="text-[20px] font-black" style={{ color: COLORS.ink }}>
                         {safe(t.model)}
                     </div>
-                    <div className="mt-2 text-[12px] font-semibold" style={{ color: COLORS.muted }}>
+                    <div className="mt-1 text-[11px] font-semibold" style={{ color: COLORS.muted }}>
                         {safe(t.type)} • {safe(t.description)}
                     </div>
                 </div>
 
-                <div className="mt-12 w-full flex justify-center">
-                    <SoftCard className="px-10 py-8" >
+                <div className="mt-8 w-full flex justify-center">
+                    <SoftCard className="px-8 py-4" >
                         <div className="text-center">
-                            <div className="text-[34px] font-black" style={{ color: COLORS.blue }}>
+                            <div className="text-[24px] font-black" style={{ color: COLORS.blue }}>
                                 {formatCurrency(res.grandTotal, pricing.currency)}
                             </div>
-                            <div className="mt-2 text-[12px] font-semibold" style={{ color: COLORS.muted }}>
+                            <div className="mt-1 text-[11px] font-semibold" style={{ color: COLORS.muted }}>
                                 {t.quantity} Vehicle(s) × {t.days} Day(s)
                             </div>
                         </div>
@@ -794,7 +791,7 @@ const ThankYouSection: React.FC<{ data: ProposalData }> = ({ data }) => (
         />
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-            <div className="text-[86px] font-black tracking-tight">Thank You</div>
+            <div className="text-[64px] font-black tracking-tight">Thank You</div>
 
             <div className="mt-6 text-[14px] text-white/70 max-w-[520px] text-center leading-relaxed">
                 We appreciate the opportunity to propose these services for you. We look forward to
@@ -834,10 +831,11 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
   }
 
   .pdf-page {
-    width: 297mm;
-    height: 210mm;
-    overflow: hidden;
+    width: 297mm !important;
+    height: 210mm !important;
+    overflow: hidden !important;
     position: relative;
+    box-sizing: border-box !important;
 
     page-break-after: always;
     break-after: page;
