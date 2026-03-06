@@ -95,15 +95,13 @@ const Page: React.FC<{
     bg?: string;
     className?: string;
 }> = ({ children, bg = "#ffffff", className = "" }) => (
-    <div
-        className={`pdf-page w-full flex justify-center ${className}`}
-        style={{ background: bg }}
-    >
+    <div className={`pdf-page w-full flex justify-center ${className}`}>
         <div
-            className="relative"
+            className="pdf-page-inner relative overflow-hidden"
             style={{
                 width: "794px",
-                minHeight: "1123px",
+                height: "1123px",
+                background: bg,
             }}
         >
             {children}
@@ -495,7 +493,7 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
         <Page bg="#ffffff">
             <SectionHeader title="Flight Itinerary" subtitle={`Grand Total - Option ${index + 1}`} />
 
-            <div className="px-[72px] pt-[18px] pb-[90px]">
+            <div className="px-[72px] pt-[18px] pb-[140px]">
                 <SoftCard className="p-0 overflow-hidden">
                     <div className="flex">
                         <div style={{ width: 5, background: COLORS.gold, flexShrink: 0 }} />
@@ -504,10 +502,10 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
                                 {routeTitle}
                             </div>
 
-                            <div className="mt-10 grid grid-cols-2 gap-14">
+                            <div className="mt-8 grid grid-cols-2 gap-12">
                                 <div>
                                     {flight.outbound?.map((leg, i) => (
-                                        <div key={i} className={i ? "mt-10" : ""}>
+                                        <div key={i} className={i ? "mt-8" : ""}>
                                             <FlightLegCard label="OUTBOUND" leg={leg} />
                                         </div>
                                     ))}
@@ -515,14 +513,14 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
 
                                 <div>
                                     {flight.return?.map((leg, i) => (
-                                        <div key={i} className={i ? "mt-10" : ""}>
+                                        <div key={i} className={i ? "mt-8" : ""}>
                                             <FlightLegCard label="RETURN" leg={leg} />
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="mt-10" style={{ maxWidth: 440 }}>
+                            <div className="mt-8" style={{ maxWidth: 430 }}>
                                 <SoftCard className="px-8 py-6">
                                     <div
                                         className="text-[11px] font-extrabold uppercase tracking-widest"
@@ -537,7 +535,10 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
                                                 <div className="text-[13px] font-semibold" style={{ color: COLORS.muted }}>
                                                     {q.class} <span className="font-normal">({q.quantity} Seats)</span>
                                                 </div>
-                                                <div className="text-[14px] font-extrabold shrink-0" style={{ color: COLORS.blue }}>
+                                                <div
+                                                    className="text-[14px] font-extrabold shrink-0"
+                                                    style={{ color: COLORS.blue }}
+                                                >
                                                     {formatCurrency(q.price * q.quantity, pricing.currency)}
                                                 </div>
                                             </div>
@@ -548,7 +549,10 @@ const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: a
                                                 <div className="text-[14px] font-extrabold" style={{ color: COLORS.ink }}>
                                                     Total
                                                 </div>
-                                                <div className="text-[22px] font-black shrink-0" style={{ color: COLORS.blue }}>
+                                                <div
+                                                    className="text-[22px] font-black shrink-0"
+                                                    style={{ color: COLORS.blue }}
+                                                >
                                                     {formatCurrency(totals.grand, pricing.currency)}
                                                 </div>
                                             </div>
@@ -665,17 +669,13 @@ const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing 
         <Page bg="#ffffff">
             <SectionHeader title="Transportation" />
 
-            <div className="px-[72px] pt-[28px] pb-[100px] flex flex-col items-center">
+            <div className="px-[72px] pt-[24px] pb-[160px] flex flex-col items-center">
                 <div className="mt-2">
-                    {t.image ? (
-                        <img
-                            src={t.image}
-                            alt="Vehicle"
-                            style={{ width: 430, height: 250, objectFit: "contain" }}
-                        />
-                    ) : (
-                        <div className="w-[430px] h-[250px] bg-gray-100 flex items-center justify-center text-gray-300 italic">No Image Available</div>
-                    )}
+                    <img
+                        src={t.image}
+                        alt="Vehicle"
+                        style={{ width: 400, height: 230, objectFit: "contain" }}
+                    />
                 </div>
 
                 <div className="mt-8 text-center">
@@ -688,7 +688,7 @@ const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing 
                 </div>
 
                 <div className="mt-10 w-full flex justify-center">
-                    <SoftCard className="px-10 py-8" >
+                    <SoftCard className="px-10 py-8">
                         <div className="text-center">
                             <div className="text-[34px] font-black" style={{ color: COLORS.blue }}>
                                 {formatCurrency(res.grandTotal, pricing.currency)}
@@ -755,20 +755,31 @@ const ThankYouSection: React.FC<{ data: ProposalData }> = ({ data }) => (
             }}
         />
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-            <div className="text-[86px] font-black tracking-tight">Thank You</div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-[72px] py-[120px] text-white overflow-hidden">
+            <div className="text-[78px] font-black tracking-tight leading-none text-center">
+                Thank You
+            </div>
 
             <div className="mt-6 text-[14px] text-white/70 max-w-[520px] text-center leading-relaxed">
                 We appreciate the opportunity to propose these services for you. We look forward to
                 creating an unforgettable experience.
             </div>
 
-            <div className="mt-10" style={{ width: 72, height: 4, background: COLORS.gold, borderRadius: 999 }} />
+            <div
+                className="mt-10 rounded-full"
+                style={{ width: 72, height: 4, background: COLORS.gold }}
+            />
 
-            <div className="mt-14 rounded-[18px] border border-white/20 bg-white/5 backdrop-blur-sm px-12 py-10 text-center">
-                <div className="text-[22px] font-black">{safe(data.branding?.contactName || data.createdBy || "SITC")}</div>
-                <div className="mt-2 text-[14px] text-white/70">{safe(data.branding?.contactEmail)}</div>
-                <div className="mt-6 text-[12px] tracking-widest uppercase text-white/40">www.sitc.com.sa</div>
+            <div className="mt-14 rounded-[18px] border border-white/20 bg-white/5 backdrop-blur-sm px-12 py-10 text-center max-w-[340px]">
+                <div className="text-[22px] font-black">
+                    {safe(data.branding?.contactName || data.branding?.preparedBy || "SITC")}
+                </div>
+                <div className="mt-2 text-[14px] text-white/70">
+                    {safe(data.branding?.contactEmail)}
+                </div>
+                <div className="mt-6 text-[12px] tracking-widest uppercase text-white/40">
+                    www.sitc.com.sa
+                </div>
             </div>
         </div>
     </Page>
@@ -857,18 +868,38 @@ export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
     return (
         <div className="font-sans text-gray-900 bg-white">
             <style>{`
-        @media print {
-          .pdf-page {
-            page-break-after: always;
-            break-after: page;
-          }
+  @media print {
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
 
-          .pdf-page:last-child {
-            page-break-after: auto;
-            break-after: auto;
-          }
-        }
-      `}</style>
+    .pdf-page {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .pdf-page:last-child {
+      break-after: auto;
+      page-break-after: auto;
+    }
+
+    .pdf-page-inner {
+      width: 794px !important;
+      height: 1123px !important;
+      overflow: hidden !important;
+      position: relative !important;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      box-sizing: border-box;
+    }
+  }
+`}</style>
 
             <OpeningSection data={data} />
             <TermsSection />
