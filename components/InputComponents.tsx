@@ -130,7 +130,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({ label, startDa
 
 interface FileUploaderProps {
   label: string;
-  onFileSelect: (base64: string) => void;
+  onFileSelect: (file: File) => void;
   currentImage?: string;
 }
 
@@ -140,11 +140,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ label, onFileSelect,
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onFileSelect(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      onFileSelect(file);
     }
   };
 
@@ -183,7 +179,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ label, onFileSelect,
 // Multi-file uploader with limit
 interface MultiFileUploaderProps {
   label: string;
-  onFilesSelect: (base64Files: string[]) => void;
+  onFilesSelect: (files: File[]) => void;
   currentCount: number;
   maxFiles: number;
 }
@@ -200,20 +196,7 @@ export const MultiFileUploader: React.FC<MultiFileUploaderProps> = ({ label, onF
     const toProcess = Array.from(files).slice(0, remaining);
     if (toProcess.length === 0) return;
 
-    const results: string[] = [];
-    let loaded = 0;
-
-    toProcess.forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        results.push(reader.result as string);
-        loaded++;
-        if (loaded === toProcess.length) {
-          onFilesSelect(results);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    onFilesSelect(toProcess);
 
     // Reset input so same files can be re-selected
     if (inputRef.current) inputRef.current.value = '';

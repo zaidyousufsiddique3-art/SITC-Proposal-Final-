@@ -8,7 +8,9 @@ import {
     FlightDetails,
     FlightLeg,
     MarkupConfig,
+    TransportationDetails,
 } from "../types";
+import { normalizeImages } from "../services/imageService";
 
 // ==============================
 // THEME (match SITC PDFs)
@@ -173,14 +175,6 @@ const SoftCard: React.FC<{ children: React.ReactNode; className?: string }> = ({
 // 1) OPENING (match Opening.pdf)
 // ==============================
 const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
-    // Helper to bypass cache for CORS images
-    const corsUrl = (url?: string) => {
-        if (!url) return url;
-        if (url.startsWith('data:')) return url;
-        const separator = url.includes('?') ? '&' : '?';
-        return `${url}${separator}cb=${Date.now()}`;
-    };
-
     // Best-effort derive date range from hotels, fallback to flights if needed
     let startISO: string | undefined;
     let endISO: string | undefined;
@@ -197,6 +191,9 @@ const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
     }
 
     const dateRange = formatDateRangeHuman(startISO, endISO);
+
+    const companyLogo = data.branding?.companyLogo;
+    const corsLogo = companyLogo ? (companyLogo.includes('?') ? `${companyLogo}&cors` : `${companyLogo}?cors`) : null;
 
     return (
         <Page bg="#ffffff">
@@ -235,9 +232,9 @@ const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
                             borderColor: "#D7DEE8",
                         }}
                     >
-                        {data.branding?.companyLogo ? (
+                        {corsLogo ? (
                             <img
-                                src={data.branding.companyLogo.includes('?') ? `${data.branding.companyLogo}&cors` : `${data.branding.companyLogo}?cors`}
+                                src={corsLogo}
                                 alt="Logo"
                                 crossOrigin="anonymous"
                                 style={{ maxWidth: "80%", maxHeight: "80%", objectFit: "contain" }}
@@ -326,9 +323,14 @@ const TermsSection: React.FC = () => (
 // 3) HOTEL PICTURE (match Hotel Picture.pdf)
 // ==============================
 const HotelPictureSection: React.FC<{ hotel: HotelDetails }> = ({ hotel }) => {
-    const img0 = hotel.images?.[0]?.url;
-    const img1 = hotel.images?.[1]?.url;
-    const img2 = hotel.images?.[2]?.url;
+    const validImages = normalizeImages(hotel.images || []).filter(img => !!img.url);
+    if (!validImages.length) return null;
+
+    const img0 = validImages[0]?.url;
+    const img1 = validImages[1]?.url;
+    const img2 = validImages[2]?.url;
+
+    const cors = (url: string) => url.includes('?') ? `${url}&cors` : `${url}?cors`;
 
     return (
         <Page bg="#ffffff">
@@ -346,17 +348,17 @@ const HotelPictureSection: React.FC<{ hotel: HotelDetails }> = ({ hotel }) => {
                 {/* big left */}
                 <div className="rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
                     {img0 ? (
-                        <img src={img0.includes('?') ? `${img0}&cors` : `${img0}?cors`} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel main" />
+                        <img src={cors(img0)} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel main" />
                     ) : null}
                 </div>
 
                 {/* right stacked */}
                 <div className="flex flex-col gap-4">
                     <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
-                        {img1 ? <img src={img1.includes('?') ? `${img1}&cors` : `${img1}?cors`} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 2" /> : null}
+                        {img1 ? <img src={cors(img1)} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 2" /> : null}
                     </div>
                     <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
-                        {img2 ? <img src={img2.includes('?') ? `${img2}&cors` : `${img2}?cors`} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 3" /> : null}
+                        {img2 ? <img src={cors(img2)} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 3" /> : null}
                     </div>
                 </div>
             </div>
@@ -732,7 +734,7 @@ const AdditionalServicesSection: React.FC<{ title?: string; items: Array<{ name:
 // ==============================
 // 8) TRANSPORTATION (match Transportation.pdf)
 // ==============================
-const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing }) => {
+const TransportationSection: React.FC<{ t: TransportationDetails; pricing: any }> = ({ t, pricing }) => {
     const res = calculatePriceBreakdown(
         t.netPricePerDay,
         pricing.markups.transportation,
@@ -742,23 +744,24 @@ const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing 
         t.days
     );
 
+    const validImages = normalizeImages(t.images || []).filter(img => !!img.url);
+    const mainImg = validImages[0]?.url;
+
     return (
         <Page bg="#ffffff">
             <SectionHeader title="Transportation" />
 
             <div className="px-[72px] pt-[10px] flex flex-col items-center">
-                <div>
-                    {t.image ? (
+                {mainImg ? (
+                    <div>
                         <img
-                            src={t.image.includes('?') ? `${t.image}&cors` : `${t.image}?cors`}
+                            src={mainImg.includes('?') ? `${mainImg}&cors` : `${mainImg}?cors`}
                             alt="Vehicle"
                             crossOrigin="anonymous"
                             style={{ width: 440, height: 240, objectFit: "contain" }}
                         />
-                    ) : (
-                        <div className="w-[440px] h-[240px] bg-gray-100 flex items-center justify-center text-gray-400">No vehicle image</div>
-                    )}
-                </div>
+                    </div>
+                ) : null}
 
                 <div className="mt-6 text-center">
                     <div className="text-[20px] font-black" style={{ color: COLORS.ink }}>

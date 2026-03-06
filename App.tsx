@@ -9,6 +9,7 @@ import { ProposalData, HotelDetails, FlightDetails, FlightClass, TransportationD
 import { BedIcon, PlaneIcon, BusIcon, ActivityIcon, CustomIcon, PalmLogo, SaveIcon, EditIcon, TrashIcon, CopyIcon, HomeIcon, UserIcon, UsersIcon, LockIcon, UtensilsIcon, MeetingIcon, SITCLogo, SunIcon, MoonIcon, CheckIcon, PlusIcon, ChevronDownIcon, CalendarIcon, LogOutIcon, ProposalIcon, BuildingIcon, SettingsIcon, SearchIcon, ShieldCheckIcon, PresentationIcon, ArrowLeftIcon, ArrowRightIcon, WalletIcon } from './components/Icons';
 import { getGlobalSettings, saveGlobalSettings, getUsers, createSubUserWithAuth, createCompanyAdminWithAuth, deleteUserProfile, validatePassword, changePassword, updateUserProfile, getCompanies, saveCompany, updateCompany, deleteCompany, adminResetUserPassword, validatePhone, logoutUser, resolveProposalSections } from './services/authService';
 import { getProposals, saveProposal, deleteProposal, stripDisabledSections } from './services/proposalService';
+import { uploadProposalImage, normalizeImages, normalizeImageUrl, uploadBase64ToProposalImage } from './services/imageService';
 import html2pdf from 'html2pdf.js';
 
 // --- Defaults & Init ---
@@ -295,8 +296,10 @@ const App: React.FC = () => {
                 contactPhone: user.phone
             },
             hotelOptions: [startHotel],
-            flightOptions: [{ ...initialFlight, id: (Date.now() + 1).toString() }],
-            transportation: [{ id: (Date.now() + 2).toString(), type: VehicleType.Sedan, model: '', description: '', startDate: '', endDate: '', days: 1, netPricePerDay: 0, quantity: 1, vatRule: 'domestic', includeInSummary: true }],
+            flightOptions: [{ ...initialFlight, id: (Date.now() + 1).toString(), includeInSummary: true }],
+            transportation: [{ id: (Date.now() + 2).toString(), type: VehicleType.Sedan, model: '', description: '', startDate: '', endDate: '', days: 1, netPricePerDay: 0, quantity: 1, vatRule: 'domestic', includeInSummary: true, images: [] }],
+            customItems: [], // Ensure customItems is initialized
+            activities: [], // Ensure activities is initialized
             createdBy: user.email,
             history: [{
                 timestamp: Date.now(),
@@ -312,27 +315,24 @@ const App: React.FC = () => {
     };
 
     const handleEdit = (p: ProposalData) => {
-        // Sanitize: ensure all array/object fields have safe defaults
-        const proposal = {
+        // Safe mapping to ensure old data works with new structured images
+        const normalized: ProposalData = {
             ...p,
             hotelOptions: (p.hotelOptions || []).map(h => ({
                 ...h,
-                images: h.images || [],
-                roomTypes: h.roomTypes || [],
-                meetingRooms: h.meetingRooms || [],
-                dining: h.dining || []
+                images: normalizeImages(h.images || [])
             })),
-            flightOptions: p.flightOptions || [],
             transportation: (p.transportation || []).map(t => ({
                 ...t,
-                // ensure t.image is at least empty string if it's missing (though it's string type in interface)
-                image: t.image || ''
+                images: normalizeImages(t.images || (t as any).image) // Handle old 'image' field
             })),
-            customItems: p.customItems || [],
             activities: (p.activities || []).map(a => ({
                 ...a,
-                image: a.image || ''
+                images: normalizeImages(a.images || (a as any).image) // Handle old 'image' field
             })),
+            // Ensure other arrays are initialized if missing
+            flightOptions: p.flightOptions || [],
+            customItems: p.customItems || [],
             sharedWith: p.sharedWith || [],
             history: p.history || [],
             versions: p.versions || [],
@@ -347,14 +347,14 @@ const App: React.FC = () => {
             branding: p.branding || {},
             pricing: p.pricing || { currency: 'SAR', enableVat: true, vatPercent: 15, markups: { hotels: { type: 'Fixed' as any, value: 0 }, meetings: { type: 'Fixed' as any, value: 0 }, flights: { type: 'Fixed' as any, value: 0 }, transportation: { type: 'Fixed' as any, value: 0 }, activities: { type: 'Fixed' as any, value: 0 }, customItems: { type: 'Fixed' as any, value: 0 } }, showPrices: true },
         };
-
-        setFormData(proposal);
-        setStep(0);
+        setFormData(normalized);
         setViewMode('form');
+        setStep(0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleDuplicate = async (proposal: ProposalData) => {
-        const newProposal = {
+        const newProposal: ProposalData = {
             ...proposal,
             id: Date.now().toString(),
             lastModified: Date.now(),
@@ -367,7 +367,24 @@ const App: React.FC = () => {
                 userRole: user?.role,
                 details: `Duplicated from ${proposal.id}`
             }],
-            versions: []
+            versions: [],
+            // Normalize images for duplicated proposal
+            hotelOptions: (proposal.hotelOptions || []).map(h => ({
+                ...h,
+                images: normalizeImages(h.images || [])
+            })),
+            transportation: (proposal.transportation || []).map(t => ({
+                ...t,
+                images: normalizeImages(t.images || (t as any).image)
+            })),
+            activities: (proposal.activities || []).map(a => ({
+                ...a,
+                images: normalizeImages(a.images || (a as any).image)
+            })),
+            // Ensure other arrays are initialized if missing
+            flightOptions: proposal.flightOptions || [],
+            customItems: proposal.customItems || [],
+            sharedWith: proposal.sharedWith || [],
         };
         try {
             await saveProposal(newProposal);
@@ -570,6 +587,17 @@ const App: React.FC = () => {
         }
     };
 
+    const updateCompanyLogo = async (file: File) => {
+        const uploaded = await uploadProposalImage(file, `companies/logos/${newCompany.name || Date.now()}`);
+        setNewCompany({ ...newCompany, logo: uploaded.url });
+    };
+
+    const updateEditingCompanyLogo = async (file: File) => {
+        if (!editingCompany) return;
+        const uploaded = await uploadProposalImage(file, `companies/logos/${editingCompany.id}`);
+        setEditingCompany({ ...editingCompany, logo: uploaded.url });
+    };
+
     // --- Render Helpers ---
     const renderEditCompanyModal = () => {
         if (!editingCompany) return null;
@@ -583,7 +611,7 @@ const App: React.FC = () => {
                     <div className="p-6 space-y-4 overflow-y-auto flex-1">
                         <FormInput label="Company Name" value={editingCompany.name} onChange={e => setEditingCompany({ ...editingCompany, name: e.target.value })} />
                         <FormInput label="Domain" value={editingCompany.domain} onChange={e => setEditingCompany({ ...editingCompany, domain: e.target.value })} />
-                        <FileUploader label="Company Logo" currentImage={editingCompany.logo} onFileSelect={b64 => setEditingCompany({ ...editingCompany, logo: b64 })} />
+                        <FileUploader label="Company Logo" currentImage={editingCompany.logo} onFileSelect={updateEditingCompanyLogo} />
 
                         {/* Proposal Builder Sections (Requirement 13.x) */}
                         <div className="pt-4 border-t border-[var(--panel-border)]">
@@ -646,7 +674,7 @@ const App: React.FC = () => {
                 {userMsg && <div className="mb-4 p-3 bg-ai-accent/10 text-ai-secondary text-sm rounded-xl border border-ai-accent/20">{userMsg}</div>}
                 <FormInput label="Company Name" value={newCompany.name} onChange={e => setNewCompany({ ...newCompany, name: e.target.value })} placeholder="e.g. Agency A" />
                 <FormInput label="Domain (e.g. sitc.sa)" value={newCompany.domain} onChange={e => setNewCompany({ ...newCompany, domain: e.target.value })} placeholder="Do not include @" />
-                <FileUploader label="Company Logo" currentImage={newCompany.logo} onFileSelect={b64 => setNewCompany({ ...newCompany, logo: b64 })} />
+                <FileUploader label="Company Logo" currentImage={newCompany.logo} onFileSelect={updateCompanyLogo} />
                 <Button onClick={handleCreateCompany} className="mt-4">Create Company</Button>
             </div>
             <div className="glass p-6 rounded-2xl">
@@ -769,48 +797,41 @@ const App: React.FC = () => {
 
     // Step Renders
     // Step Renders
+    const updateBrandingLogo = async (field: 'clientLogo' | 'companyLogo', file: File) => {
+        const uploaded = await uploadProposalImage(file, `proposals/${formData.id}/branding/${field}`);
+        setFormData({ ...formData, branding: { ...formData.branding, [field]: uploaded.url } });
+    };
+
     const renderBrandingStep = () => (
-        <div className="space-y-6">
-            <div className="form-panel">
-                <SectionHeader title="Proposal Details" icon={<PalmLogo className="w-6 h-6" />} />
-                <div className="form-grid mt-6">
-                    <FormInput
-                        label="Proposal Name (Required)"
-                        value={formData.proposalName}
-                        onChange={(e) => setFormData({ ...formData, proposalName: e.target.value })}
-                        placeholder="e.g. London Group Nov 2025"
+        <div className="form-panel">
+            <SectionHeader title="Branding & Customer" icon={<PalmLogo className="w-6 h-6" />} />
+            <div className="form-grid">
+                <FormInput label="Proposal Name (Internal)" value={formData.proposalName} onChange={(e) => setFormData({ ...formData, proposalName: e.target.value })} placeholder="e.g. Riyadh VIP Delegation" />
+                <FormInput label="Customer / Client Name" value={formData.customerName} onChange={(e) => setFormData({ ...formData, customerName: e.target.value })} placeholder="e.g. Ministry of Foreign Affairs" />
+            </div>
+
+            {/* Logo Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div className="border border-[var(--panel-border)] bg-[var(--panel-bg-2)] rounded-xl p-5">
+                    <FileUploader
+                        label="Client Logo (Optional)"
+                        currentImage={formData.branding.clientLogo}
+                        onFileSelect={(file) => updateBrandingLogo('clientLogo', file)}
                     />
-                    <FormInput
-                        label="Customer / Client Name"
-                        value={formData.customerName}
-                        onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-                        placeholder="e.g. Acme Corp"
+                </div>
+                <div className="border border-[var(--panel-border)] bg-[var(--panel-bg-2)] rounded-xl p-5">
+                    <FileUploader
+                        label="Customize Agency Logo"
+                        currentImage={formData.branding.companyLogo}
+                        onFileSelect={(file) => updateBrandingLogo('companyLogo', file)}
                     />
+                    <p className="text-[10px] text-[var(--text-muted)] mt-2 italic px-1">Defaults to SITC logo if left empty.</p>
                 </div>
             </div>
 
-            <div className="form-panel">
-                <SectionHeader title="Branding" icon={<EditIcon />} />
-                <div className="form-grid mt-6">
-                    <div className="col-span-1">
-                        <FileUploader
-                            label="Client Logo"
-                            currentImage={formData.branding.clientLogo}
-                            onFileSelect={(b64) => setFormData({ ...formData, branding: { ...formData.branding, clientLogo: b64 } })}
-                        />
-                    </div>
-
-                </div>
-            </div>
-
-            <div className="form-panel">
-                <SectionHeader title="Contact Details (Auto-filled)" icon={<UserIcon />} />
-                <div className="form-grid mt-6">
-                    <FormInput label="Company Name" value={formData.branding.companyName || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, companyName: e.target.value } })} />
-                    <FormInput label="Prepared By" value={formData.branding.contactName || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, contactName: e.target.value } })} />
-                    <FormInput label="Email" value={formData.branding.contactEmail || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, contactEmail: e.target.value } })} />
-                    <FormInput label="Phone" value={formData.branding.contactPhone || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, contactPhone: e.target.value } })} />
-                </div>
+            <div className="form-grid mt-8 pt-8 border-t border-[var(--panel-border)]">
+                <FormInput label="Contact Person" value={formData.branding.contactName || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, contactName: e.target.value } })} />
+                <FormInput label="Contact Email" value={formData.branding.contactEmail || ''} onChange={(e) => setFormData({ ...formData, branding: { ...formData.branding, contactEmail: e.target.value } })} />
             </div>
         </div>
     );
@@ -902,18 +923,66 @@ const App: React.FC = () => {
             roomTypes: [{ ...initialRoomType, id: `rt_${Date.now()}` }],
             meetingRooms: [],
             dining: [],
-            images: []
+            images: [] // Ensure images array is fresh
         };
         setFormData({ ...formData, hotelOptions: [...formData.hotelOptions, newHotel] });
         setExpandedHotels({ ...expandedHotels, [hId]: true });
     };
     const removeHotel = (index: number) => { const h = [...formData.hotelOptions]; h.splice(index, 1); setFormData({ ...formData, hotelOptions: h }); };
     const updateHotel = (index: number, field: keyof HotelDetails, value: any) => { const h = [...formData.hotelOptions]; h[index] = { ...h[index], [field]: value }; setFormData({ ...formData, hotelOptions: h }); };
-    const updateHotelImageTag = (index: number, imgIdx: number, tag: string) => { const h = [...formData.hotelOptions]; h[index].images[imgIdx].tag = tag === 'none' ? undefined : (tag as ImageTag); setFormData({ ...formData, hotelOptions: h }); };
-    const addHotelImage = (index: number, url: string) => { const h = [...formData.hotelOptions]; if (h[index].images.length >= 3) return; h[index].images.push({ url, tag: undefined }); setFormData({ ...formData, hotelOptions: h }); };
-    const addMultipleHotelImages = (index: number, urls: string[]) => { const h = [...formData.hotelOptions]; const remaining = 3 - h[index].images.length; const toAdd = urls.slice(0, remaining); toAdd.forEach(url => h[index].images.push({ url, tag: undefined })); setFormData({ ...formData, hotelOptions: h }); };
-    const removeHotelImage = (index: number, imgIdx: number) => { const h = [...formData.hotelOptions]; h[index].images.splice(imgIdx, 1); setFormData({ ...formData, hotelOptions: h }); };
-    const reorderHotelImages = (hotelIndex: number, fromIdx: number, toIdx: number) => { const h = [...formData.hotelOptions]; const imgs = [...h[hotelIndex].images]; const [moved] = imgs.splice(fromIdx, 1); imgs.splice(toIdx, 0, moved); h[hotelIndex] = { ...h[hotelIndex], images: imgs }; setFormData({ ...formData, hotelOptions: h }); };
+    const updateHotelImageTag = (index: number, imgIdx: number, tag: string) => {
+        const h = [...formData.hotelOptions];
+        const imgs = [...h[index].images];
+        imgs[imgIdx] = { ...imgs[imgIdx], tag: tag === 'none' ? undefined : (tag as ImageTag) };
+        h[index] = { ...h[index], images: imgs };
+        setFormData({ ...formData, hotelOptions: h });
+    };
+    const addHotelImage = async (index: number, file: File) => {
+        const h = [...formData.hotelOptions];
+        if (h[index].images.length >= 3) return;
+        const uploaded = await uploadProposalImage(file, `proposals/${formData.id}/hotels/${index}/images/${h[index].images.length}`);
+        h[index] = { ...h[index], images: [...h[index].images, uploaded] };
+        setFormData({ ...formData, hotelOptions: h });
+    };
+    const addMultipleHotelImages = async (index: number, files: File[]) => {
+        const h = [...formData.hotelOptions];
+        const currentImgs = h[index].images || [];
+        const remaining = 3 - currentImgs.length;
+        if (remaining <= 0) return;
+        const toAdd = files.slice(0, remaining);
+
+        const uploaded = await Promise.all(
+            toAdd.map((file, i) => uploadProposalImage(file, `proposals/${formData.id}/hotels/${index}/images/${currentImgs.length + i}`))
+        );
+
+        h[index] = { ...h[index], images: [...currentImgs, ...uploaded] };
+        setFormData({ ...formData, hotelOptions: h });
+    };
+    const removeHotelImage = (index: number, imgIdx: number) => {
+        const h = [...formData.hotelOptions];
+        const imgs = [...h[index].images];
+        imgs.splice(imgIdx, 1);
+        h[index] = { ...h[index], images: imgs };
+        setFormData({ ...formData, hotelOptions: h });
+    };
+    const reorderHotelImages = (hotelIndex: number, fromIdx: number, toIdx: number) => {
+        const h = [...formData.hotelOptions];
+        const imgs = [...h[hotelIndex].images];
+        const [moved] = imgs.splice(fromIdx, 1);
+        imgs.splice(toIdx, 0, moved);
+        h[hotelIndex] = { ...h[hotelIndex], images: imgs };
+        setFormData({ ...formData, hotelOptions: h });
+    };
+
+    const updateTransportationImage = async (idx: number, file: File) => {
+        const uploaded = await uploadProposalImage(file, `proposals/${formData.id}/transportation/${idx}/image`);
+        updateItem('transportation', idx, 'images', [uploaded]);
+    };
+
+    const updateActivityImage = async (idx: number, file: File) => {
+        const uploaded = await uploadProposalImage(file, `proposals/${formData.id}/activities/${idx}/image`);
+        updateItem('activities', idx, 'images', [uploaded]);
+    };
     const addRoomType = (hotelIndex: number) => { const h = [...formData.hotelOptions]; h[hotelIndex].roomTypes.push({ ...initialRoomType, id: Date.now().toString(), includeInSummary: true }); setFormData({ ...formData, hotelOptions: h }); };
 
     // Date Update Logics
@@ -1039,7 +1108,7 @@ const App: React.FC = () => {
                                                         <div className="col-span-1 md:col-span-2">
                                                             {(() => {
                                                                 const isStandardRoom = ROOM_TYPE_OPTIONS.some(o => o.value === rt.name && o.value !== '' && o.value !== 'Other');
-                                                                // If it's a standard room, use its name. 
+                                                                // If it's a standard room, use its name.
                                                                 // If it's NOT standard but has a name, it must be 'Other'
                                                                 // We use a special internal value 'CUSTOM_VALUE' if name exists but isn't in list
                                                                 const roomDropdownValue = isStandardRoom ? rt.name : (rt.name === '' ? '' : 'Other');
@@ -1197,7 +1266,7 @@ const App: React.FC = () => {
                                     >
                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                             <div className="md:col-span-1">
-                                                <MultiFileUploader label="Upload Hotel Photos" maxFiles={3} currentCount={hotel.images.length} onFilesSelect={(b64s) => addMultipleHotelImages(index, b64s)} />
+                                                <MultiFileUploader label="Upload Hotel Photos" maxFiles={3} currentCount={hotel.images.length} onFilesSelect={(files) => addMultipleHotelImages(index, files)} />
                                             </div>
                                             <div className="md:col-span-3 flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
                                                 {hotel.images.map((img, ii) => (
@@ -1246,7 +1315,9 @@ const App: React.FC = () => {
     const removeFlightQuote = (fIndex: number, qIndex: number) => { const f = [...formData.flightOptions]; f[fIndex].quotes.splice(qIndex, 1); setFormData({ ...formData, flightOptions: f }); };
 
     // Helper to add item with default includeInSummary: true
-    const addItem = <T,>(listKey: 'transportation' | 'customItems' | 'activities', item: T) => { setFormData({ ...formData, [listKey]: [...formData[listKey], { ...item, includeInSummary: true }] }); };
+    const addItem = <T,>(listKey: 'transportation' | 'customItems' | 'activities', item: T) => {
+        setFormData({ ...formData, [listKey]: [...formData[listKey], { ...item, images: (item as any).images || [], includeInSummary: true }] });
+    };
 
     const updateItemDates = (listKey: 'transportation' | 'customItems' | 'activities', index: number, startDate: string, endDate: string) => {
         const list = [...formData[listKey]] as any[];
@@ -1481,7 +1552,19 @@ const App: React.FC = () => {
                     {formData.inclusions.transportation && (
                         <Button variant="secondary" onClick={() => {
                             const newId = Date.now().toString();
-                            addItem<TransportationDetails>('transportation', { id: newId, type: VehicleType.Sedan, model: '', description: '', startDate: '', endDate: '', days: 1, netPricePerDay: 0, quantity: 1, vatRule: 'domestic' });
+                            addItem<TransportationDetails>('transportation', {
+                                id: newId,
+                                type: VehicleType.Sedan,
+                                model: '',
+                                description: '',
+                                startDate: '',
+                                endDate: '',
+                                days: 1,
+                                netPricePerDay: 0,
+                                quantity: 1,
+                                vatRule: 'domestic',
+                                images: []
+                            });
                             setExpandedTransport(prev => ({ ...prev, [newId]: true }));
                         }} className="h-9 text-xs"><PlusIcon size={14} /> Add Vehicle</Button>
                     )}
@@ -1533,7 +1616,7 @@ const App: React.FC = () => {
                                         <FormSelect label="VAT Rule" options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]} value={item.vatRule} onChange={(e) => updateItem('transportation', idx, 'vatRule', e.target.value)} />
                                     </div>
                                     <div className="col-span-1 md:col-span-1 border border-[var(--panel-border)] bg-[var(--panel-bg-2)] rounded-xl p-4">
-                                        <FileUploader label="Vehicle Image" currentImage={item.image} onFileSelect={(b64) => updateItem('transportation', idx, 'image', b64)} />
+                                        <FileUploader label="Vehicle Image" currentImage={item.images?.[0]?.url} onFileSelect={(file) => updateTransportationImage(idx, file)} />
                                     </div>
                                 </div>
 
@@ -1642,7 +1725,15 @@ const App: React.FC = () => {
                         onChange={(e) => setFormData({ ...formData, inclusions: { ...formData.inclusions, activities: !e.target.checked } })}
                     />
                     {formData.inclusions.activities && (
-                        <Button variant="secondary" onClick={() => addItem<ActivityDetails>('activities', { id: Date.now().toString(), name: '', pricePerPerson: 0, guests: 1, vatRule: 'domestic', days: 1 })} className="h-9 text-xs"><PlusIcon size={14} /> Add Activity</Button>
+                        <Button variant="secondary" onClick={() => addItem<ActivityDetails>('activities', {
+                            id: Date.now().toString(),
+                            name: '',
+                            pricePerPerson: 0,
+                            guests: 1,
+                            vatRule: 'domestic',
+                            days: 1,
+                            images: []
+                        })} className="h-9 text-xs"><PlusIcon size={14} /> Add Activity</Button>
                     )}
                 </div>
             </div>
@@ -1667,7 +1758,7 @@ const App: React.FC = () => {
                             <FormSelect label="VAT Rule" options={[{ label: 'Domestic', value: 'domestic' }, { label: 'International', value: 'international' }]} value={item.vatRule} onChange={(e) => updateItem('activities', idx, 'vatRule', e.target.value)} />
                         </div>
                         <div className="col-span-1 md:col-span-1 border border-[var(--panel-border)] bg-[var(--panel-bg-2)] rounded-xl p-4">
-                            <FileUploader label="Activity Image" currentImage={item.image} onFileSelect={(b64) => updateItem('activities', idx, 'image', b64)} />
+                            <FileUploader label="Activity Image" currentImage={item.images?.[0]?.url} onFileSelect={(file) => updateActivityImage(idx, file)} />
                         </div>
                     </div>
 

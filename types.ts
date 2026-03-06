@@ -50,18 +50,26 @@ export interface PricingConfig {
 }
 
 export interface Branding {
-  clientLogo?: string; // Base64
-  companyLogo?: string; // Base64 (Specific to this proposal)
+  clientLogo?: string; // URL (Storage)
+  companyLogo?: string; // URL (Storage) - Specific to this proposal
   companyName?: string;
   contactName?: string;
   contactEmail?: string;
   contactPhone?: string;
 }
 
+export interface ProposalImage {
+  path: string;
+  url: string;
+  name?: string;
+  type?: string;
+}
+
+export type RawImage = string | ProposalImage | null | undefined;
+
 export type ImageTag = 'interior' | 'rooms' | 'exterior';
 
-export interface HotelImage {
-  url: string;
+export interface HotelImage extends ProposalImage {
   tag?: ImageTag;
 }
 
@@ -155,7 +163,7 @@ export interface TransportationDetails {
   days: number;
   netPricePerDay: number;
   quantity: number;
-  image?: string;
+  images: ProposalImage[];
   vatRule: VatRule;
   includeInSummary?: boolean;
 }
@@ -180,7 +188,7 @@ export interface ActivityDetails {
   startDate?: string;
   endDate?: string;
   days: number;
-  image?: string;
+  images: ProposalImage[];
   vatRule: VatRule;
   includeInSummary?: boolean;
 }

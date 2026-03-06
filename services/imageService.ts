@@ -1,70 +1,97 @@
 import { storage } from '../src/firebase';
-import { ref, uploadString, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ProposalImage, RawImage } from '../types';
 
 /**
- * Compress a base64 image using canvas to reduce file size.
- * Returns a compressed base64 JPEG string.
+ * Upload a File object to Firebase Storage and return the ProposalImage metadata.
+ * Uses getDownloadURL to ensure a valid external URL is returned.
  */
-const compressImage = (base64: string, maxWidth = 800, quality = 0.7): Promise<string> => {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let w = img.width;
-            let h = img.height;
+export async function uploadProposalImage(
+    file: File,
+    folderPath: string
+): Promise<ProposalImage> {
+    const storageRef = ref(storage, folderPath);
 
-            if (w > maxWidth) {
-                h = (maxWidth / w) * h;
-                w = maxWidth;
+    // Set the correct content type for the image
+    const metadata = {
+        contentType: file.type || "image/jpeg",
+    };
+
+    console.log("Starting upload for image path:", folderPath);
+
+    await uploadBytes(storageRef, file, metadata);
+
+    const downloadURL = await getDownloadURL(storageRef);
+
+    console.log("Uploaded image path:", folderPath);
+    console.log("Uploaded image downloadURL:", downloadURL);
+
+    return {
+        path: folderPath,
+        url: downloadURL,
+        name: file.name,
+        type: file.type || "image/jpeg",
+    };
+}
+
+/**
+ * Merge existing images with new uploaded images.
+ * Ensures we don't lose previous images when editing a proposal.
+ */
+export function mergeExistingAndNewImages(
+    existingImages: ProposalImage[] = [],
+    newUploadedImages: ProposalImage[] = []
+): ProposalImage[] {
+    if (!newUploadedImages.length) return existingImages;
+    return [...existingImages, ...newUploadedImages];
+}
+
+/**
+ * Normalize a single image value to always return a string URL.
+ * Handles legacy string types or malformed objects.
+ */
+export function normalizeImageUrl(image: RawImage): string {
+    if (!image) return "";
+
+    if (typeof image === "string") {
+        if (image.startsWith("http://") || image.startsWith("https://")) {
+            return image;
+        }
+        return "";
+    }
+
+    return image.url || "";
+}
+
+/**
+ * Normalize an array of images into a clean array of ProposalImage objects.
+ * Removes empty or invalid legacy data.
+ */
+export function normalizeImages(images: any[] = []): ProposalImage[] {
+    if (!Array.isArray(images)) return [];
+
+    return images
+        .map((image) => {
+            if (!image) return null;
+
+            if (typeof image === "string") {
+                if (image.startsWith("http://") || image.startsWith("https://")) {
+                    return {
+                        path: "",
+                        url: image,
+                    };
+                }
+                return null;
             }
 
-            canvas.width = w;
-            canvas.height = h;
-            const ctx = canvas.getContext('2d')!;
-            ctx.drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.onerror = () => resolve(base64);
-        img.src = base64;
-    });
-};
+            if (image.url) {
+                return image as ProposalImage;
+            }
 
-/**
- * Upload a base64 image to Firebase Storage and return the download URL.
- * If already a URL, return as-is.
- * If upload fails, returns '' — NEVER returns base64.
- */
-export const uploadBase64Image = async (
-    base64: string,
-    path: string
-): Promise<string> => {
-    if (!base64) return '';
-
-    // Already a URL — keep it
-    if (base64.startsWith('http://') || base64.startsWith('https://')) {
-        return base64;
-    }
-
-    // Not a data URI — skip
-    if (!base64.startsWith('data:')) {
-        return '';
-    }
-
-    // Compress before upload
-    const compressed = await compressImage(base64, 800, 0.7);
-
-    try {
-        const storageRef = ref(storage, path);
-        await uploadString(storageRef, compressed, 'data_url');
-        const url = await getDownloadURL(storageRef);
-        console.log(`✓ Uploaded to Storage: ${path}`);
-        return url;
-    } catch (err) {
-        console.error(`✗ Storage upload FAILED for ${path}:`, err);
-        // NEVER return base64 — return empty so Firestore stays small
-        return '';
-    }
-};
+            return null;
+        })
+        .filter(Boolean) as ProposalImage[];
+}
 
 /**
  * Delete an image from Storage by its path (optional cleanup).
@@ -79,8 +106,31 @@ export const deleteStorageImage = async (storagePath: string): Promise<void> => 
 };
 
 /**
- * Walk through a proposal and upload ALL base64 images to Firebase Storage.
- * Returns the proposal with only URLs (never base64).
+ * Helper to upload a base64 string if still needed (legacy support for logos).
+ * But converted to return ProposalImage format.
+ */
+import { uploadString } from 'firebase/storage';
+export const uploadBase64ToProposalImage = async (
+    base64: string,
+    path: string
+): Promise<string> => {
+    if (!base64) return '';
+    if (base64.startsWith('http://') || base64.startsWith('https://')) return base64;
+    if (!base64.startsWith('data:')) return '';
+
+    try {
+        const storageRef = ref(storage, path);
+        await uploadString(storageRef, base64, 'data_url');
+        return await getDownloadURL(storageRef);
+    } catch (err) {
+        console.error(`✗ Legacy upload FAILED for ${path}:`, err);
+        return '';
+    }
+};
+
+/**
+ * Walk through a proposal and ensure ALL images are normalized and valid.
+ * This also handles legacy base64 if they somehow slipped in.
  */
 export const uploadProposalImages = async (proposal: any): Promise<any> => {
     const pid = proposal.id;
@@ -89,14 +139,14 @@ export const uploadProposalImages = async (proposal: any): Promise<any> => {
     // Branding logos
     if (updated.branding) {
         updated.branding = { ...updated.branding };
-        if (updated.branding.clientLogo) {
-            updated.branding.clientLogo = await uploadBase64Image(
+        if (updated.branding.clientLogo && updated.branding.clientLogo.startsWith('data:')) {
+            updated.branding.clientLogo = await uploadBase64ToProposalImage(
                 updated.branding.clientLogo,
                 `proposals/${pid}/branding/clientLogo`
             );
         }
-        if (updated.branding.companyLogo) {
-            updated.branding.companyLogo = await uploadBase64Image(
+        if (updated.branding.companyLogo && updated.branding.companyLogo.startsWith('data:')) {
+            updated.branding.companyLogo = await uploadBase64ToProposalImage(
                 updated.branding.companyLogo,
                 `proposals/${pid}/branding/companyLogo`
             );
@@ -108,19 +158,7 @@ export const uploadProposalImages = async (proposal: any): Promise<any> => {
         updated.hotelOptions = await Promise.all(
             updated.hotelOptions.map(async (hotel: any, hi: number) => {
                 const h = { ...hotel };
-                if (h.images?.length) {
-                    h.images = await Promise.all(
-                        h.images.map(async (img: any, ii: number) => ({
-                            ...img,
-                            url: await uploadBase64Image(
-                                img.url,
-                                `proposals/${pid}/hotels/${hi}/images/${ii}`
-                            ),
-                        }))
-                    );
-                    // Remove images that failed to upload (empty url)
-                    h.images = h.images.filter((img: any) => img.url);
-                }
+                h.images = normalizeImages(h.images || []);
                 return h;
             })
         );
@@ -129,17 +167,15 @@ export const uploadProposalImages = async (proposal: any): Promise<any> => {
     // Transportation images
     if (updated.transportation?.length) {
         updated.transportation = await Promise.all(
-            updated.transportation.map(async (t: any, ti: number) => {
-                if (t.image) {
-                    return {
-                        ...t,
-                        image: await uploadBase64Image(
-                            t.image,
-                            `proposals/${pid}/transportation/${ti}/image`
-                        ),
-                    };
+            updated.transportation.map(async (t: any) => {
+                const tr = { ...t };
+                tr.images = normalizeImages(tr.images || []);
+                // Handle legacy single 'image' field if it exists
+                if (tr.image && !tr.images.length) {
+                    tr.images = normalizeImages([tr.image]);
                 }
-                return t;
+                delete tr.image;
+                return tr;
             })
         );
     }
@@ -147,17 +183,15 @@ export const uploadProposalImages = async (proposal: any): Promise<any> => {
     // Activity images
     if (updated.activities?.length) {
         updated.activities = await Promise.all(
-            updated.activities.map(async (a: any, ai: number) => {
-                if (a.image) {
-                    return {
-                        ...a,
-                        image: await uploadBase64Image(
-                            a.image,
-                            `proposals/${pid}/activities/${ai}/image`
-                        ),
-                    };
+            updated.activities.map(async (a: any) => {
+                const act = { ...a };
+                act.images = normalizeImages(act.images || []);
+                // Handle legacy single 'image' field
+                if (act.image && !act.images.length) {
+                    act.images = normalizeImages([act.image]);
                 }
-                return a;
+                delete act.image;
+                return act;
             })
         );
     }
