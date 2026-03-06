@@ -198,6 +198,9 @@ const App: React.FC = () => {
     const [proposalSortKey, setProposalSortKey] = useState<'dateCreated' | 'proposalName' | 'clientName' | 'lastEdited'>('dateCreated');
     const [proposalSortDir, setProposalSortDir] = useState<'asc' | 'desc'>('desc');
 
+    // Success Toast
+    const [successToast, setSuccessToast] = useState<string | null>(null);
+
     // Accordion Expansion State
     const [pricingAccordion, setPricingAccordion] = useState<string | null>(null);
     const [accomAccordions, setAccomAccordions] = useState<Record<string, string[]>>({}); // [hotelId]: ['rooms', 'meetings', etc]
@@ -2157,10 +2160,9 @@ const App: React.FC = () => {
                 onFadeComplete={() => {
                     setIsGenerating(false);
                     setGenerationComplete(false);
-                    setViewMode('preview');
-                    // Auto-trigger direct PDF download after preview renders
+                    // Download PDF directly without navigating to preview
                     setTimeout(() => {
-                        const element = document.getElementById('proposal-pdf-content');
+                        const element = document.getElementById('proposal-pdf-offscreen');
                         if (!element) return;
                         const opt = {
                             margin: 0,
@@ -2169,10 +2171,34 @@ const App: React.FC = () => {
                             html2canvas: { scale: 2, useCORS: true, letterRendering: true },
                             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' as const }
                         };
-                        html2pdf().set(opt).from(element).save();
-                    }, 800);
+                        html2pdf().set(opt).from(element).save().then(() => {
+                            setSuccessToast('Proposal generated and downloaded successfully!');
+                            setTimeout(() => setSuccessToast(null), 4000);
+                        });
+                    }, 300);
                 }}
             />
+
+            {/* Hidden off-screen render for PDF capture */}
+            <div style={{ position: 'fixed', left: '-9999px', top: 0, width: '1400px', opacity: 0, pointerEvents: 'none', zIndex: -1 }}>
+                <div id="proposal-pdf-offscreen"><ProposalPDF data={formData} /></div>
+            </div>
+
+            {/* Success Toast */}
+            {successToast && (
+                <div className="fixed top-6 right-6 z-[9999] animate-fade-in">
+                    <div className="flex items-center gap-3 px-6 py-4 rounded-xl bg-green-600 text-white shadow-2xl shadow-green-600/30 border border-green-500/30">
+                        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                            <CheckIcon size={18} />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold">{successToast}</p>
+                            <p className="text-xs text-green-100/80 mt-0.5">Your PDF has been saved to Downloads</p>
+                        </div>
+                        <button onClick={() => setSuccessToast(null)} className="ml-4 text-white/60 hover:text-white transition-colors">&times;</button>
+                    </div>
+                </div>
+            )}
 
             <div className="wizard-shell">
                 {/* Left Drawer / Sidebar */}
