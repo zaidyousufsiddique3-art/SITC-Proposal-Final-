@@ -2146,7 +2146,13 @@ const App: React.FC = () => {
                 margin: 0,
                 filename: `${formData.proposalName || 'Proposal'}.pdf`,
                 image: { type: 'jpeg' as const, quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    letterRendering: true,
+                    logging: true
+                },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' as const }
             };
             html2pdf().set(opt).from(element).save();

@@ -173,6 +173,14 @@ const SoftCard: React.FC<{ children: React.ReactNode; className?: string }> = ({
 // 1) OPENING (match Opening.pdf)
 // ==============================
 const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
+    // Helper to bypass cache for CORS images
+    const corsUrl = (url?: string) => {
+        if (!url) return url;
+        if (url.startsWith('data:')) return url;
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}cb=${Date.now()}`;
+    };
+
     // Best-effort derive date range from hotels, fallback to flights if needed
     let startISO: string | undefined;
     let endISO: string | undefined;
@@ -229,7 +237,7 @@ const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
                     >
                         {data.branding?.companyLogo ? (
                             <img
-                                src={data.branding.companyLogo}
+                                src={data.branding.companyLogo.includes('?') ? `${data.branding.companyLogo}&cors` : `${data.branding.companyLogo}?cors`}
                                 alt="Logo"
                                 crossOrigin="anonymous"
                                 style={{ maxWidth: "80%", maxHeight: "80%", objectFit: "contain" }}
@@ -338,17 +346,17 @@ const HotelPictureSection: React.FC<{ hotel: HotelDetails }> = ({ hotel }) => {
                 {/* big left */}
                 <div className="rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
                     {img0 ? (
-                        <img src={img0} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel main" />
+                        <img src={img0.includes('?') ? `${img0}&cors` : `${img0}?cors`} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel main" />
                     ) : null}
                 </div>
 
                 {/* right stacked */}
                 <div className="flex flex-col gap-4">
                     <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
-                        {img1 ? <img src={img1} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 2" /> : null}
+                        {img1 ? <img src={img1.includes('?') ? `${img1}&cors` : `${img1}?cors`} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 2" /> : null}
                     </div>
                     <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
-                        {img2 ? <img src={img2} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 3" /> : null}
+                        {img2 ? <img src={img2.includes('?') ? `${img2}&cors` : `${img2}?cors`} crossOrigin="anonymous" className="w-full h-full object-cover" alt="Hotel 3" /> : null}
                     </div>
                 </div>
             </div>
@@ -742,7 +750,7 @@ const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing 
                 <div>
                     {t.image ? (
                         <img
-                            src={t.image}
+                            src={t.image.includes('?') ? `${t.image}&cors` : `${t.image}?cors`}
                             alt="Vehicle"
                             crossOrigin="anonymous"
                             style={{ width: 440, height: 240, objectFit: "contain" }}
