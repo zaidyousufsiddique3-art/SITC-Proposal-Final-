@@ -1,32 +1,65 @@
+import React from "react";
+import {
+    ProposalData,
+    HotelDetails,
+    MarkupType,
+    VatRule,
+    FlightDetails,
+    FlightLeg,
+    MarkupConfig,
+} from "../types";
 
-import React from 'react';
-import { ProposalData, HotelDetails, MarkupType, VatRule, HotelImage, FlightDetails, FlightLeg, MarkupConfig, FlightQuote, TransportationDetails, ActivityDetails, CustomItem } from '../types';
-import { PalmLogo, BusIcon, ActivityIcon, PlaneIcon, BedIcon, MeetingIcon, UtensilsIcon } from './Icons';
-
-// --- Theme Colors ---
+// ==============================
+// THEME (match SITC PDFs)
+// ==============================
 const COLORS = {
-    blue: '#1D4486',
-    gold: '#CBA135',
-    cream: '#F9F7F2',
-    text: '#333333',
-    muted: '#666666',
-    divider: '#E5E7EB',
-    tableHeader: '#1D4486',
-    stripe: 'rgba(29, 68, 134, 0.1)'
+    blue: "#1D4486",
+    gold: "#CBA135",
+    cream: "#F9F7F2",
+    divider: "#E5E7EB",
+    softCard: "#F6F8FB",
+    ink: "#111827",
+    muted: "#6B7280",
 };
 
-// --- Logic Helpers ---
-
+// ==============================
+// HELPERS
+// ==============================
 const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: currency,
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency,
         minimumFractionDigits: 0,
-        maximumFractionDigits: 2
+        maximumFractionDigits: 2,
     }).format(amount);
 };
 
-const calculatePriceBreakdown = (net: number, markup: MarkupConfig, vatRule: VatRule, vatPercent: number = 15, quantity: number = 1, days: number = 1) => {
+const safe = (v?: string | null, fallback = "-") => (v && v.trim() ? v : fallback);
+
+const formatISOToHuman = (iso?: string) => {
+    // accepts: YYYY-MM-DD
+    if (!iso) return "TBD";
+    const parts = iso.split("-").map((x) => parseInt(x, 10));
+    if (parts.length !== 3) return iso;
+    const [y, m, d] = parts;
+    const dt = new Date(y, m - 1, d);
+    return dt.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
+};
+
+const formatDateRangeHuman = (startISO?: string, endISO?: string) => {
+    if (!startISO || !endISO) return "TBD";
+    // e.g. "04 March 2026 - 18 March 2026"
+    return `${formatISOToHuman(startISO)} - ${formatISOToHuman(endISO)}`;
+};
+
+const calculatePriceBreakdown = (
+    net: number,
+    markup: MarkupConfig,
+    vatRule: VatRule,
+    vatPercent: number = 15,
+    quantity: number = 1,
+    days: number = 1
+) => {
     let markupAmount = 0;
     const totalNet = net * quantity * days;
 
@@ -37,11 +70,12 @@ const calculatePriceBreakdown = (net: number, markup: MarkupConfig, vatRule: Vat
     }
 
     const basePrice = totalNet + markupAmount;
+
     let subTotal = 0;
     let vatAmount = 0;
     let grandTotal = 0;
 
-    if (vatRule === 'domestic') {
+    if (vatRule === "domestic") {
         subTotal = basePrice;
         vatAmount = subTotal * (vatPercent / 100);
         grandTotal = subTotal + vatAmount;
@@ -55,460 +89,750 @@ const calculatePriceBreakdown = (net: number, markup: MarkupConfig, vatRule: Vat
     return { subTotal, vatAmount, grandTotal };
 };
 
-const calculateFlightTotal = (quotes: FlightQuote[], markup: MarkupConfig, vatRule: VatRule, vatPercent: number) => {
-    let legSubTotal = 0;
-    let legVat = 0;
-    let legGrandTotal = 0;
-
-    quotes.forEach(q => {
-        const { subTotal, vatAmount, grandTotal } = calculatePriceBreakdown(q.price, markup, vatRule, vatPercent, q.quantity, 1);
-        legSubTotal += subTotal;
-        legVat += vatAmount;
-        legGrandTotal += grandTotal;
-    });
-
-    return { subTotal: legSubTotal, vatAmount: legVat, grandTotal: legGrandTotal };
-};
-
-// --- Components ---
-
-const LegDisplay: React.FC<{ leg: FlightLeg }> = ({ leg }) => (
-    <div className="flex flex-col gap-1 mb-6 last:mb-0 break-inside-avoid">
-        <div className="flex justify-between items-center bg-gray-50 p-2 rounded border-l-4 border-[#1D4486]">
-            <div className="font-bold text-[#1D4486] text-lg">{leg.airline} <span className="text-gray-400 font-normal text-sm">{leg.flightNumber}</span></div>
-            <div className="text-xs text-gray-500">{leg.duration}</div>
-        </div>
-        <div className="grid grid-cols-2 gap-4 mt-2 px-2">
-            <div>
-                <div className="text-xs uppercase font-bold text-gray-400">Outbound</div>
-                <div className="font-bold text-lg">{leg.from}</div>
-                <div className="text-sm text-gray-600 font-medium">{leg.departureDate} @ {leg.departureTime}</div>
-            </div>
-            <div className="text-right">
-                <div className="text-xs uppercase font-bold text-gray-400">Return</div>
-                <div className="font-bold text-lg">{leg.to}</div>
-                <div className="text-sm text-gray-600 font-medium">{leg.arrivalDate} @ {leg.arrivalTime}</div>
-            </div>
+// ==============================
+// PRINT PAGE WRAPPER (A4 feel)
+// ==============================
+const Page: React.FC<{
+    children: React.ReactNode;
+    bg?: string;
+    className?: string;
+}> = ({ children, bg = "#ffffff", className = "" }) => (
+    <div
+        className={`w-full flex justify-center page-break ${className}`}
+        style={{ background: bg }}
+    >
+        {/* A4 content area width. Keeping it consistent with user-provided styles. */}
+        <div
+            className="relative"
+            style={{
+                width: "1123px", // Flipped to Landscape width as per project standard
+                minHeight: "794px",
+            }}
+        >
+            {children}
         </div>
     </div>
 );
 
-// --- Sections ---
+const SectionHeader: React.FC<{ title: string; subtitle?: string }> = ({
+    title,
+    subtitle,
+}) => (
+    <div className="px-[72px] pt-[72px]">
+        <div
+            className="text-[44px] font-black tracking-tight"
+            style={{ color: COLORS.blue }}
+        >
+            {title}
+        </div>
 
-// 1. Opening.pdf
+        <div className="mt-5" style={{ height: 2, background: COLORS.gold, width: "100%" }} />
+
+        {subtitle ? (
+            <div
+                className="mt-10 text-[28px] font-extrabold"
+                style={{ color: COLORS.gold }}
+            >
+                {subtitle}
+            </div>
+        ) : null}
+    </div>
+);
+
+const SoftCard: React.FC<{ children: React.ReactNode; className?: string }> = ({
+    children,
+    className = "",
+}) => (
+    <div
+        className={`rounded-[18px] border ${className}`}
+        style={{
+            background: COLORS.softCard,
+            borderColor: "#E6EDF6",
+            boxShadow: "0 6px 20px rgba(17,24,39,0.06)",
+        }}
+    >
+        {children}
+    </div>
+);
+
+// ==============================
+// 1) OPENING (match Opening.pdf)
+// ==============================
 const OpeningSection: React.FC<{ data: ProposalData }> = ({ data }) => {
-    // Attempt to extract dates from hotel options
-    let dateRange = "TBD";
-    if (data.hotelOptions.length > 0) {
-        const first = data.hotelOptions[0].roomTypes[0];
-        const last = data.hotelOptions[data.hotelOptions.length - 1].roomTypes[0];
-        if (first && last) {
-            dateRange = `${first.checkIn} - ${last.checkOut}`;
-        }
+    let startISO: string | undefined;
+    let endISO: string | undefined;
+
+    if (data.hotelOptions?.length > 0) {
+        const firstRT = data.hotelOptions[0]?.roomTypes?.[0];
+        const lastRT = data.hotelOptions[data.hotelOptions.length - 1]?.roomTypes?.[0];
+        startISO = firstRT?.checkIn;
+        endISO = lastRT?.checkOut;
+    } else if (data.flightOptions?.length > 0) {
+        const f = data.flightOptions[0];
+        startISO = f?.outbound?.[0]?.departureDate;
+        endISO = f?.return?.[f.return.length - 1]?.arrivalDate;
     }
 
+    const dateRange = formatDateRangeHuman(startISO, endISO);
+
     return (
-        <div className="w-full min-h-screen bg-white flex page-break items-center relative overflow-hidden">
-            <div className="flex-1 p-20 flex flex-col justify-center">
-                <div className="border border-gray-200 p-8 inline-block max-w-xl">
-                    <h1 className="text-4xl font-bold text-[#1D4486] mb-2">{data.customerName} | {dateRange}</h1>
-                </div>
+        <Page bg="#ffffff">
+            <div className="absolute inset-0 flex">
+                {/* LEFT WHITE */}
+                <div className="flex-1 bg-white" />
+                {/* RIGHT CREAM */}
+                <div className="w-[34%]" style={{ background: COLORS.cream }} />
             </div>
-            <div className="w-1/3 min-h-screen bg-[#F9F7F2] flex items-center justify-center p-12">
-                <div className="border border-gray-200 p-8 bg-white flex flex-col items-center">
-                    {data.branding.companyLogo ? (
-                        <img src={data.branding.companyLogo} className="max-h-64 object-contain" alt="Logo" />
-                    ) : (
-                        <div className="h-64 flex flex-col items-center justify-center text-gray-200 font-bold uppercase tracking-widest text-center italic">
-                            Saudi International Travel Company
+
+            {/* Content */}
+            <div className="absolute inset-0 flex">
+                <div className="flex-1 flex items-center">
+                    <div className="pl-[90px]">
+                        <div
+                            className="inline-block border rounded-[2px]"
+                            style={{ borderColor: "#D7DEE8" }}
+                        >
+                            <div className="px-8 py-6">
+                                <div
+                                    className="text-[26px] font-extrabold leading-snug"
+                                    style={{ color: COLORS.blue }}
+                                >
+                                    {safe(data.customerName)} | {dateRange}
+                                </div>
+                            </div>
                         </div>
-                    )}
+                    </div>
+                </div>
+
+                {/* Logo right */}
+                <div className="w-[34%] flex items-center justify-center">
+                    <div
+                        className="bg-white border rounded-[2px] flex items-center justify-center"
+                        style={{
+                            width: 260,
+                            height: 260,
+                            borderColor: "#D7DEE8",
+                        }}
+                    >
+                        {data.branding?.companyLogo ? (
+                            <img
+                                src={data.branding.companyLogo}
+                                alt="Logo"
+                                style={{ maxWidth: "80%", maxHeight: "80%", objectFit: "contain" }}
+                            />
+                        ) : (
+                            <div
+                                className="text-center font-extrabold tracking-widest"
+                                style={{ color: "#CBD5E1" }}
+                            >
+                                SITC
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+        </Page>
     );
 };
 
-// 2. Terms and Conditions.pdf
+// ==============================
+// 2) TERMS (match Terms and Conditions.pdf)
+// ==============================
 const TermsSection: React.FC = () => (
-    <div className="w-full min-h-screen bg-white p-20 page-break flex flex-col">
-        <h2 className="text-4xl font-bold text-[#1D4486] mb-12 border-b-2 border-[#CBA135] pb-4">GENERAL TERMS & CONDITIONS</h2>
-        <div className="grid grid-cols-2 gap-16 text-gray-700 leading-relaxed">
-            <div className="space-y-8">
-                <div>
-                    <h3 className="font-bold text-[#1D4486] mb-2">1. Booking Confirmation</h3>
-                    <p className="text-sm">All bookings are subject to availability at the time of confirmation. Prices are subject to change without prior notice until the final booking is secured.</p>
+    <Page bg="#ffffff">
+        <SectionHeader title="GENERAL TERMS & CONDITIONS" />
+
+        <div className="px-[72px] pt-[36px]">
+            <div className="grid grid-cols-2 gap-20 text-[13px] leading-relaxed" style={{ color: COLORS.ink }}>
+                <div className="space-y-8">
+                    <div>
+                        <div className="font-extrabold" style={{ color: COLORS.blue }}>1. Booking Confirmation</div>
+                        <p className="mt-2" style={{ color: COLORS.muted }}>
+                            All bookings are subject to availability at the time of confirmation. Prices are subject
+                            to change without prior notice until the final booking is secured.
+                        </p>
+                    </div>
+
+                    <div>
+                        <div className="font-extrabold" style={{ color: COLORS.blue }}>2. Payment Policy</div>
+                        <p className="mt-2" style={{ color: COLORS.muted }}>
+                            Full payment is required 14 days prior to arrival to guarantee the reservation. We
+                            accept bank transfers and major credit cards.
+                        </p>
+                    </div>
+
+                    <div>
+                        <div className="font-extrabold" style={{ color: COLORS.blue }}>3. Cancellation Policy</div>
+                        <p className="mt-2" style={{ color: COLORS.muted }}>
+                            Cancellations made more than 30 days before arrival will incur no charges. Cancellations
+                            between 14–30 days will be charged 50%. Cancellations within 14 days are non-refundable.
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h3 className="font-bold text-[#1D4486] mb-2">2. Payment Policy</h3>
-                    <p className="text-sm">Full payment is required 14 days prior to arrival to guarantee the reservation. We accept bank transfers and major credit cards.</p>
-                </div>
-                <div>
-                    <h3 className="font-bold text-[#1D4486] mb-2">3. Cancellation Policy</h3>
-                    <p className="text-sm">Cancellations made more than 30 days before arrival will incur no charges. Cancellations between 14-30 days will be charged 50%. Cancellations within 14 days are non-refundable.</p>
-                </div>
-            </div>
-            <div className="space-y-8">
-                <div>
-                    <h3 className="font-bold text-[#1D4486] mb-2">4. Flight Changes</h3>
-                    <p className="text-sm">Flight schedules are subject to change by the airline. We are not responsible for delays or cancellations by the carrier.</p>
-                </div>
-                <div>
-                    <h3 className="font-bold text-[#1D4486] mb-2">5. Travel Documents</h3>
-                    <p className="text-sm">Passengers are responsible for ensuring they have valid passports and visas for travel.</p>
-                </div>
-                <div>
-                    <h3 className="font-bold text-[#1D4486] mb-2">6. Liability</h3>
-                    <p className="text-sm">We act only as agents for the passenger in regard to travel, whether by railroad, motorcar, motorcoach, boat, or airplane, and assume no liability for injury, damage, loss, accident, delay, or irregularity.</p>
+
+                <div className="space-y-8">
+                    <div>
+                        <div className="font-extrabold" style={{ color: COLORS.blue }}>4. Flight Changes</div>
+                        <p className="mt-2" style={{ color: COLORS.muted }}>
+                            Flight schedules are subject to change by the airline. We are not responsible for delays
+                            or cancellations by the carrier.
+                        </p>
+                    </div>
+
+                    <div>
+                        <div className="font-extrabold" style={{ color: COLORS.blue }}>5. Travel Documents</div>
+                        <p className="mt-2" style={{ color: COLORS.muted }}>
+                            Passengers are responsible for ensuring they have valid passports and visas for travel.
+                        </p>
+                    </div>
+
+                    <div>
+                        <div className="font-extrabold" style={{ color: COLORS.blue }}>6. Liability</div>
+                        <p className="mt-2" style={{ color: COLORS.muted }}>
+                            We act only as agents for the passenger in regard to travel, whether by railroad, motorcar,
+                            motorcoach, boat, or airplane, and assume no liability for injury, damage, loss, accident,
+                            delay, or irregularity.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </Page>
 );
 
-// 3. Hotel Picture.pdf
+// ==============================
+// 3) HOTEL PICTURE (match Hotel Picture.pdf)
+// ==============================
 const HotelPictureSection: React.FC<{ hotel: HotelDetails }> = ({ hotel }) => {
-    const images = hotel.images;
+    const img0 = hotel.images?.[0]?.url;
+    const img1 = hotel.images?.[1]?.url;
+    const img2 = hotel.images?.[2]?.url;
+
     return (
-        <div className="w-full min-h-screen bg-white p-16 page-break flex flex-col">
-            <div className="border border-gray-200 p-4 mb-8 inline-block">
-                <h2 className="text-3xl font-bold text-[#1D4486]">{hotel.name}</h2>
-            </div>
-            <div className="grid grid-cols-12 gap-4 flex-1">
-                {/* Image 1: Left (Full height) */}
-                <div className="col-span-8 border border-gray-100 rounded overflow-hidden">
-                    {images[0] ? (
-                        <img src={images[0].url} className="w-full h-full object-cover" alt="Hotel 1" />
-                    ) : (
-                        <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300">No Image</div>
-                    )}
-                </div>
-                {/* Images 2 & 3: Right (Stacked) */}
-                <div className="col-span-4 flex flex-col gap-4">
-                    <div className="flex-1 border border-gray-100 rounded overflow-hidden">
-                        {images[1] ? (
-                            <img src={images[1].url} className="w-full h-full object-cover" alt="Hotel 2" />
-                        ) : (
-                            <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300">No Image</div>
-                        )}
+        <Page bg="#ffffff">
+            <SectionHeader title={safe(hotel.name)} />
+
+            <div className="px-[72px] pt-[28px]">
+                <div className="grid grid-cols-12 gap-4" style={{ height: 500 }}>
+                    {/* big left */}
+                    <div className="col-span-7 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
+                        {img0 ? (
+                            <img src={img0} className="w-full h-full object-cover" alt="Hotel main" />
+                        ) : null}
                     </div>
-                    <div className="flex-1 border border-gray-100 rounded overflow-hidden">
-                        {images[2] ? (
-                            <img src={images[2].url} className="w-full h-full object-cover" alt="Hotel 3" />
-                        ) : (
-                            <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300">No Image</div>
-                        )}
+
+                    {/* right stacked */}
+                    <div className="col-span-5 flex flex-col gap-4">
+                        <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
+                            {img1 ? <img src={img1} className="w-full h-full object-cover" alt="Hotel 2" /> : null}
+                        </div>
+                        <div className="flex-1 rounded-[6px] overflow-hidden bg-[#F3F4F6] border" style={{ borderColor: "#E5E7EB" }}>
+                            {img2 ? <img src={img2} className="w-full h-full object-cover" alt="Hotel 3" /> : null}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </Page>
     );
 };
 
-// 4. Property .pdf
-const PropertyDetailsSection: React.FC<{ hotel: HotelDetails, index: number, pricing: any }> = ({ hotel, index, pricing }) => {
-    const rows: any[] = [];
-    hotel.roomTypes.forEach(rt => {
-        const { subTotal, grandTotal } = calculatePriceBreakdown(rt.netPrice, pricing.markups.hotels, hotel.vatRule, pricing.vatPercent, 1, rt.numNights);
+// ==============================
+// 4) PROPERTY DETAILS (match Property.pdf)
+// ==============================
+const PropertyDetailsSection: React.FC<{
+    hotel: HotelDetails;
+    index: number;
+    pricing: any;
+}> = ({ hotel, index, pricing }) => {
+    const rows: Array<{
+        desc: string;
+        unit: number;
+        nights: number;
+        qty: number;
+        subTotal: number;
+        vat: number;
+        grand: number;
+    }> = [];
+
+    hotel.roomTypes?.forEach((rt) => {
+        const res = calculatePriceBreakdown(
+            rt.netPrice,
+            pricing.markups.hotels,
+            hotel.vatRule,
+            pricing.vatPercent,
+            rt.quantity,
+            rt.numNights
+        );
+
         rows.push({
             desc: `Accommodation: ${rt.name}`,
-            unit: rt.netPrice, // Using unit net price as shown in screenshot table
+            unit: rt.netPrice,
             nights: rt.numNights,
             qty: rt.quantity,
-            total: grandTotal * rt.quantity
-        });
-    });
-    hotel.meetingRooms.forEach(m => {
-        const { grandTotal } = calculatePriceBreakdown(m.price, pricing.markups.meetings, hotel.vatRule, pricing.vatPercent, m.quantity, m.days);
-        rows.push({
-            desc: `Meeting room: ${m.name}`,
-            unit: m.price,
-            nights: m.days,
-            qty: m.quantity,
-            total: grandTotal
-        });
-    });
-    hotel.dining.forEach(d => {
-        const { grandTotal } = calculatePriceBreakdown(d.price, pricing.markups.meetings, hotel.vatRule, pricing.vatPercent, d.quantity, d.days);
-        rows.push({
-            desc: `Dining: ${d.name}`,
-            unit: d.price,
-            nights: d.days,
-            qty: d.quantity,
-            total: grandTotal
+            subTotal: res.subTotal,
+            vat: res.vatAmount,
+            grand: res.grandTotal,
         });
     });
 
-    const finalTotal = rows.reduce((acc, row) => acc + row.total, 0);
+    const grandTotal = rows.reduce((acc, r) => acc + r.grand, 0);
 
     return (
-        <div className="w-full min-h-screen bg-white p-16 page-break flex flex-col">
-            <h2 className="text-3xl font-bold text-[#1D4486] mb-8">Property Details</h2>
-            <div className="w-full border-t-2 border-[#CBA135] pt-4 mb-4">
-                <p className="text-[#CBA135] text-xl font-bold">Grand Total - Option {index + 1}</p>
-            </div>
-            <div className="border border-gray-200 overflow-hidden">
-                <table className="w-full text-sm text-left">
-                    <thead className="bg-[#1D4486] text-white">
-                        <tr>
-                            <th className="p-4 uppercase text-[11px] tracking-wider border-r border-[#ffffff1a]">Service Description</th>
-                            <th className="p-4 uppercase text-[11px] tracking-wider border-r border-[#ffffff1a] text-center">Unit price</th>
-                            <th className="p-4 uppercase text-[11px] tracking-wider border-r border-[#ffffff1a] text-center">Nights</th>
-                            <th className="p-4 uppercase text-[11px] tracking-wider border-r border-[#ffffff1a] text-center">Quantity</th>
-                            <th className="p-4 uppercase text-[11px] tracking-wider text-right">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 text-gray-700">
-                        {rows.map((row, i) => (
-                            <tr key={i} className="bg-white">
-                                <td className="p-4 border-r border-gray-200">{row.desc}</td>
-                                <td className="p-4 border-r border-gray-200 text-center">{formatCurrency(row.unit, pricing.currency)}</td>
-                                <td className="p-4 border-r border-gray-200 text-center">{row.nights}</td>
-                                <td className="p-4 border-r border-gray-200 text-center">{row.qty}</td>
-                                <td className="p-4 text-right font-bold">{formatCurrency(row.total, pricing.currency)}</td>
+        <Page bg="#ffffff">
+            <SectionHeader title="Property Details" subtitle={`Grand Total - Option ${index + 1}`} />
+
+            <div className="px-[72px] pt-[18px]">
+                <div className="border rounded-[8px] overflow-hidden" style={{ borderColor: "#E5E7EB" }}>
+                    <table className="w-full text-[12px]">
+                        <thead style={{ background: COLORS.blue, color: "#fff" }}>
+                            <tr className="uppercase tracking-wider text-[11px]">
+                                <th className="p-4 text-left">Service Description</th>
+                                <th className="p-4 text-center">Unit price</th>
+                                <th className="p-4 text-center">Nights</th>
+                                <th className="p-4 text-center">Quantity</th>
+                                <th className="p-4 text-right">Subtotal</th>
                             </tr>
-                        ))}
-                        <tr className="bg-[#1D4486] text-white font-bold">
-                            <td colSpan={4} className="p-4 text-center uppercase tracking-widest text-xs">Final total</td>
-                            <td className="p-4 text-right">{formatCurrency(finalTotal, pricing.currency)}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-};
+                        </thead>
+                        <tbody className="divide-y" style={{ borderColor: "#E5E7EB" }}>
+                            {rows.map((r, i) => (
+                                <tr key={i}>
+                                    <td className="p-4">{r.desc}</td>
+                                    <td className="p-4 text-center">{formatCurrency(r.unit, pricing.currency)}</td>
+                                    <td className="p-4 text-center">{r.nights}</td>
+                                    <td className="p-4 text-center">{r.qty}</td>
+                                    <td className="p-4 text-right font-bold">{formatCurrency(r.grand, pricing.currency)}</td>
+                                </tr>
+                            ))}
 
-// 5. Flight Details.pdf
-const FlightSection: React.FC<{ flight: FlightDetails, index: number, pricing: any }> = ({ flight, index, pricing }) => {
-    const quotesBreakdown = flight.quotes.map(q => {
-        const { grandTotal } = calculatePriceBreakdown(q.price, pricing.markups.flights, flight.vatRule, pricing.vatPercent, q.quantity, 1);
-        return { ...q, grandTotal };
-    });
-    const totalFlight = quotesBreakdown.reduce((acc, curr) => acc + curr.grandTotal, 0);
-
-    return (
-        <div className="w-full min-h-screen bg-white p-16 page-break flex flex-col">
-            <h2 className="text-3xl font-bold text-[#1D4486] mb-8">Flight Itinerary</h2>
-            <div className="w-full border-t-2 border-[#CBA135] pt-4 mb-6">
-                <p className="text-[#CBA135] text-xl font-bold">Grand Total - Option {index + 1}</p>
-            </div>
-
-            {/* Route Box */}
-            <div className="p-8 border-l-4 border-[#CBA135] bg-gray-50 mb-8">
-                <h3 className="text-2xl font-bold text-gray-800 mb-6">{flight.routeDescription || "Flight Route"}</h3>
-                <div className="grid grid-cols-2 gap-12">
-                    <div>
-                        <h4 className="text-xs uppercase font-bold text-gray-400 mb-4 tracking-widest">Outbound</h4>
-                        {flight.outbound.map((leg, i) => <LegDisplay key={i} leg={leg} />)}
-                    </div>
-                    <div>
-                        <h4 className="text-xs uppercase font-bold text-gray-400 mb-4 tracking-widest">Return</h4>
-                        {flight.return.map((leg, i) => <LegDisplay key={i} leg={leg} />)}
-                    </div>
-                </div>
-
-                {/* Pricing Box inside route box */}
-                <div className="mt-12 bg-white p-6 border border-gray-200 rounded-lg">
-                    <h4 className="text-sm uppercase font-bold text-gray-400 mb-4 border-b border-gray-100 pb-2">Total Cost Estimate</h4>
-                    <div className="space-y-4">
-                        {quotesBreakdown.map((q, i) => (
-                            <div key={i} className="flex justify-between items-center text-sm">
-                                <span className="font-bold text-gray-600">{q.class} Class <span className="text-gray-400 font-normal">({q.quantity} Seats)</span></span>
-                                <span className="font-bold text-[#1D4486] text-lg">{formatCurrency(q.grandTotal, pricing.currency)}</span>
-                            </div>
-                        ))}
-                        <div className="pt-4 border-t-2 border-gray-100 flex justify-between items-center">
-                            <span className="text-lg font-bold">Total</span>
-                            <span className="text-2xl font-bold text-[#1D4486]">{formatCurrency(totalFlight, pricing.currency)}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-// 6. Transportation.pdf
-const TransportSection: React.FC<{ item: TransportationDetails, pricing: any, index: number }> = ({ item, pricing, index }) => {
-    const { grandTotal } = calculatePriceBreakdown(item.netPricePerDay, pricing.markups.transportation, item.vatRule, pricing.vatPercent, item.quantity, item.days);
-    return (
-        <div className="w-full min-h-screen bg-white p-16 page-break flex flex-col items-center justify-center">
-            <h2 className="text-3xl font-bold text-[#1D4486] self-start mb-12">Transportation</h2>
-            <div className="w-full flex-1 flex flex-col items-center justify-center">
-                <div className="border border-gray-100 p-8 mb-8 max-w-4xl w-full flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden min-h-[400px]">
-                    {item.image ? (
-                        <img src={item.image} className="max-h-[350px] object-contain" alt="Car" />
-                    ) : (
-                        <div className="text-gray-200 text-6xl font-black">CAR IMAGE</div>
-                    )}
-                </div>
-                <div className="text-center bg-gray-50 p-12 border border-gray-100 rounded-2xl w-full max-w-2xl transform shadow-lg">
-                    <h3 className="text-3xl font-bold text-gray-800 mb-2">{item.model}</h3>
-                    <p className="text-gray-500 mb-6 font-medium uppercase tracking-widest text-sm">{item.type} • {item.description}</p>
-                    <div className="text-5xl font-black text-[#1D4486] mb-2">{formatCurrency(grandTotal, pricing.currency)}</div>
-                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">{item.quantity} Vehicles • {item.days} Days</p>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-// 7 & 8 Investment Summaries (Accommodation / Flight)
-const InvestmentSummarySection: React.FC<{ title: string, subtitle: string, rows: any[], pricing: any }> = ({ title, subtitle, rows, pricing }) => {
-    const finalTotal = rows.reduce((acc, row) => acc + (row.total || 0), 0);
-    return (
-        <div className="w-full min-h-screen bg-white p-16 page-break flex flex-col">
-            <h2 className="text-4xl font-bold text-[#1D4486] mb-8">{title}</h2>
-            <div className="w-full border-t-2 border-[#CBA135] pt-4 mb-8">
-                <p className="text-[#CBA135] text-xl font-bold uppercase tracking-tight">{subtitle}</p>
-            </div>
-            <div className="border border-gray-200">
-                <table className="w-full text-sm text-left">
-                    <thead className="bg-[#1D4486] text-white">
-                        <tr>
-                            <th className="p-4 uppercase text-[10px] font-bold tracking-widest border-r border-[#ffffff1a]">Service Description</th>
-                            <th className="p-4 uppercase text-[10px] font-bold tracking-widest border-r border-[#ffffff1a] text-center">Unit Price</th>
-                            <th className="p-4 uppercase text-[10px] font-bold tracking-widest border-r border-[#ffffff1a] text-center">Nights/Days</th>
-                            <th className="p-4 uppercase text-[10px] font-bold tracking-widest border-r border-[#ffffff1a] text-center">Quantity</th>
-                            <th className="p-4 uppercase text-[10px] font-bold tracking-widest text-right">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {rows.map((row, i) => (
-                            <tr key={i} className="bg-white">
-                                <td className="p-4 text-gray-700 font-medium">{row.name}</td>
-                                <td className="p-4 text-center text-gray-500">{formatCurrency(row.price, pricing.currency)}</td>
-                                <td className="p-4 text-center text-gray-500">{row.nights}</td>
-                                <td className="p-4 text-center text-gray-500">{row.qty}</td>
-                                <td className="p-4 text-right font-bold text-gray-800">{formatCurrency(row.total, pricing.currency)}</td>
+                            <tr style={{ background: COLORS.blue, color: "#fff" }}>
+                                <td colSpan={4} className="p-4 text-center font-extrabold uppercase tracking-widest">
+                                    Final total
+                                </td>
+                                <td className="p-4 text-right font-extrabold">{formatCurrency(grandTotal, pricing.currency)}</td>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            <div className="mt-8 self-end w-1/3 p-8 bg-gray-50 border border-gray-200 rounded-xl shadow-inner">
-                <div className="flex justify-between items-center text-sm text-gray-500 mb-2 font-bold uppercase tracking-widest">
-                    <span>Sub Total</span>
-                    <span>{formatCurrency(finalTotal * 0.85, pricing.currency)}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm text-gray-500 mb-4 font-bold uppercase tracking-widest">
-                    <span>VAT (15%)</span>
-                    <span>{formatCurrency(finalTotal * 0.15, pricing.currency)}</span>
-                </div>
-                <div className="h-px bg-gray-300 mb-4"></div>
-                <div className="flex justify-between items-center">
-                    <span className="text-sm font-bold uppercase tracking-widest text-gray-400">Grand Total</span>
-                    <span className="text-3xl font-black text-[#1D4486]">{formatCurrency(finalTotal, pricing.currency)}</span>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
+        </Page>
     );
 };
 
-// 9. Thank you!.pdf
-const ThankYouSection: React.FC<{ data: ProposalData }> = ({ data }) => (
-    <div className="w-full min-h-screen bg-[#1D4486] flex flex-col items-center justify-center text-center p-20 page-break relative overflow-hidden text-white">
-        {/* Diagonal Stripe Background Pattern */}
-        <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 20px, white 20px, white 40px)`
-        }}></div>
+// ==============================
+// 5) FLIGHT DETAILS (match Flight Details.pdf)
+// ==============================
+const FlightLegCard: React.FC<{
+    label: string;
+    leg: FlightLeg;
+}> = ({ label, leg }) => (
+    <div className="break-inside-avoid">
+        <div className="text-[10px] font-extrabold uppercase tracking-widest" style={{ color: COLORS.muted }}>
+            {label}
+        </div>
 
-        <div className="relative z-10">
-            <h1 className="text-8xl font-black mb-12 transform -rotate-1">Thank You</h1>
-            <p className="text-2xl font-light text-blue-100 max-w-4xl mx-auto leading-relaxed mb-16 opacity-80">
-                We appreciate the opportunity to propose these services for you. We look forward to creating an unforgettable experience.
-            </p>
-            <div className="w-48 h-2 bg-[#CBA135] mx-auto mb-16 rounded-full shadow-lg shadow-gold/20"></div>
+        <div className="mt-4 flex items-center justify-between">
+            <div className="text-[14px] font-extrabold" style={{ color: COLORS.blue }}>
+                {safe(leg.airline)}{" "}
+                <span className="font-semibold" style={{ color: COLORS.muted }}>
+                    ({safe(leg.flightNumber)})
+                </span>
+            </div>
+            <div className="text-[11px]" style={{ color: COLORS.muted }}>
+                {safe(leg.duration)}
+            </div>
+        </div>
 
-            <div className="p-8 border border-white/20 inline-block bg-white/5 backdrop-blur-sm rounded-2xl shadow-2xl">
-                <p className="text-3xl font-bold text-white mb-2">{data.branding.contactName || "Sales Representative"}</p>
-                <p className="text-xl text-blue-200 font-medium mb-6">{data.branding.contactEmail || "ZAIDSIDDIQ9@GMAIL.COM"}</p>
-                <p className="text-sm tracking-widest uppercase opacity-40 font-bold">www.sitc.com.sa</p>
+        <div className="mt-4 grid grid-cols-2 gap-8">
+            <div>
+                <div className="text-[28px] font-black" style={{ color: COLORS.ink }}>
+                    {safe(leg.from)}
+                </div>
+                <div className="mt-1 text-[12px] font-semibold" style={{ color: COLORS.muted }}>
+                    {safe(leg.departureDate)} @ {safe(leg.departureTime)}
+                </div>
+            </div>
+
+            <div className="text-right">
+                <div className="text-[28px] font-black" style={{ color: COLORS.ink }}>
+                    {safe(leg.to)}
+                </div>
+                <div className="mt-1 text-[12px] font-semibold" style={{ color: COLORS.muted }}>
+                    {safe(leg.arrivalDate)} @ {safe(leg.arrivalTime)}
+                </div>
             </div>
         </div>
     </div>
 );
 
-// --- Main Document ---
+const FlightSection: React.FC<{ flight: FlightDetails; index: number; pricing: any }> = ({
+    flight,
+    index,
+    pricing,
+}) => {
+    const routeTitle =
+        flight?.outbound?.[0]?.from && flight?.outbound?.[flight.outbound.length - 1]?.to
+            ? `${flight.outbound[0].from} to ${flight.outbound[flight.outbound.length - 1].to}`
+            : "Flight Itinerary";
 
-export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
+    const quotes = flight.quotes || [];
+
+    const totals = quotes.reduce(
+        (acc, q) => {
+            const res = calculatePriceBreakdown(
+                q.price,
+                pricing.markups.flights,
+                flight.vatRule,
+                pricing.vatPercent,
+                q.quantity,
+                1
+            );
+            acc.sub += res.subTotal;
+            acc.vat += res.vatAmount;
+            acc.grand += res.grandTotal;
+            return acc;
+        },
+        { sub: 0, vat: 0, grand: 0 }
+    );
+
     return (
-        <div className="print-container font-sans text-gray-900 bg-white shadow-2xl">
-            {/* 1. Opening */}
-            <OpeningSection data={data} />
+        <Page bg="#ffffff">
+            <SectionHeader title="Flight Itinerary" subtitle={`Grand Total - Option ${index + 1}`} />
 
-            {/* 2. Terms & Conditions */}
-            <TermsSection />
+            <div className="px-[72px] pt-[18px]">
+                <SoftCard className="p-0 overflow-hidden">
+                    <div className="flex">
+                        {/* left gold bar */}
+                        <div style={{ width: 5, background: COLORS.gold }} />
+                        <div className="flex-1 px-10 py-10">
+                            <div className="text-[26px] font-black" style={{ color: COLORS.ink }}>
+                                {routeTitle}
+                            </div>
 
-            {/* 3 & 4. Accommodations (Loop) */}
-            {data.inclusions.hotels && data.hotelOptions.map((h, i) => (
-                <React.Fragment key={`hotel-${i}`}>
-                    <HotelPictureSection hotel={h} />
-                    <PropertyDetailsSection hotel={h} index={i} pricing={data.pricing} />
-                </React.Fragment>
-            ))}
-
-            {/* 5. Flight Details (Loop) */}
-            {data.inclusions.flights && data.flightOptions.map((f, i) => (
-                <FlightSection key={`flight-${i}`} flight={f} index={i} pricing={data.pricing} />
-            ))}
-
-            {/* 6. Transportation (Loop) */}
-            {data.inclusions.transportation && data.transportation.map((t, i) => (
-                <TransportSection key={`transport-${i}`} item={t} pricing={data.pricing} index={i} />
-            ))}
-
-            {/* 10. Additional Services / Custom Items */}
-            {data.inclusions.customItems && data.customItems.length > 0 && (
-                <div className="w-full min-h-screen bg-white p-16 page-break flex flex-col">
-                    <h2 className="text-3xl font-bold text-[#1D4486] mb-12">Additional Services</h2>
-                    <div className="border border-gray-200 p-8 rounded-xl bg-gray-50 space-y-8">
-                        {data.customItems.map((item, i) => {
-                            const { grandTotal } = calculatePriceBreakdown(item.unitPrice, data.pricing.markups.customItems, item.vatRule, data.pricing.vatPercent, item.quantity, item.days);
-                            return (
-                                <div key={i} className="flex justify-between items-center pb-8 border-b border-gray-200 last:border-0 last:pb-0">
-                                    <div className="flex-1">
-                                        <h3 className="text-2xl font-bold text-gray-800">{item.description}</h3>
-                                        <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-1">{item.days} Days • {item.quantity} Units</p>
-                                    </div>
-                                    <div className="text-4xl font-black text-[#1D4486]">{formatCurrency(grandTotal, data.pricing.currency)}</div>
+                            <div className="mt-10 grid grid-cols-2 gap-14">
+                                <div>
+                                    {flight.outbound?.map((leg, i) => (
+                                        <div key={i} className={i ? "mt-10" : ""}>
+                                            <FlightLegCard label="OUTBOUND" leg={leg} />
+                                        </div>
+                                    ))}
                                 </div>
-                            );
-                        })}
+
+                                <div>
+                                    {flight.return?.map((leg, i) => (
+                                        <div key={i} className={i ? "mt-10" : ""}>
+                                            <FlightLegCard label="RETURN" leg={leg} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Total cost estimate box */}
+                            <div className="mt-12" style={{ maxWidth: 520 }}>
+                                <SoftCard className="px-8 py-6">
+                                    <div className="text-[11px] font-extrabold uppercase tracking-widest" style={{ color: COLORS.muted }}>
+                                        Total Cost Estimate
+                                    </div>
+
+                                    <div className="mt-5 space-y-3">
+                                        {quotes.map((q, i) => (
+                                            <div key={i} className="flex justify-between items-center">
+                                                <div className="text-[13px] font-semibold" style={{ color: COLORS.muted }}>
+                                                    {q.class} <span className="font-normal">({q.quantity} Seats)</span>
+                                                </div>
+                                                <div className="text-[14px] font-extrabold" style={{ color: COLORS.blue }}>
+                                                    {formatCurrency(q.price * q.quantity, pricing.currency)}
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                        <div className="pt-3 mt-3 border-t" style={{ borderColor: "#E5E7EB" }}>
+                                            <div className="flex justify-between items-center">
+                                                <div className="text-[14px] font-extrabold" style={{ color: COLORS.ink }}>
+                                                    Total
+                                                </div>
+                                                <div className="text-[22px] font-black" style={{ color: COLORS.blue }}>
+                                                    {formatCurrency(totals.grand, pricing.currency)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </SoftCard>
+                            </div>
+                        </div>
+                    </div>
+                </SoftCard>
+            </div>
+        </Page>
+    );
+};
+
+// ==============================
+// 6) INVESTMENT SUMMARY (match Investment Summary PDFs)
+// ==============================
+const InvestmentSummary: React.FC<{
+    title: string;
+    subtitle: string;
+    rows: Array<{ name: string; price: number; nights: number; qty: number; subTotal: number; vat: number; grand: number }>;
+    pricing: any;
+}> = ({ title, subtitle, rows, pricing }) => {
+    const totals = rows.reduce(
+        (acc, r) => {
+            acc.sub += r.subTotal;
+            acc.vat += r.vat;
+            acc.grand += r.grand;
+            return acc;
+        },
+        { sub: 0, vat: 0, grand: 0 }
+    );
+
+    return (
+        <Page bg="#ffffff">
+            <SectionHeader title={title} subtitle={subtitle} />
+
+            <div className="px-[72px] pt-[18px]">
+                <div className="border rounded-[8px] overflow-hidden" style={{ borderColor: "#E5E7EB" }}>
+                    <table className="w-full text-[12px]">
+                        <thead style={{ background: COLORS.blue, color: "#fff" }}>
+                            <tr className="uppercase tracking-wider text-[11px]">
+                                <th className="p-4 text-left">Service Description</th>
+                                <th className="p-4 text-center">Unit Price</th>
+                                <th className="p-4 text-center">Nights/Days</th>
+                                <th className="p-4 text-center">Quantity</th>
+                                <th className="p-4 text-right">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y" style={{ borderColor: "#E5E7EB" }}>
+                            {rows.map((r, i) => (
+                                <tr key={i}>
+                                    <td className="p-4 font-semibold" style={{ color: COLORS.ink }}>{r.name}</td>
+                                    <td className="p-4 text-center" style={{ color: COLORS.muted }}>
+                                        {formatCurrency(r.price, pricing.currency)}
+                                    </td>
+                                    <td className="p-4 text-center" style={{ color: COLORS.muted }}>{r.nights}</td>
+                                    <td className="p-4 text-center" style={{ color: COLORS.muted }}>{r.qty}</td>
+                                    <td className="p-4 text-right font-extrabold" style={{ color: COLORS.ink }}>
+                                        {formatCurrency(r.grand, pricing.currency)}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Totals box bottom-right */}
+                <div className="mt-10 flex justify-end">
+                    <SoftCard className="px-8 py-7" >
+                        <div className="space-y-2 text-[12px]" style={{ minWidth: 320 }}>
+                            <div className="flex justify-between" style={{ color: COLORS.muted }}>
+                                <span className="font-semibold">Sub Total</span>
+                                <span className="font-semibold">{formatCurrency(totals.sub, pricing.currency)}</span>
+                            </div>
+                            <div className="flex justify-between" style={{ color: COLORS.muted }}>
+                                <span className="font-semibold">VAT ({pricing.vatPercent}%)</span>
+                                <span className="font-semibold">{formatCurrency(totals.vat, pricing.currency)}</span>
+                            </div>
+
+                            <div className="mt-4 pt-4 border-t" style={{ borderColor: "#E5E7EB" }}>
+                                <div className="flex items-end justify-between">
+                                    <div className="text-[18px] font-black" style={{ color: COLORS.blue }}>
+                                        Grand Total
+                                    </div>
+                                    <div className="text-[26px] font-black" style={{ color: COLORS.blue }}>
+                                        {formatCurrency(totals.grand, pricing.currency)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </SoftCard>
+                </div>
+            </div>
+        </Page>
+    );
+};
+
+// ==============================
+// 8) TRANSPORTATION (match Transportation.pdf)
+// ==============================
+const TransportationSection: React.FC<{ t: any; pricing: any }> = ({ t, pricing }) => {
+    const res = calculatePriceBreakdown(
+        t.netPricePerDay,
+        pricing.markups.transportation,
+        t.vatRule,
+        pricing.vatPercent,
+        t.quantity,
+        t.days
+    );
+
+    return (
+        <Page bg="#ffffff">
+            <SectionHeader title="Transportation" />
+
+            <div className="px-[72px] pt-[40px] flex flex-col items-center">
+                <div className="mt-2">
+                    {t.image ? (
+                        <img
+                            src={t.image}
+                            alt="Vehicle"
+                            style={{ width: 520, height: 320, objectFit: "contain" }}
+                        />
+                    ) : (
+                        <div className="w-[520px] h-[320px] bg-gray-100 flex items-center justify-center text-gray-300 italic">No Image Available</div>
+                    )}
+                </div>
+
+                <div className="mt-10 text-center">
+                    <div className="text-[22px] font-black" style={{ color: COLORS.ink }}>
+                        {safe(t.model)}
+                    </div>
+                    <div className="mt-2 text-[12px] font-semibold" style={{ color: COLORS.muted }}>
+                        {safe(t.type)} {t.type?.includes("with Driver") ? "(Car with Driver)" : ""}
                     </div>
                 </div>
-            )}
 
-            {/* 7. Investment Summary - Accommodation (Loop) */}
-            {data.inclusions.hotels && data.hotelOptions.map((h, i) => {
-                const rows: any[] = [];
-                h.roomTypes.forEach(r => {
-                    const res = calculatePriceBreakdown(r.netPrice, data.pricing.markups.hotels, h.vatRule, data.pricing.vatPercent, r.quantity, r.numNights);
-                    rows.push({ name: `Accommodation: ${h.name} - ${r.name}`, price: res.grandTotal / r.quantity, nights: r.numNights, qty: r.quantity, total: res.grandTotal });
-                });
-                h.meetingRooms.forEach(m => {
-                    const res = calculatePriceBreakdown(m.price, data.pricing.markups.meetings, h.vatRule, data.pricing.vatPercent, m.quantity, m.days);
-                    rows.push({ name: `Event: ${m.name}`, price: res.grandTotal / m.quantity, nights: m.days, qty: m.quantity, total: res.grandTotal });
-                });
-                h.dining.forEach(d => {
-                    const res = calculatePriceBreakdown(d.price, data.pricing.markups.meetings, h.vatRule, data.pricing.vatPercent, d.quantity, d.days);
-                    rows.push({ name: `Dining: ${d.name}`, price: res.grandTotal / d.quantity, nights: d.days, qty: d.quantity, total: res.grandTotal });
-                });
-                return <InvestmentSummarySection key={`inv-h-${i}`} title="Investment Summary" subtitle={`Accommodation Option ${i + 1}`} rows={rows} pricing={data.pricing} />;
-            })}
+                <div className="mt-12 w-full flex justify-center">
+                    <SoftCard className="px-10 py-8" >
+                        <div className="text-center">
+                            <div className="text-[34px] font-black" style={{ color: COLORS.blue }}>
+                                {formatCurrency(res.grandTotal, pricing.currency)}
+                            </div>
+                            <div className="mt-2 text-[12px] font-semibold" style={{ color: COLORS.muted }}>
+                                {t.quantity} Vehicle(s) × {t.days} Day(s)
+                            </div>
+                        </div>
+                    </SoftCard>
+                </div>
+            </div>
+        </Page>
+    );
+};
 
-            {/* 8. Investment Summary - Flight (Loop) */}
-            {data.inclusions.flights && data.flightOptions.map((f, i) => {
-                const rows: any[] = f.quotes.map(q => {
-                    const res = calculatePriceBreakdown(q.price, data.pricing.markups.flights, f.vatRule, data.pricing.vatPercent, q.quantity, 1);
-                    return { name: `${f.routeDescription} - ${q.class} Class`, price: res.grandTotal / q.quantity, nights: 1, qty: q.quantity, total: res.grandTotal };
-                });
-                return <InvestmentSummarySection key={`inv-f-${i}`} title="Investment Summary" subtitle={`Flight - Option ${i + 1}`} rows={rows} pricing={data.pricing} />;
-            })}
+// ==============================
+// 9) THANK YOU (match Thank you!.pdf)
+// ==============================
+const ThankYouSection: React.FC<{ data: ProposalData }> = ({ data }) => (
+    <Page bg={COLORS.blue}>
+        <div
+            className="absolute inset-0 opacity-[0.14]"
+            style={{
+                backgroundImage:
+                    "repeating-linear-gradient(45deg, rgba(255,255,255,0.00), rgba(255,255,255,0.00) 18px, rgba(255,255,255,0.18) 18px, rgba(255,255,255,0.18) 36px)",
+            }}
+        />
 
-            {/* 9. Thank You */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+            <div className="text-[86px] font-black tracking-tight">Thank You</div>
+
+            <div className="mt-6 text-[14px] text-white/70 max-w-[520px] text-center leading-relaxed">
+                We appreciate the opportunity to propose these services for you. We look forward to
+                creating an unforgettable experience.
+            </div>
+
+            <div className="mt-10" style={{ width: 72, height: 4, background: COLORS.gold, borderRadius: 999 }} />
+
+            <div className="mt-14 rounded-[18px] border border-white/20 bg-white/5 backdrop-blur-sm px-12 py-10 text-center">
+                <div className="text-[22px] font-black">{safe(data.branding?.contactName || data.createdBy || "SITC")}</div>
+                <div className="mt-2 text-[14px] text-white/70">{safe(data.branding?.contactEmail)}</div>
+                <div className="mt-6 text-[12px] tracking-widest uppercase text-white/40">www.sitc.com.sa</div>
+            </div>
+        </div>
+    </Page>
+);
+
+// ==============================
+// MAIN WRAPPER
+// ==============================
+export const ProposalPDF: React.FC<{ data: ProposalData }> = ({ data }) => {
+    return (
+        <div className="font-sans text-gray-900 bg-white">
+            <style>{`
+        @media print {
+          .page-break { page-break-after: always; }
+        }
+      `}</style>
+
+            <OpeningSection data={data} />
+            <TermsSection />
+
+            {/* HOTELS */}
+            {data.inclusions?.hotels &&
+                data.hotelOptions?.map((h, i) => {
+                    const rows = (h.roomTypes || []).map((r) => {
+                        const res = calculatePriceBreakdown(
+                            r.netPrice,
+                            data.pricing.markups.hotels,
+                            h.vatRule,
+                            data.pricing.vatPercent,
+                            r.quantity,
+                            r.numNights
+                        );
+                        return {
+                            name: `${h.name} - ${r.name}`,
+                            price: r.netPrice,
+                            nights: r.numNights,
+                            qty: r.quantity,
+                            subTotal: res.subTotal,
+                            vat: res.vatAmount,
+                            grand: res.grandTotal,
+                        };
+                    });
+
+                    return (
+                        <React.Fragment key={i}>
+                            <HotelPictureSection hotel={h} />
+                            <PropertyDetailsSection hotel={h} index={i} pricing={data.pricing} />
+                            <InvestmentSummary
+                                title="Investment Summary"
+                                subtitle={`Accommodation Option ${i + 1}`}
+                                pricing={data.pricing}
+                                rows={rows}
+                            />
+                        </React.Fragment>
+                    );
+                })}
+
+            {/* FLIGHTS */}
+            {data.inclusions?.flights &&
+                data.flightOptions?.map((f, i) => {
+                    const rows = (f.quotes || []).map((q) => {
+                        const res = calculatePriceBreakdown(
+                            q.price,
+                            data.pricing.markups.flights,
+                            f.vatRule,
+                            data.pricing.vatPercent,
+                            q.quantity,
+                            1
+                        );
+                        const route = f.routeDescription || "Flight";
+
+                        return {
+                            name: `${route} - ${q.class}`,
+                            price: q.price,
+                            nights: 1,
+                            qty: q.quantity,
+                            subTotal: res.subTotal,
+                            vat: res.vatAmount,
+                            grand: res.grandTotal,
+                        };
+                    });
+
+                    return (
+                        <React.Fragment key={i}>
+                            <FlightSection flight={f} index={i} pricing={data.pricing} />
+                            <InvestmentSummary
+                                title="Investment Summary"
+                                subtitle={`Flight - Option ${i + 1}`}
+                                pricing={data.pricing}
+                                rows={rows}
+                            />
+                        </React.Fragment>
+                    );
+                })}
+
+            {/* TRANSPORTATION */}
+            {data.transportation?.map((t, i) => (
+                <TransportationSection key={i} t={t} pricing={data.pricing} />
+            ))}
+
             <ThankYouSection data={data} />
         </div>
     );
